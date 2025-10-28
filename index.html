@@ -565,7 +565,56 @@ font-size: 14px;
   opacity: 0.6;
 }
 </style>
-</head>
+<style>
+#navbar {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    height: 100vh;
+    position: fixed;
+    transition: width 0.3s ease;
+    overflow: hidden;
+}
+#navbar.minimized {
+    width: 60px;
+}
+#minimize-btn {
+    background-color: #222;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+#main-content {
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+}
+#navbar.minimized + #main-content {
+    margin-left: 60px;
+}
+#top-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 10px;
+}
+#profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ccc;
+    cursor: pointer;
+}
+#logout-btn {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+</style></head>
 <body id="app-body">
 <div class="header">
 <div class="flex items-center">
@@ -573,13 +622,8 @@ font-size: 14px;
 <span class="user-id-display" id="userIdDisplay">Local Theme Storage Active</span>
 </div>
 <div class="flex items-center space-x-2">
-<img id="header-profile-picture" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous" alt="Profile" 
-     style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; object-fit: cover; border: 2px solid var(--accent-blue);"
-     title="View My Posts">
-<a id="header-signin-button" href="auth.html" 
-   style="display: none; background-color: var(--accent-blue); color: var(--primary-bg); font-weight: bold; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-size: 14px; transition: all 0.3s;"
-   onmouseover="this.style.backgroundColor='var(--accent-green)'; this.style.transform='translateY(-2px)';" 
-   onmouseout="this.style.backgroundColor='var(--accent-blue)'; this.style.transform='none';">
+<img alt="Profile" id="header-profile-picture" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; object-fit: cover; border: 2px solid var(--accent-blue);" title="View My Posts"/>
+<a href="auth41.html" id="header-signin-button" onmouseout="this.style.backgroundColor='var(--accent-blue)'; this.style.transform='none';" onmouseover="this.style.backgroundColor='var(--accent-green)'; this.style.transform='translateY(-2px)';" style="display: none; background-color: var(--accent-blue); color: var(--primary-bg); font-weight: bold; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-size: 14px; transition: all 0.3s;">
    SIGN IN
 </a>
 </div>
@@ -813,28 +857,23 @@ We may terminate or suspend access to our platform immediately, without prior no
 <h1>Account Settings</h1>
 <form class="settings-form" id="account-form">
 <label for="username">Username</label>
-<input id="username" placeholder="New Username" type="text">
+<input id="username" placeholder="New Username" type="text"/>
 <label for="password">Password</label>
-<input id="password" placeholder="New Password" type="password">
-
+<input id="password" placeholder="New Password" type="password"/>
 <label style="margin-top: 20px;">Profile Picture</label>
-<div id="current-avatar-section" class="flex flex-col items-center mb-2">
-    <img id="current-avatar" class="avatar-preview faded" src="" alt="Current Avatar" style="display:none;"/>
-    <p id="no-avatar-text" class="text-gray-400 text-sm" style="color: var(--text-color); opacity: 0.7;">No profile picture set</p>
+<div class="flex flex-col items-center mb-2" id="current-avatar-section">
+<img alt="Current Avatar" class="avatar-preview faded" id="current-avatar" src="" style="display:none;"/>
+<p class="text-gray-400 text-sm" id="no-avatar-text" style="color: var(--text-color); opacity: 0.7;">No profile picture set</p>
 </div>
-
-<input id="fileInput" type="file" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" style="color: var(--text-color);">
-
-<div id="cropper-wrapper" class="cropper-container mt-3 mb-2" style="display:none; margin: 20px auto;">
-    <img id="cropper-image" alt="Crop Preview" style="max-width:100%;display:block;" />
+<input accept="image/*" class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" id="fileInput" style="color: var(--text-color);" type="file"/>
+<div class="cropper-container mt-3 mb-2" id="cropper-wrapper" style="display:none; margin: 20px auto;">
+<img alt="Crop Preview" id="cropper-image" style="max-width:100%;display:block;"/>
 </div>
-
-<button type="button" id="uploadBtn" class="bg-blue-600 text-white px-8 py-2 rounded-full font-semibold transition hover:bg-blue-700 disabled:opacity-60 mb-1 w-full" style="margin-top: 15px; background-color: var(--accent-blue); color: var(--primary-bg); font-weight: bold; padding: 10px; border-radius: 10px; cursor: pointer;" disabled>Save / Upload Picture</button>
-
-<p id="status" class="text-center text-sm mt-2 h-5" style="color: var(--text-color); height: 1.25rem;"></p>
+<button class="bg-blue-600 text-white px-8 py-2 rounded-full font-semibold transition hover:bg-blue-700 disabled:opacity-60 mb-1 w-full" disabled="" id="uploadBtn" style="margin-top: 15px; background-color: var(--accent-blue); color: var(--primary-bg); font-weight: bold; padding: 10px; border-radius: 10px; cursor: pointer;" type="button">Save / Upload Picture</button>
+<p class="text-center text-sm mt-2 h-5" id="status" style="color: var(--text-color); height: 1.25rem;"></p>
 <div class="confirmation-message" id="confirmation-message" style="display: none;"></div>
-<input id="save-changes" type="submit" value="Save Username/Password" class="save-settings-button" style="background: var(--accent-green); margin-top: 10px;">
-</input></input></form>
+<input class="save-settings-button" id="save-changes" style="background: var(--accent-green); margin-top: 10px;" type="submit" value="Save Username/Password"/>
+</form>
 </div>
 </div>
 <div class="modal-overlay" id="display-modal">
@@ -858,8 +897,8 @@ We may terminate or suspend access to our platform immediately, without prior no
 </div>
 <div style="flex: 1 1 200px;">
 <label for="bg-upload">Upload Background Image:</label>
-<input accept="image/*" id="bg-upload" type="file">
-</input></div>
+<input accept="image/*" id="bg-upload" type="file"/>
+</div>
 <div style="flex: 1 1 200px;">
 <button id="reset-display-settings" style="width: 100%; padding: 10px; font-size: 1rem; margin-top: 5px; cursor: pointer; background: var(--accent-red); color: var(--primary-bg); border: none; border-radius: 5px;">Reset Settings</button>
 </div>
@@ -920,41 +959,38 @@ We may terminate or suspend access to our platform immediately, without prior no
 </div>
 </div>
 </div>
-
 <div class="modal-overlay" id="my-posts-modal">
-    <div class="modal-content">
-        <button class="close-button" id="close-my-posts-modal-button">×</button>
-        <h1>My Posts</h1>
-
-        <details style="margin-bottom: 20px; background: var(--card-bg-subtle); border-radius: 10px; border: 1px solid var(--border-color);">
-            <summary style="padding: 10px 15px; cursor: pointer; font-weight: bold; color: var(--accent-yellow);">
+<div class="modal-content">
+<button class="close-button" id="close-my-posts-modal-button">×</button>
+<h1>My Posts</h1>
+<details style="margin-bottom: 20px; background: var(--card-bg-subtle); border-radius: 10px; border: 1px solid var(--border-color);">
+<summary style="padding: 10px 15px; cursor: pointer; font-weight: bold; color: var(--accent-yellow);">
                 Customize Appearance
             </summary>
-            <form class="settings-form" id="my-posts-display-form" style="padding: 0 15px 15px 15px;">
-                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                    <div style="flex: 1 1 150px;">
-                        <label for="my-posts-bg-color">Background Color:</label>
-                        <input type="color" id="my-posts-bg-color" value="#2b2d42" style="width: 100%; height: 40px; padding: 5px;">
-                    </div>
-                    <div style="flex: 1 1 150px;">
-                        <label for="my-posts-font-color">Font Color:</label>
-                        <input type="color" id="my-posts-font-color" value="#f8f9fa" style="width: 100%; height: 40px; padding: 5px;">
-                    </div>
-                </div>
-                <div style="margin-top: 15px;">
-                    <label for="my-posts-bg-image">Upload Background Image:</label>
-                    <input type="file" id="my-posts-bg-image" accept="image/*" style="width: 100%;">
-                </div>
-                <button type="button" id="my-posts-reset-display" class="save-settings-button" style="background: var(--accent-red); box-shadow: 0 4px 8px rgba(239, 71, 111, 0.4); margin-top: 20px;">Reset Appearance</button>
-                <div class="p-3 mt-4 text-center rounded-lg font-medium hidden" id="my-posts-display-message" style="background-color: var(--primary-bg); color: var(--text-color);"></div>
-            </form>
-        </details>
-        <div id="my-posts-content" style="max-height: 50vh; overflow-y: auto; padding-top: 15px; border-top: 1px solid var(--border-color);">
-            <p>Loading your posts...</p>
-        </div>
-    </div>
+<form class="settings-form" id="my-posts-display-form" style="padding: 0 15px 15px 15px;">
+<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+<div style="flex: 1 1 150px;">
+<label for="my-posts-bg-color">Background Color:</label>
+<input id="my-posts-bg-color" style="width: 100%; height: 40px; padding: 5px;" type="color" value="#2b2d42"/>
 </div>
-
+<div style="flex: 1 1 150px;">
+<label for="my-posts-font-color">Font Color:</label>
+<input id="my-posts-font-color" style="width: 100%; height: 40px; padding: 5px;" type="color" value="#f8f9fa"/>
+</div>
+</div>
+<div style="margin-top: 15px;">
+<label for="my-posts-bg-image">Upload Background Image:</label>
+<input accept="image/*" id="my-posts-bg-image" style="width: 100%;" type="file"/>
+</div>
+<button class="save-settings-button" id="my-posts-reset-display" style="background: var(--accent-red); box-shadow: 0 4px 8px rgba(239, 71, 111, 0.4); margin-top: 20px;" type="button">Reset Appearance</button>
+<div class="p-3 mt-4 text-center rounded-lg font-medium hidden" id="my-posts-display-message" style="background-color: var(--primary-bg); color: var(--text-color);"></div>
+</form>
+</details>
+<div id="my-posts-content" style="max-height: 50vh; overflow-y: auto; padding-top: 15px; border-top: 1px solid var(--border-color);">
+<p>Loading your posts...</p>
+</div>
+</div>
+</div>
 <div id="in-app-notification">
 <h4><span>🔔</span> Reminder Fired</h4>
 <p id="notification-message">Your reminder message goes here.</p>
@@ -2844,6 +2880,28 @@ if (myPostsBgImageInput) myPostsBgImageInput.addEventListener('change', async (e
 
 });
 </script>
-</body>
-</html>
+<script>
+let isSignedIn = false;
 
+function handleProfileClick() {
+    if (!isSignedIn) {
+        alert("Redirecting to sign-in page...");
+        // Redirect logic here
+    } else {
+        alert("Opening profile...");
+        // Profile logic here
+    }
+}
+
+function logout() {
+    isSignedIn = false;
+    alert("You have been logged out.");
+    // Additional logout logic here
+}
+
+document.getElementById("minimize-btn").addEventListener("click", function() {
+    const navbar = document.getElementById("navbar");
+    navbar.classList.toggle("minimized");
+});
+</script></body>
+</html>
