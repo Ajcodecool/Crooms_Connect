@@ -15,6 +15,8 @@
         :root {
             --primary-bg: #1a1b2f;
             --content-bg: #2b2d42;
+            /* --content-bg-alpha for transparency settings */
+            --content-bg-alpha: 0.85; 
             --text-color: #f8f9fa;
             --accent-blue: #4cc9f0;
             --accent-green: #80ed99;
@@ -49,7 +51,13 @@
             height: 80vh;
             position: relative;
             transition: all 0.3s;
-            overflow: hidden; /* Added to contain profile view */
+            overflow: hidden;
+            /* --- MODIFICATION: Added resizability --- */
+            resize: both;
+            overflow: auto;
+            min-width: 400px;
+            min-height: 500px;
+            /* --- END MODIFICATION --- */
         }
         .chat-header {
             padding: 16px;
@@ -99,6 +107,7 @@
             align-items: center;
             gap: 8px;
             flex-shrink: 0;
+            position: relative; /* For mention suggestions */
         }
         #chat-input-editor {
             flex: 1;
@@ -184,6 +193,10 @@
             margin-top: 10px;
             cursor: zoom-in; /* Indicates image is clickable */
         }
+        /* --- MODIFICATION: Hide images setting --- */
+        body.settings-hide-images .message-content img {
+            display: none;
+        }
         .message.self .message-content {
             background-color: var(--message-bg-sent);
             color: var(--message-text-sent);
@@ -231,6 +244,9 @@
         .mention {
             color: var(--accent-blue);
             font-weight: bold;
+            background-color: rgba(var(--accent-blue-rgb, 76, 201, 240), 0.15);
+            padding: 1px 3px;
+            border-radius: 4px;
         }
         .verified-badge {
             font-size: 0.9em;
@@ -280,16 +296,23 @@
         }
 
         .message-content a { color: var(--accent-blue); text-decoration: underline; }
+        /* --- MODIFICATION: Improved list styles --- */
         .message-content ul, .message-content ol {
             padding-inline-start: 25px;
             margin-block: 0.5em;
+            max-width: 100%;
         }
         .message-content ul { list-style-type: disc; }
         .message-content ol { list-style-type: decimal; }
-        .message-content li { margin-bottom: 5px; }
+        .message-content li { 
+            margin-bottom: 5px;
+            word-wrap: break-word; 
+        }
+        /* --- END MODIFICATION --- */
+
 
         /* =======================================
-           MODERATOR TOOLS (ENHANCED)
+           MODERATOR & USER TOOLS
            ======================================= */
         .mod-tools {
             position: absolute;
@@ -339,6 +362,7 @@
         .message.self .mod-tools-menu {
             left: 0;
             right: auto;
+            width: 140px; /* Smaller for user menu */
         }
         .mod-tools-menu.visible {
             display: block;
@@ -362,16 +386,55 @@
         .mod-tools-menu button:hover {
             background-color: var(--toolbar-icon-hover-bg);
         }
+        /* --- MODIFICATION: Edit/Delete colors --- */
         .mod-tools-menu button[data-action="delete"],
-        .mod-tools-menu button[data-action="ban"] {
+        .mod-tools-menu button[data-action="ban"],
+        .mod-tools-menu button[data-action="delete-self"] {
             color: var(--accent-red);
         }
         .mod-tools-menu button[data-action="pardon"] {
             color: var(--accent-green);
         }
+        .mod-tools-menu button[data-action="edit"] {
+            color: var(--accent-blue);
+        }
+
+        /* --- MODIFICATION: Edit-in-place styles --- */
+        .edit-editor {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid var(--accent-blue);
+            min-height: 40px;
+        }
+        .edit-editor:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(var(--accent-blue), 0.5);
+        }
+        .edit-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .edit-controls button {
+            background-color: var(--accent-blue);
+            color: var(--input-text);
+            font-weight: bold;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+        .edit-controls button[data-action="cancel-edit"] {
+            background-color: var(--toolbar-bg);
+            color: var(--text-color);
+        }
+        /* --- END MODIFICATION --- */
 
         /* =======================================
-           USER PROFILE VIEW (NEW)
+           USER PROFILE VIEW
            ======================================= */
         .user-profile-view {
             position: absolute;
@@ -414,7 +477,25 @@
         .user-profile-header h2 {
             font-size: 1.2rem;
             font-weight: bold;
+            flex-grow: 1; /* Make title take available space */
         }
+        /* --- MODIFICATION: Block user button --- */
+        #profile-action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        #profile-action-btn[data-action="block"] {
+            background-color: var(--accent-red);
+            color: var(--input-text);
+        }
+        #profile-action-btn[data-action="unblock"] {
+            background-color: var(--accent-green);
+            color: var(--input-text);
+        }
+        /* --- END MODIFICATION --- */
         .user-profile-messages {
             flex: 1;
             overflow-y: auto;
@@ -460,10 +541,11 @@
         @keyframes explosion-fade-in {
             to { opacity: 1; }
         }
+        /* --- MODIFICATION: Brighter/Larger Fireworks --- */
         .firework-explosion .particle {
             position: absolute;
-            width: 4px;
-            height: 4px;
+            width: 5px; /* Larger */
+            height: 5px; /* Larger */
             opacity: 1;
             transform-origin: 50% 50%;
             border-radius: 50%;
@@ -472,15 +554,16 @@
         .firework-explosion .particle::before {
             content: '';
             position: absolute;
-            left: -2px;
-            top: -2px;
-            width: 8px;
-            height: 8px;
+            left: -2.5px; /* Adjusted */
+            top: -2.5px; /* Adjusted */
+            width: 10px; /* Larger glow */
+            height: 10px; /* Larger glow */
             border-radius: 50%;
             opacity: 0.5;
-            filter: blur(2px);
+            filter: blur(3px); /* More blur */
             background-color: inherit;
         }
+        /* --- END MODIFICATION --- */
         @keyframes explode {
             0% {
                 transform: translate(0, 0);
@@ -493,7 +576,7 @@
         }
         
         /* =======================================
-           TOAST NOTIFICATION (NEW)
+           TOAST NOTIFICATION
            ======================================= */
         #toast-notification {
             position: fixed;
@@ -632,7 +715,11 @@
             border-bottom: 1px solid var(--win98-highlight);
             padding: 3px;
         }
-        .theme-win98 button, .theme-win98 .back-button, .theme-win98 #theme-selector, .theme-win98 .rich-text-toolbar button, .theme-win98 #mod-menu-btn {
+        /* --- MODIFICATION: Apply to new buttons --- */
+        .theme-win98 button, .theme-win98 .back-button, .theme-win98 #theme-selector, 
+        .theme-win98 .rich-text-toolbar button, .theme-win98 .header-icon-btn, 
+        .theme-win98 #profile-action-btn, .theme-win98 .settings-menu-content button,
+        .theme-win98 .edit-controls button {
             background-color: var(--win98-gray) !important;
             color: var(--win98-black) !important;
             border-radius: 0 !important;
@@ -646,7 +733,10 @@
             border-right: 1px solid var(--win98-dark-gray);
             border-bottom: 1px solid var(--win98-dark-gray);
         }
-        .theme-win98 button:active, .theme-win98 .back-button:active, .theme-win98 .rich-text-toolbar button:active, .theme-win98 #mod-menu-btn:active {
+        .theme-win98 button:active, .theme-win98 .back-button:active, 
+        .theme-win98 .rich-text-toolbar button:active, .theme-win98 .header-icon-btn:active,
+        .theme-win98 #profile-action-btn:active, .theme-win98 .settings-menu-content button:active,
+        .theme-win98 .edit-controls button:active {
             border-top: 1px solid var(--win98-dark-gray) !important;
             border-left: 1px solid var(--win98-dark-gray) !important;
             border-right: 1px solid var(--win98-highlight) !important;
@@ -687,7 +777,8 @@
             --win7-glow: rgba(0, 110, 192, 0.7);
 
             --primary-bg: #80c0ff;
-            --content-bg: var(--win7-glass-bg);
+            /* --- MODIFICATION: Use alpha var --- */
+            --content-bg: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
             --text-color: var(--win7-dark-blue);
             --input-bg: #ffffff;
             --input-text: #000000;
@@ -704,7 +795,7 @@
             font-family: 'Segoe UI', 'Tahoma', sans-serif;
         }
         .theme-win7 .chat-container {
-            background-color: var(--win7-glass-bg);
+            background-color: var(--content-bg);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(5px);
@@ -784,7 +875,13 @@
             border: none;
             background-color: transparent;
             margin-top: 0;
-            height: 100vh;
+            /* --- MODIFICATION: Allow resizability --- */
+            height: 80vh; 
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: var(--primary-bg);
+            border-radius: var(--radius);
+            /* --- END MODIFICATION --- */
         }
         .theme-ios .chat-header {
             background-color: var(--content-bg);
@@ -890,7 +987,8 @@
             --msn-message-bg-sent: var(--msn-green);
 
             --primary-bg: var(--msn-light-bg);
-            --content-bg: var(--msn-window-bg);
+            /* --- MODIFICATION: Use alpha var --- */
+            --content-bg: rgba(255, 255, 255, calc(1.0 * var(--content-bg-alpha, 1)));
             --text-color: var(--msn-text);
             --input-bg: var(--msn-window-bg);
             --input-text: var(--msn-text);
@@ -939,7 +1037,7 @@
         .theme-msn .user-info span {
             color: var(--msn-blue);
         }
-        .theme-msn #theme-selector {
+        .theme-msn #theme-selector, .theme-msn .settings-menu-content select {
             background-color: var(--msn-window-bg);
             color: var(--msn-text);
             border: 1px solid var(--msn-input-border);
@@ -1147,18 +1245,21 @@
             border: 1px solid #ffffff;
             font-weight: normal;
         }
-        .theme-dos .back-button, .theme-dos #theme-selector {
+        .theme-dos .back-button, .theme-dos #theme-selector, .theme-dos .header-icon-btn, .theme-dos .settings-menu-content select {
             background-color: #000080 !important;
             color: #ffffff !important;
             border-radius: 0 !important;
             padding: 4px 8px !important;
             border: 1px solid #ffffff;
             font-weight: normal;
+        }
+        .theme-dos .back-button {
             top: 10px;
             left: 10px;
         }
         .theme-dos .mention {
             color: var(--accent-blue);
+            background: #000;
         }
         .theme-dos .rich-text-toolbar {
             background-color: var(--toolbar-bg);
@@ -1193,7 +1294,8 @@
             --xp-button-bg: #e0e9f1;
 
             --primary-bg: #3a6ea5;
-            --content-bg: var(--xp-white);
+            /* --- MODIFICATION: Use alpha var --- */
+            --content-bg: rgba(255, 255, 255, calc(1.0 * var(--content-bg-alpha, 1)));
             --text-color: #000000;
             --input-bg: var(--xp-white);
             --input-text: #000000;
@@ -1454,7 +1556,9 @@
         }
         .theme-aim .user-info, 
         .theme-aim .verified-badge,
-        .theme-aim #custom-theme-settings {
+        .theme-aim #custom-theme-settings,
+        .theme-aim #settings-btn, /* Hide new settings btn */
+        .theme-aim #search-btn { /* Hide new search btn */
             display: none !important;
         }
         .theme-aim .chat-messages {
@@ -1531,6 +1635,8 @@
             border: 1px solid #888;
         }
 
+        /* --- MODIFICATION: Removed full screen --- */
+        /*
         body, html {
             margin: 0;
             padding: 0;
@@ -1542,10 +1648,14 @@
             margin: 0 auto !important;
             border-radius: 0 !important;
         }
+        */
+        /* --- END MODIFICATION --- */
+
         .theme-xp .chat-container,
         .theme-msn .chat-container,
         .theme-win7 .chat-container {
-            background-color: rgba(255, 255, 255, 0.3) !important;
+            /* --- MODIFICATION: Use alpha var --- */
+            background-color: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
@@ -1575,7 +1685,8 @@
         .theme-xp .chat-container,
         .theme-msn .chat-container,
         .theme-win7 .chat-container {
-            background: rgba(255, 255, 255, 0.3);
+            /* --- MODIFICATION: Use alpha var --- */
+            background: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
             backdrop-filter: blur(8px);
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
         }
@@ -1674,17 +1785,29 @@
         }
 
         .typing-indicator {
-            display: flex;
+            display: none; /* Hidden by default */
             align-items: center;
             padding: 8px 12px;
             background-color: var(--message-bg-received);
             border-radius: 12px;
             margin-bottom: 10px;
             align-self: flex-start;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        .typing-indicator.visible {
+            display: flex;
+        }
+        .typing-indicator .dots {
+             display: flex;
+             align-items: center;
+             margin-left: 6px;
         }
         .typing-indicator span {
-            height: 8px;
-            width: 8px;
+            height: 6px;
+            width: 6px;
             background-color: #999;
             border-radius: 50%;
             display: inline-block;
@@ -1695,7 +1818,7 @@
         .typing-indicator span:nth-of-type(3) { animation-delay: 0.4s; }
         @keyframes bounce {
             0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-6px); }
+            30% { transform: translateY(-4px); }
         }
         
         /* =======================================
@@ -1703,7 +1826,8 @@
            ======================================= */
         .theme-custom {
             --primary-bg: #1a1b2f;
-            --content-bg: rgba(43, 45, 66, 0.85);
+            /* --- MODIFICATION: Use alpha var --- */
+            --content-bg: rgba(43, 45, 66, var(--content-bg-alpha, 0.85));
             --text-color: #f8f9fa;
             --accent-blue: #4cc9f0;
             --accent-green: #80ed99;
@@ -1727,9 +1851,10 @@
         }
 
         /* =======================================
-           12. IMAGE LIGHTBOX & MOD MENU (NEW)
+           12. IMAGE LIGHTBOX & MODALS
            ======================================= */
-        .image-modal-overlay, .mod-menu-overlay {
+        /* --- MODIFICATION: Added settings modal --- */
+        .image-modal-overlay, .mod-menu-overlay, .settings-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -1744,7 +1869,7 @@
             z-index: 1000;
             cursor: zoom-out;
         }
-        .image-modal-overlay.visible, .mod-menu-overlay.visible {
+        .image-modal-overlay.visible, .mod-menu-overlay.visible, .settings-modal-overlay.visible {
             display: flex;
         }
         .image-modal-content {
@@ -1766,43 +1891,48 @@
             transform: scale(1.1);
             color: var(--accent-red);
         }
-        .mod-menu-content {
+        /* --- MODIFICATION: Added settings menu --- */
+        .mod-menu-content, .settings-menu-content {
             background-color: var(--content-bg);
             padding: 2rem;
             border-radius: var(--radius);
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             color: var(--text-color);
             width: 90%;
-            max-width: 450px; /* Increased width */
+            max-width: 500px; /* Increased width */
             cursor: default;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-        .mod-menu-content h2 {
+        .mod-menu-content h2, .settings-menu-content h2 {
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--toolbar-bg);
             padding-bottom: 0.5rem;
         }
-        .mod-menu-item {
+        .mod-menu-item, .settings-menu-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid var(--toolbar-bg);
+            gap: 1rem;
         }
-         .mod-menu-item:last-child {
+         .mod-menu-item:last-child, .settings-menu-item:last-child {
             border-bottom: none;
         }
-        .mod-menu-item p {
+        .mod-menu-item p, .settings-menu-item p {
             margin: 0;
             font-size: 0.95rem;
+            flex-grow: 1;
         }
-        .mod-menu-item small {
+        .mod-menu-item small, .settings-menu-item small {
             opacity: 0.7;
             display: block;
             margin-top: 4px;
         }
-        .mod-menu-item button {
+        .mod-menu-item button, .settings-menu-content button {
             background-color: var(--accent-blue);
             color: var(--input-text);
             padding: 0.5rem 1rem;
@@ -1811,7 +1941,51 @@
             flex-shrink: 0;
             margin-left: 1rem;
         }
-        #mod-menu-btn {
+        .settings-menu-item label {
+            font-weight: bold;
+        }
+        .settings-menu-item input[type="range"] {
+            flex-grow: 1;
+        }
+        .settings-menu-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+        .settings-menu-content select, .settings-menu-content input {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-radius: 6px;
+            padding: 4px 8px;
+            border: 1px solid var(--toolbar-bg);
+        }
+        #blocked-users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: var(--toolbar-bg);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .blocked-user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--content-bg);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .blocked-user-item button {
+            background-color: var(--accent-red);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            margin-left: 0;
+        }
+        /* --- END MODIFICATION --- */
+        
+        /* --- MODIFICATION: Header Icon Buttons --- */
+        .header-icon-btn {
             background: none;
             border: none;
             color: var(--toolbar-icon-color);
@@ -1825,39 +1999,61 @@
             border-radius: 6px;
             transition: background-color 0.2s, transform 0.1s;
         }
-        #mod-menu-btn:hover {
+        .header-icon-btn:hover {
             background-color: var(--toolbar-icon-hover-bg);
         }
 
+        /* --- MODIFICATION: @Mention Suggestions --- */
+        #mention-suggestions {
+            display: none;
+            position: absolute;
+            bottom: 100%; /* Position above the input area */
+            left: 12px;
+            width: calc(100% - 24px);
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: var(--content-bg);
+            border: 1px solid var(--toolbar-bg);
+            border-radius: 8px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .mention-item {
+            padding: 8px 12px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--toolbar-bg);
+        }
+        .mention-item:last-child {
+            border-bottom: none;
+        }
+        .mention-item:hover, .mention-item.selected {
+            background-color: var(--toolbar-icon-hover-bg);
+        }
 
-        /* Desktop Layout Refinements */
-        @media (min-width: 801px) {
-            body, html {
-                height: auto;
-            }
-            .chat-container {
-                height: 85vh !important;
-                max-height: 900px;
-                width: 100% !important;
-                max-width: 800px !important;
-                margin: 40px auto !important;
-                border-radius: var(--radius) !important;
-            }
-            .back-button {
-                position: fixed;
-            }
-            .theme-win98 .chat-container, 
-            .theme-dos .chat-container, 
-            .theme-xerox .chat-container {
-                border-radius: 0 !important;
-            }
-            .theme-ios .chat-container,
-            .theme-custom .chat-container {
-                 border-radius: var(--radius) !important;
-            }
-            .theme-aim .chat-container {
-                border-radius: 4px !important;
-            }
+        /* --- MODIFICATION: Search Bar --- */
+        .search-bar {
+            display: none;
+            flex-grow: 1;
+            margin: 0 1rem;
+        }
+        .search-bar input {
+            width: 100%;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            border: 1px solid var(--toolbar-bg);
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        mark {
+            background-color: var(--accent-green);
+            color: var(--input-text);
         }
 </style>
 <body class="theme-dark">
@@ -1867,26 +2063,38 @@
         <i class="fas fa-arrow-down"></i>
     </div>
     <div class="chat-header">
-        <div class="text-xl">Crooms Connect Chat</div>
+        <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
+        
+        <!-- --- MODIFICATION: Search Bar --- -->
+        <div class="search-bar" id="search-bar">
+            <input type="text" id="search-input" placeholder="Search loaded messages...">
+        </div>
+        
+        <!-- NEW SCHEDULE TRACKER BAR -->
+        <div id="schedule-tracker-bar" style="
+            background: var(--toolbar-bg); 
+            color: var(--text-color); 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            flex-shrink: 1;
+            min-width: 150px;
+            text-align: center;
+        ">
+            Loading schedule...
+        </div>
+        <!-- END NEW BAR -->
         <div class="flex items-center gap-2">
-            <button id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
-            <select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
-                <option value="dark">Modern Dark</option>
-                <option value="light">Light</option>
-                <option value="aim">AOL Instant Messenger</option>
-                <option value="win98">Windows 98</option>
-                <option value="win7">Windows 7 Aero</option>
-                <option value="ios">iOS iMessage</option>
-                <option value="msn">MSN</option>
-                <option value="dos">DOS Terminal</option>
-                <option value="xp">Windows XP Bliss</option>
-                <option value="xerox">Xerox Star GUI</option>
-                <option value="custom">Custom</option>
-            </select>
-            <div id="custom-theme-settings" style="display: none; font-size: 0.8rem; align-items: center; gap: 5px;" class="text-sm">
-                <label for="background-uploader" style="cursor: pointer; font-weight: normal;">Custom BG:</label>
-                <input type="file" id="background-uploader" accept="image/*" style="max-width: 120px;">
-            </div>
+            <!-- --- MODIFICATION: New Header Buttons --- -->
+            <button id="search-btn" class="header-icon-btn" title="Search"><i class="fas fa-search"></i></button>
+            <button id="settings-btn" class="header-icon-btn" title="Settings"><i class="fas fa-cog"></i></button>
+            <button id="mod-menu-btn" class="header-icon-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
+            <!-- --- END MODIFICATION --- -->
+
+            <!-- Theme selector removed from here -->
+            
             <div class="user-info" id="user-info" style="display: none;">
                 <img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
                 <span id="user-name">Loading...</span>
@@ -1896,8 +2104,12 @@
     </div>
     <div class="chat-messages" id="chat-box">
         <div id="loading-older" style="display:none">Loading...</div>
+        <!-- Typing indicator will be appended here by JS -->
     </div>
     <div class="chat-input">
+        <!-- --- MODIFICATION: @Mention Suggestions --- -->
+        <div id="mention-suggestions"></div>
+        
         <div class="rich-text-toolbar" id="rich-text-toolbar">
             <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
             <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
@@ -1907,7 +2119,7 @@
             <button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
         </div>
         <div class="chat-input-row">
-            <div id="chat-input-editor" contenteditable="true" placeholder="Type your message or paste an image..."></div>
+            <div id="chat-input-editor" contenteditable="true" placeholder="Type your message (Enter for new line, Shift+Enter to send)"></div>
             <button id="send-button">Send</button>
         </div>
     </div>
@@ -1917,6 +2129,8 @@
             <button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
             <img id="profile-view-avatar" src="" alt="avatar">
             <h2 id="profile-view-username">User Profile</h2>
+            <!-- --- MODIFICATION: Block/Unblock Button --- -->
+            <button id="profile-action-btn" data-user-id="" data-username=""></button>
         </div>
         <div class="user-profile-messages" id="user-profile-messages">
             <!-- Messages will be loaded here -->
@@ -1952,6 +2166,89 @@
     </div>
 </div>
 
+<!-- --- MODIFICATION: SETTINGS MODAL (NEW) --- -->
+<div id="settings-modal" class="settings-modal-overlay">
+     <div class="settings-menu-content">
+        <span id="settings-menu-close" class="modal-close-btn">&times;</span>
+        <h2>Settings</h2>
+        
+        <div class="settings-menu-item">
+            <p>
+                Theme
+                <small>Change the look and feel of the chat.</small>
+            </p>
+            <select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
+                <option value="dark">Modern Dark</option>
+                <option value="light">Light</option>
+                <option value="aim">AOL Instant Messenger</option>
+                <option value="win98">Windows 98</option>
+                <option value="win7">Windows 7 Aero</option>
+                <option value="ios">iOS iMessage</option>
+                <option value="msn">MSN</option>
+                <option value="dos">DOS Terminal</option>
+                <option value="xp">Windows XP Bliss</option>
+                <option value="xerox">Xerox Star GUI</option>
+                <option value="custom">Custom</option>
+            </select>
+        </div>
+        
+        <div class="settings-menu-item" id="custom-theme-settings-container" style="display: none;">
+            <p>
+                Custom Background
+                <small>Upload your own background for the 'Custom' theme.</small>
+            </p>
+            <input type="file" id="background-uploader" accept="image/*" style="max-width: 150px;">
+        </div>
+
+        <div class="settings-menu-item">
+            <p>
+                Text Size
+                <small>Adjust the base font size for the application.</small>
+            </p>
+            <input type="range" id="settings-text-size" min="12" max="20" step="1" value="16">
+            <span id="settings-text-size-label" class="ml-2 w-8 text-right">16px</span>
+        </div>
+
+        <div class="settings-menu-item">
+            <p>
+                Window Transparency
+                <small>Adjust transparency for themes that support it (e.g., Win7, XP, Custom).</small>
+            </p>
+            <input type="range" id="settings-transparency" min="0.1" max="1.0" step="0.05" value="0.85">
+            <span id="settings-transparency-label" class="ml-2 w-10 text-right">85%</span>
+        </div>
+
+        <div class="settings-menu-item">
+            <p>
+                Hide Images
+                <small>Don't load images sent in messages.</small>
+            </p>
+            <input type="checkbox" id="settings-hide-images">
+        </div>
+
+        <div class="settings-menu-item">
+            <p>
+                Hide Events
+                <small>Disable special events like daily fireworks.</small>
+            </p>
+            <input type="checkbox" id="settings-hide-events">
+        </div>
+        
+        <div class="settings-menu-item" style="flex-direction: column; align-items: flex-start;">
+            <p>
+                Blocked Users
+                <small>Messages from these users will be hidden.</small>
+            </p>
+            <div id="blocked-users-list" class="mt-2 w-full">
+                <!-- Blocked users will be listed here -->
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- --- END MODIFICATION --- -->
+
+
 <!-- TOAST NOTIFICATION (NEW) -->
 <div id="toast-notification">
     <span class="icon"></span>
@@ -1961,9 +2258,107 @@
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    // === THEME MANAGEMENT FUNCTIONS ===
+    // === START SCHEDULE TRACKER CONSTANTS & VARS ===
+    const NAMES_STORAGE_KEY = 'croomsConnectPeriodNames';
+    const defaultSchedules = {
+        "Monday": [
+            { period: "1st Period", start: "07:20", end: "08:13" },
+            { period: "2nd Period", start: "08:18", end: "09:10" },
+            { period: "3rd Period", start: "09:15", end: "10:05" },
+            { period: "4th Period", start: "10:10", end: "11:02" },
+            { period: "5th Period A", start: "11:07", end: "11:57" }, // Class
+            { period: "5th Period B", start: "11:57", end: "12:27" }, // Lunch
+            { period: "6th Period", start: "12:32", end: "13:24" },
+            { period: "7th Period", start: "13:29", end: "14:20" }
+        ],
+        "Tuesday": [
+            { period: "1st Period", start: "07:20", end: "08:13" },
+            { period: "2nd Period", start: "08:18", end: "09:10" },
+            { period: "3rd Period", start: "09:15", end: "10:05" },
+            { period: "4th Period", start: "10:10", end: "11:02" },
+            { period: "5th Period A", start: "11:07", end: "11:57" }, // Class
+            { period: "5th Period B", start: "11:57", end: "12:27" }, // Lunch
+            { period: "6th Period", start: "12:32", end: "13:24" },
+            { period: "7th Period", start: "13:29", end: "14:20" }
+        ],
+        "Wednesday": [
+            { period: "2nd Period", start: "07:20", end: "08:49" },
+            { period: "4th Period", start: "08:55", end: "10:21" },
+            { period: "Homeroom B", start: "10:27", end: "11:17" }, // Lunch
+            { period: "Homeroom A", start: "11:17", end: "11:47" }, // Class/Homeroom
+            { period: "6th Period", start: "11:53", end: "13:20" }
+        ],
+        "Thursday": [
+            { period: "1st Period", start: "07:20", end: "08:55" },
+            { period: "3rd Period", start: "09:01", end: "10:33" },
+            { period: "5th Period B", start: "10:39", end: "12:11" }, // Class
+            { period: "5th Period A", start: "12:11", end: "12:41" }, // Lunch
+            { period: "7th Period", start: "12:47", end: "14:20" }
+        ],
+        "Friday": [
+            { period: "1st Period", start: "07:20", end: "08:13" },
+            { period: "2nd Period", start: "08:18", end: "09:10" },
+            { period: "3rd Period", start: "09:15", end: "10:05" },
+            { period: "4th Period", start: "10:10", end: "11:02" },
+            { period: "5th Period A", start: "11:07", end: "11:57" }, // Class
+            { period: "5th Period B", start: "11:57", end: "12:27" }, // Lunch
+            { period: "6th Period", start: "12:32", end: "13:24" },
+            { period: "7th Period", start: "13:29", end: "14:20" }
+        ]
+    };
+    let schedules = JSON.parse(JSON.stringify(defaultSchedules)); // Working copy
+    // === END SCHEDULE TRACKER CONSTANTS & VARS ===
+
+
+    // === THEME & SETTINGS MANAGEMENT ===
     const themeSelector = document.getElementById('theme-selector');
     const themeKey = 'chatTheme';
+
+    function applySettings() {
+        // Text Size
+        const textSize = localStorage.getItem('settings-text-size') || '16';
+        document.documentElement.style.fontSize = `${textSize}px`;
+        const textSizeLabel = document.getElementById('settings-text-size-label');
+        if (textSizeLabel) textSizeLabel.textContent = `${textSize}px`;
+
+        // Transparency
+        const transparency = localStorage.getItem('settings-transparency') || '0.85';
+        document.documentElement.style.setProperty('--content-bg-alpha', transparency);
+        const transLabel = document.getElementById('settings-transparency-label');
+        if (transLabel) transLabel.textContent = `${Math.round(transparency * 100)}%`;
+
+        // Hide Images
+        const hideImages = localStorage.getItem('settings-hide-images') === 'true';
+        document.body.classList.toggle('settings-hide-images', hideImages);
+    }
+
+    function loadSettings() {
+        // Load text size
+        const savedTextSize = localStorage.getItem('settings-text-size') || '16';
+        const textSizeSlider = document.getElementById('settings-text-size');
+        if (textSizeSlider) textSizeSlider.value = savedTextSize;
+
+        // Load transparency
+        const savedTransparency = localStorage.getItem('settings-transparency') || '0.85';
+        const transSlider = document.getElementById('settings-transparency');
+        if (transSlider) transSlider.value = savedTransparency;
+
+        // Load hide images
+        const savedHideImages = localStorage.getItem('settings-hide-images') === 'true';
+        const hideImagesCheck = document.getElementById('settings-hide-images');
+        if (hideImagesCheck) hideImagesCheck.checked = savedHideImages;
+        
+        // Load hide events
+        const savedHideEvents = localStorage.getItem('settings-hide-events') === 'true';
+        const hideEventsCheck = document.getElementById('settings-hide-events');
+        if (hideEventsCheck) hideEventsCheck.checked = savedHideEvents;
+
+        // Apply all loaded settings
+        applySettings();
+        
+        // Load blocked users list
+        renderBlockedUsersList();
+    }
 
     function setSavedTheme(initialLoad = false) {
         const savedTheme = localStorage.getItem(themeKey) || 'dark'; 
@@ -1974,9 +2369,9 @@
         document.body.style.backgroundPosition = '';
         document.body.style.backgroundAttachment = '';
 
-        const customSettings = document.getElementById('custom-theme-settings');
-        if (customSettings) {
-            customSettings.style.display = (savedTheme === 'custom') ? 'flex' : 'none';
+        const customSettingsContainer = document.getElementById('custom-theme-settings-container');
+        if (customSettingsContainer) {
+            customSettingsContainer.style.display = (savedTheme === 'custom') ? 'flex' : 'none';
         }
 
         if (savedTheme === 'custom') {
@@ -2009,6 +2404,8 @@
             clearVerifiedCache();
             updateGlobalAvatarAndName();
         }
+        // Re-apply settings as theme change might override them
+        applySettings();
     }
 
     function handleThemeChange() {
@@ -2025,6 +2422,168 @@
             });
         });
     }
+
+    // === END THEME & SETTINGS MANAGEMENT ===
+
+
+    // === START SCHEDULE TRACKER FUNCTIONS ===
+    const loadPeriodNames = () => {
+        try {
+            const savedNames = localStorage.getItem(NAMES_STORAGE_KEY);
+            if (savedNames) {
+                const customNames = JSON.parse(savedNames);
+                // Reset schedules to default before applying custom names
+                schedules = JSON.parse(JSON.stringify(defaultSchedules));
+                for (const day in schedules) {
+                    schedules[day] = defaultSchedules[day].map(block => {
+                        const originalKey = block.period;
+                        const customName = customNames[originalKey];
+                        if (customName) {
+                            return { ...block, period: customName };
+                        }
+                        return block;
+                    });
+                }
+            } else {
+                 // If no saved names, ensure schedules are default
+                 schedules = JSON.parse(JSON.stringify(defaultSchedules));
+            }
+        } catch (error) {
+            console.error("Error loading period names from localStorage:", error);
+            schedules = JSON.parse(JSON.stringify(defaultSchedules));
+        }
+    };
+
+    const formatTimeLeft = (totalSeconds) => {
+        if (totalSeconds < 0) return "0s";
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        let parts = [];
+        if (hours > 0) parts.push(`${hours}h`);
+        if (minutes > 0) parts.push(`${minutes}m`);
+        if (totalSeconds >= 0) {
+            parts.push(`${seconds}s`);
+        }
+        return parts.join(" ");
+    };
+
+    const timeToMinutes = (timeStr) => {
+        const parts = timeStr.split(":").map(Number);
+        return parts[0] * 60 + parts[1];
+    };
+
+    const calculateWeekendTarget = (now) => {
+        let nextDay = new Date(now);
+        let dayOfWeek = nextDay.getDay();
+        let daysUntilMonday = (8 - dayOfWeek) % 7;
+        if (daysUntilMonday === 0) daysUntilMonday = 7;
+        nextDay.setDate(nextDay.getDate() + daysUntilMonday);
+        nextDay.setHours(7, 20, 0, 0);
+        return nextDay;
+    };
+
+    const updatePeriodTimer = () => {
+        const now = new Date();
+        const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
+        
+        // Ensure custom names are loaded
+        loadPeriodNames(); 
+        const schedule = schedules[dayName] || [];
+        
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        let currentPeriod = "No Class";
+        let totalSecondsLeft = -1;
+
+        for (let block of schedule) {
+            const startMinutes = timeToMinutes(block.start);
+            const endMinutes = timeToMinutes(block.end);
+            if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
+                currentPeriod = block.period;
+                totalSecondsLeft = (endMinutes * 60) - (currentMinutes * 60) - now.getSeconds();
+                break;
+            }
+        }
+
+        if (totalSecondsLeft === -1) {
+            let nextTarget = null;
+
+            if (schedule.length > 0) {
+                const firstStartMinutes = timeToMinutes(schedule[0].start);
+                const lastEndMinutes = timeToMinutes(schedule[schedule.length - 1].end);
+                if (currentMinutes < firstStartMinutes) {
+                    nextTarget = new Date(now);
+                    const firstPeriodStart = schedule[0].start.split(":").map(Number);
+                    nextTarget.setHours(firstPeriodStart[0], firstPeriodStart[1], 0, 0);
+                    currentPeriod = "Before School";
+                } else if (currentMinutes >= lastEndMinutes) {
+                    currentPeriod = "After School";
+                    let nextDay = new Date(now);
+                    nextDay.setDate(now.getDate() + 1);
+                    while (nextDay.getDay() === 0 || nextDay.getDay() === 6) { nextDay.setDate(nextDay.getDate() + 1); }
+                    nextTarget = nextDay;
+                    nextTarget.setHours(7, 20, 0, 0);
+                } else {
+                    for (let i = 0; i < schedule.length; i++) {
+                        const block = schedule[i];
+                        const startMinutes = timeToMinutes(block.start);
+                        if (currentMinutes < startMinutes) {
+                            nextTarget = new Date(now);
+                            const blockStart = block.start.split(":").map(Number);
+                            nextTarget.setHours(blockStart[0], blockStart[1], 0, 0);
+                            currentPeriod = `Next: ${block.period}`;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                currentPeriod = "Weekend/Break";
+                nextTarget = calculateWeekendTarget(now);
+            }
+
+            if (nextTarget) {
+                totalSecondsLeft = Math.floor((nextTarget.getTime() - now.getTime()) / 1000);
+                if (totalSecondsLeft < 0) totalSecondsLeft = 0;
+            }
+        }
+
+        let timeLeft = formatTimeLeft(totalSecondsLeft);
+        const timerContainer = document.getElementById("schedule-tracker-bar");
+        if (!timerContainer) return; // Guard clause
+
+        let timerTextSpan = timerContainer.querySelector("#timer-text"); // Use querySelector
+
+        if (!timerTextSpan) {
+            timerContainer.innerHTML = `${currentPeriod} – <span id="timer-text" class="timer-text" style="display: inline-block;">${timeLeft} left</span>`;
+            timerTextSpan = timerContainer.querySelector("#timer-text");
+        } else {
+            timerContainer.firstChild.nodeValue = `${currentPeriod} – `;
+            timerTextSpan.innerText = `${timeLeft} left`;
+        }
+        
+        if (!timerTextSpan) return; // Guard clause if still not found
+
+        timerTextSpan.classList.remove('timer-active');
+        // Get current text color from CSS variable
+        const currentTextColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+        timerTextSpan.style.color = currentTextColor; 
+
+        if (totalSecondsLeft > 0 && currentPeriod !== "After School" && currentPeriod !== "Weekend/Break" && currentPeriod !== "Before School" && !currentPeriod.startsWith("Next:")) {
+            timerTextSpan.classList.add('timer-active');
+            const fifteenMinutesInSeconds = 15 * 60;
+            
+            // Get accent colors from CSS variables
+            const accentGreen = getComputedStyle(document.body).getPropertyValue('--accent-green');
+            const accentRed = getComputedStyle(document.body).getPropertyValue('--accent-red');
+
+            if (totalSecondsLeft > fifteenMinutesInSeconds) {
+                timerTextSpan.style.color = accentGreen;
+            } else {
+                timerTextSpan.style.color = accentRed;
+            }
+        }
+    };
+    // === END SCHEDULE TRACKER FUNCTIONS ===
     // ===================================
 
     // Supabase Configuration 
@@ -2032,6 +2591,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTA3NjUsImV4cCI6MjA3NTAyNjc2NX0.-IRbU1ER8lu7eNPoETgVQaFJ4Fp9VMowjzWfN7EZY6w';
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // --- DOM Elements ---
     const chatBox = document.getElementById('chat-box');
     const loadingOlderDiv = document.getElementById('loading-older');
     const editor = document.getElementById('chat-input-editor');
@@ -2054,12 +2614,28 @@
     const updatePfpsBtn = document.getElementById('update-pfps-btn');
     const userProfileView = document.getElementById('user-profile-view');
     const profileBackBtn = document.getElementById('profile-back-btn');
+    const profileActionBtn = document.getElementById('profile-action-btn');
     const toast = document.getElementById('toast-notification');
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsMenuClose = document.getElementById('settings-menu-close');
+    const mentionSuggestions = document.getElementById('mention-suggestions');
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const searchInput = document.getElementById('search-input');
+    const chatHeaderTitle = document.getElementById('chat-header-title');
 
+    // --- State Variables ---
     window.currentUser = null; 
     let currentUsername = 'Anonymous';
     let currentUserIsVerified = false;
-
+    let channel = null; // To hold the channel subscription
+    let typingIndicator;
+    let typeTimer = null;
+    let activeTypers = {};
+    let mentionCache = {};
+    let currentMentionQuery = null;
+    
     // Infinite scroll state
     const PAGE_SIZE = 20;
     let loadedMessages = []; 
@@ -2074,15 +2650,44 @@
         }
     }
     
-    let typingIndicator;
     function createTypingIndicator() {
         const indicator = document.createElement('div');
         indicator.id = 'typing-indicator';
         indicator.className = 'typing-indicator';
-        indicator.style.display = 'none';
-        indicator.innerHTML = `<span></span><span></span><span></span>`;
+        indicator.innerHTML = `<span id="typing-indicator-text"></span> <div class="dots"><span></span><span></span><span></span></div>`;
         chatBox.appendChild(indicator);
         return indicator;
+    }
+
+    // --- MODIFICATION: Update Typing Indicator ---
+    function updateTypingIndicator() {
+        const typerNames = Object.keys(activeTypers).filter(name => name !== currentUsername);
+        const textEl = document.getElementById('typing-indicator-text');
+        
+        if (!typingIndicator || !textEl) return;
+
+        if (typerNames.length === 0) {
+            typingIndicator.classList.remove('visible');
+            return;
+        }
+        
+        let text;
+        if (typerNames.length === 1) {
+            text = `${typerNames[0]} is typing`;
+        } else if (typerNames.length === 2) {
+            text = `${typerNames[0]} and ${typerNames[1]} are typing`;
+        } else {
+            text = `${typerNames.length} users are typing`;
+        }
+        
+        textEl.textContent = text;
+        typingIndicator.classList.add('visible');
+        
+        // Ensure it's scrolled into view if we're at the bottom
+        const isScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+        if (isScrolledToBottom) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
     }
 
     function cleanUsername(name) {
@@ -2135,6 +2740,11 @@
     }
 
     function cleanMessageMentions(text) {
+        if (!text) return '';
+        // Add (edited) tag styling
+        text = text.replace(/&lt;small&gt;\(edited\)&lt;\/small&gt;$/, '<small class="text-xs opacity-70 ml-1">(edited)</small>');
+        text = text.replace(/<small>\(edited\)<\/small>$/, '<small class="text-xs opacity-70 ml-1">(edited)</small>');
+
         return text.replace(/@([a-zA-Z0-9_@.]+)/g, (match, mentionName) => {
             let clean = mentionName;
             if (clean.toLowerCase().endsWith('@croomsconnect.local')) {
@@ -2159,7 +2769,111 @@
         }, 3000);
     }
 
+    // --- MODIFICATION: Blocklist Functions ---
+    function getBlockedUsers() {
+        return JSON.parse(localStorage.getItem('blockedUsers') || '[]');
+    }
+
+    function applyBlocklist() {
+        const blockedUsers = getBlockedUsers();
+        if (blockedUsers.length === 0) {
+            // Ensure all messages are visible if list is empty
+            document.querySelectorAll('.message').forEach(msgEl => {
+                msgEl.style.display = 'flex';
+            });
+            return;
+        }
+        
+        document.querySelectorAll('.message').forEach(msgEl => {
+            if (blockedUsers.includes(msgEl.dataset.userId)) {
+                msgEl.style.display = 'none';
+            } else {
+                msgEl.style.display = 'flex';
+            }
+        });
+    }
+    
+    function handleBlockUser(userId, username) {
+        if (userId === window.currentUser.id) {
+            showToast("You cannot block yourself.", "error");
+            return;
+        }
+        
+        const blockedUsers = getBlockedUsers();
+        if (!blockedUsers.includes(userId)) {
+            blockedUsers.push(userId);
+            localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
+            showToast(`Blocked ${username}.`, 'success');
+        }
+        applyBlocklist(); // Re-apply to chat
+        renderBlockedUsersList(); // Update settings modal
+        // Update profile button
+        profileActionBtn.textContent = 'Unblock';
+        profileActionBtn.dataset.action = 'unblock';
+    }
+
+    function handleUnblockUser(userId, username) {
+        let blockedUsers = getBlockedUsers();
+        if (blockedUsers.includes(userId)) {
+            blockedUsers = blockedUsers.filter(id => id !== userId);
+            localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
+            showToast(`Unblocked ${username || 'user'}.`, 'success');
+        }
+        applyBlocklist(); // Re-apply to chat
+        renderBlockedUsersList(); // Update settings modal
+        // Update profile button if still on that profile
+        if (profileActionBtn.dataset.userId === userId) {
+            profileActionBtn.textContent = 'Block';
+            profileActionBtn.dataset.action = 'block';
+        }
+    }
+    
+    async function renderBlockedUsersList() {
+        const listEl = document.getElementById('blocked-users-list');
+        if (!listEl) return;
+        
+        const blockedUserIds = getBlockedUsers();
+        listEl.innerHTML = '';
+        
+        if (blockedUserIds.length === 0) {
+            listEl.innerHTML = '<p class="text-sm opacity-70">You haven\'t blocked any users.</p>';
+            return;
+        }
+        
+        // Fetch usernames for IDs
+        const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('id, username')
+            .in('id', blockedUserIds);
+
+        if (error) {
+            listEl.innerHTML = '<p class="text-sm text-red-500">Could not load blocked users.</p>';
+            return;
+        }
+        
+        profiles.forEach(profile => {
+            const username = cleanUsername(profile.username);
+            const itemEl = document.createElement('div');
+            itemEl.className = 'blocked-user-item';
+            itemEl.innerHTML = `
+                <span>${username}</span>
+                <button data-user-id="${profile.id}" data-username="${username}">Unblock</button>
+            `;
+            itemEl.querySelector('button').addEventListener('click', () => {
+                handleUnblockUser(profile.id, username);
+            });
+            listEl.appendChild(itemEl);
+        });
+    }
+    // --- END BLOCKLIST ---
+
     async function displayMessage(msg, container = chatBox) {
+        // --- MODIFICATION: Blocklist Check ---
+        const blockedUsers = getBlockedUsers();
+        if (blockedUsers.includes(msg.user_id)) {
+            return; // Don't display at all
+        }
+        
         const isSelf = window.currentUser && msg.user_id === window.currentUser.id; 
         const username = cleanUsername(msg.username) || "Anonymous";
         const avatarSrc = msg.avatar_url && msg.avatar_url.trim() !== ""
@@ -2187,8 +2901,19 @@
         
         const formattedMessage = cleanMessageMentions(msg.message);
 
+        // --- MODIFICATION: Show Edit/Delete for self, Mod tools for others ---
         let modToolsHtml = '';
-        if (currentUserIsVerified) {
+        if (isSelf) {
+            modToolsHtml = `
+                <div class="mod-tools">
+                    <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="mod-tools-menu">
+                        <button data-action="edit" data-message-id="${msg.id}"><i class="fas fa-pencil-alt fa-fw"></i> Edit</button>
+                        <button data-action="delete-self" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete</button>
+                    </div>
+                </div>
+            `;
+        } else if (currentUserIsVerified) {
             modToolsHtml = `
                 <div class="mod-tools">
                     <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
@@ -2202,14 +2927,15 @@
                 </div>
             `;
         }
+        // --- END MODIFICATION ---
         
         const avatarHtml = `<a class="avatar-link" data-user-id="${msg.user_id}" data-username="${username}" data-avatar-url="${avatarSrc}"><img src="${avatarSrc}" class="avatar" alt="avatar"></a>`;
 
 
         if (isDOS) {
-            div.innerHTML = `<div class="message-content"><span class="username">${username}</span>: <span class="text">${formattedMessage}</span></div>`;
+            div.innerHTML = `<div class="message-content"><span class="username">${username}</span>: <span class="text">${formattedMessage}</span></div> ${modToolsHtml}`;
         } else if (isAIM) {
-             div.innerHTML = `<div class="message-content"><div class="username">${username}</div><div class="text">${formattedMessage}</div><div class="timestamp">${timestampText}</div></div>`;
+             div.innerHTML = `<div class="message-content"><div class="username">${username}</div><div class="text">${formattedMessage}</div><div class="timestamp">${timestampText}</div></div> ${modToolsHtml}`;
         } else {
             div.innerHTML = `
                 ${avatarHtml}
@@ -2240,8 +2966,10 @@
             chatBox.prepend(loadingOlderDiv);
 
             for (const msg of loadedMessages) {
-                await displayMessage(msg);
+                await displayMessage(msg); // This will now respect blocklist
             }
+            
+            // applyBlocklist(); // No longer needed here, displayMessage handles it
             
             setTimeout(() => {
                 const currentScrollHeight = chatBox.scrollHeight;
@@ -2325,6 +3053,9 @@
     }
     
     function sanitizeHTML(html) {
+        // Allow (edited) tag
+        html = html.replace(/<small class="text-xs opacity-70 ml-1">\(edited\)<\/small>/g, '');
+
         const allowedTags = ['strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'br', 'div', 'p', 'span', 'img'];
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const allElements = doc.body.querySelectorAll('*');
@@ -2337,6 +3068,10 @@
                 const href = el.getAttribute('href');
                 if (!href || (!href.startsWith('http:') && !href.startsWith('https:'))) {
                     el.removeAttribute('href');
+                } else {
+                    // --- MODIFICATION: Ensure links open in new tab ---
+                    el.setAttribute('target', '_blank');
+                    el.setAttribute('rel', 'noopener noreferrer');
                 }
             }
             if (el.tagName.toLowerCase() === 'img') {
@@ -2359,6 +3094,10 @@
         if (!message || message === '<br>') return null;
 
         editor.innerHTML = ''; // Clear editor immediately for better UX
+        // --- MODIFICATION: Broadcast stopped typing ---
+        if (channel) {
+            channel.track({ event: 'stopped_typing', payload: { username: currentUsername } });
+        }
 
         const { data: profile, error: profileErr } = await supabase
             .from('profiles')
@@ -2403,7 +3142,7 @@
 
                 loadedMessages.push(payload.new);
                 totalMessageCount += 1;
-                await displayMessage(payload.new);
+                await displayMessage(payload.new); // This will respect blocklist
                 
                 // Only auto-scroll if user was already at the bottom
                 if (wasScrolledToBottom) {
@@ -2418,23 +3157,66 @@
                      loadedMessages = loadedMessages.filter(m => m.id !== messageId);
                  }
             })
+            // --- MODIFICATION: Handle message edits and avatar updates ---
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-                 // Real-time PFP update for messages table
                  const updatedMessage = payload.new;
-                 const messageElements = document.querySelectorAll(`.message[data-user-id="${updatedMessage.user_id}"]`);
-                 messageElements.forEach(msgEl => {
-                    const avatarImg = msgEl.querySelector('.avatar');
-                    if (avatarImg && avatarImg.src !== updatedMessage.avatar_url) {
-                        avatarImg.src = updatedMessage.avatar_url;
-                    }
-                 });
+                 const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
+                 
+                 if (msgEl) {
+                     // Handle message text update (for edits)
+                     const textEl = msgEl.querySelector('.text');
+                     const newHtml = cleanMessageMentions(updatedMessage.message);
+                     if (textEl && textEl.innerHTML !== newHtml) {
+                         textEl.innerHTML = newHtml;
+                     }
+
+                     // Handle avatar update
+                     const avatarImg = msgEl.querySelector('.avatar');
+                     const username = cleanUsername(updatedMessage.username);
+                     const newAvatar = updatedMessage.avatar_url && updatedMessage.avatar_url.trim() !== ""
+                        ? updatedMessage.avatar_url
+                        : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(username)}`;
+                     
+                     if (avatarImg && avatarImg.src !== newAvatar) {
+                        avatarImg.src = newAvatar;
+                        // Update avatar link data
+                        const avatarLink = msgEl.querySelector('.avatar-link');
+                        if (avatarLink) avatarLink.dataset.avatarUrl = newAvatar;
+                     }
+                 }
+            })
+            // --- MODIFICATION: Listen for typing events ---
+            .on('broadcast', { event: 'typing' }, ({ payload }) => {
+                if (payload.username && payload.username !== currentUsername) {
+                    activeTypers[payload.username] = Date.now();
+                    updateTypingIndicator();
+                }
+            })
+            .on('broadcast', { event: 'stopped_typing' }, ({ payload }) => {
+                if (payload.username) {
+                    delete activeTypers[payload.username];
+                    updateTypingIndicator();
+                }
             })
             .subscribe();
         
+        // Periodically clear out old typers
+        setInterval(() => {
+            const now = Date.now();
+            let changed = false;
+            for (const username in activeTypers) {
+                if (now - activeTypers[username] > 5000) { // 5 second timeout
+                    delete activeTypers[username];
+                    changed = true;
+                }
+            }
+            if (changed) {
+                updateTypingIndicator();
+            }
+        }, 1000);
+        
         return channel;
     }
-
-    let channel = null; // To hold the channel subscription
     
     function formatTimeDiff(ms) {
         if (ms <= 0) return "0 seconds";
@@ -2500,6 +3282,96 @@
         }
     }
 
+    // --- MODIFICATION: User-facing Edit/Delete Functions ---
+    async function handleDeleteMessageSelf(messageId) {
+        if (!confirm('Are you sure you want to delete this message?')) return;
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', messageId)
+            .eq('user_id', window.currentUser.id); // Crucial: can only delete their own
+
+        if (error) {
+            showToast("Failed to delete message: " + error.message, 'error');
+        } else {
+            showToast("Message deleted.", 'success');
+            // Realtime will handle the removal from UI
+        }
+    }
+    
+    function handleEditMessage(messageId) {
+        const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+        if (!msgEl) return;
+        
+        const textEl = msgEl.querySelector('.text');
+        if (!textEl || msgEl.querySelector('.edit-editor')) return; // Already editing
+        
+        const msg = loadedMessages.find(m => m.id == messageId);
+        if (!msg) return;
+
+        // Get raw HTML, but remove the (edited) tag if present
+        let currentHtml = msg.message.replace(/ <small>(.*?)<\/small>$/i, '');
+        
+        textEl.innerHTML = `<div id="edit-editor-${messageId}" contenteditable="true" class="edit-editor">${currentHtml}</div>`;
+        
+        const controls = document.createElement('div');
+        controls.className = 'edit-controls';
+        controls.innerHTML = `
+            <button data-action="save-edit" data-message-id="${messageId}">Save</button>
+            <button data-action="cancel-edit" data-message-id="${messageId}">Cancel</button>
+        `;
+        textEl.appendChild(controls);
+        
+        const editEditor = document.getElementById(`edit-editor-${messageId}`);
+        editEditor.focus();
+        // Move cursor to end
+        document.execCommand('selectAll', false, null);
+        document.getSelection().collapseToEnd();
+    }
+    
+    async function handleSaveEdit(messageId) {
+        const editorEl = document.getElementById(`edit-editor-${messageId}`);
+        if (!editorEl) return;
+        
+        const newHtml = sanitizeHTML(editorEl.innerHTML).trim() + ' <small>(edited)</small>'; // Add (edited) tag
+
+        const { data, error } = await supabase
+            .from('messages')
+            .update({ message: newHtml })
+            .eq('id', messageId)
+            .eq('user_id', window.currentUser.id) // Security check
+            .select() // Select to get the updated row
+            .single();
+
+        if (error) {
+            showToast('Failed to save edit: ' + error.message, 'error');
+        } else {
+            // Update local cache
+            const msgIndex = loadedMessages.findIndex(m => m.id == messageId);
+            if (msgIndex > -1) {
+                loadedMessages[msgIndex] = data;
+            }
+            // Realtime will handle the UI update, but we can force it
+            const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+            if (msgEl) {
+                msgEl.querySelector('.text').innerHTML = cleanMessageMentions(newHtml);
+            }
+        }
+    }
+
+    function handleCancelEdit(messageId) {
+        const msg = loadedMessages.find(m => m.id == messageId);
+        if (msg) {
+            const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+            if (msgEl) {
+                 msgEl.querySelector('.text').innerHTML = cleanMessageMentions(msg.message); // Re-render original message
+            }
+        }
+    }
+    // --- END EDIT/DELETE ---
+
+
+    // --- MODERATOR FUNCTIONS ---
     async function deleteMessageAsMod(messageId) {
         const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
         const username = messageEl ? messageEl.dataset.username : 'this user';
@@ -2575,8 +3447,132 @@
             showToast("Profile picture sync complete!", 'success');
         }
     }
+    // --- END MODERATOR FUNCTIONS ---
+    
+    
+    // --- @MENTION FUNCTIONS (NEW) ---
+    async function fetchMentionSuggestions(query) {
+        const cached = mentionCache[query];
+        if (cached) return cached;
+        
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('username')
+            .like('username', `${query}%`)
+            .limit(5);
+            
+        if (error) {
+            console.error("Error fetching mentions:", error);
+            return [];
+        }
+        
+        const users = data.map(p => cleanUsername(p.username));
+        mentionCache[query] = users;
+        return users;
+    }
+
+    function showMentionSuggestions(users) {
+        mentionSuggestions.innerHTML = '';
+        if (users.length === 0) {
+            mentionSuggestions.style.display = 'none';
+            return;
+        }
+        
+        users.forEach((user, index) => {
+            const item = document.createElement('div');
+            item.className = 'mention-item';
+            if (index === 0) item.classList.add('selected');
+            item.textContent = user;
+            item.addEventListener('click', () => {
+                insertMention(user);
+            });
+            mentionSuggestions.appendChild(item);
+        });
+        mentionSuggestions.style.display = 'block';
+    }
+
+    function insertMention(username) {
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        
+        // Find the start of the @query
+        const textNode = range.startContainer;
+        let textContent = textNode.textContent;
+        let queryStart = range.startOffset - (currentMentionQuery.length + 1);
+
+        // Replace the @query with the full username + a space
+        textContent = textContent.substring(0, queryStart) + `@${username} ` + textContent.substring(range.startOffset);
+        
+        textNode.textContent = textContent;
+        
+        // Move cursor after the inserted mention
+        range.setStart(textNode, queryStart + username.length + 2);
+        range.setEnd(textNode, queryStart + username.length + 2);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Hide suggestions
+        mentionSuggestions.style.display = 'none';
+        currentMentionQuery = null;
+        editor.focus();
+    }
+    
+    function handleMentionKeydown(e) {
+        if (mentionSuggestions.style.display === 'none') return;
+        
+        const items = mentionSuggestions.querySelectorAll('.mention-item');
+        if (items.length === 0) return;
+        
+        let selectedIndex = -1;
+        items.forEach((item, index) => {
+            if (item.classList.contains('selected')) {
+                selectedIndex = index;
+            }
+        });
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (selectedIndex > -1) items[selectedIndex].classList.remove('selected');
+            selectedIndex = (selectedIndex + 1) % items.length;
+            items[selectedIndex].classList.add('selected');
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (selectedIndex > -1) items[selectedIndex].classList.remove('selected');
+            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            items[selectedIndex].classList.add('selected');
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            if (selectedIndex > -1) {
+                insertMention(items[selectedIndex].textContent);
+            }
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            mentionSuggestions.style.display = 'none';
+            currentMentionQuery = null;
+        }
+    }
+    
+    async function handleMentionInput() {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const text = range.startContainer.textContent.substring(0, range.startOffset);
+        const atMatch = text.match(/@([a-zA-Z0-9_.]+)$/);
+
+        if (atMatch) {
+            currentMentionQuery = atMatch[1];
+            const users = await fetchMentionSuggestions(currentMentionQuery);
+            showMentionSuggestions(users);
+        } else {
+            mentionSuggestions.style.display = 'none';
+            currentMentionQuery = null;
+        }
+    }
+    // --- END @MENTION ---
 
 
+    // --- EVENT LISTENERS ---
     richTextToolbar.addEventListener('mousedown', (e) => {
         e.preventDefault();
         const button = e.target.closest('button');
@@ -2585,7 +3581,10 @@
             let value = null;
             if (format === 'createLink') {
                 value = prompt('Enter URL:');
-                if (!value) return;
+                if (!value || (!value.startsWith('http:') && !value.startsWith('https:'))) {
+                    if (value) showToast("Invalid URL. Must start with http: or https:", "error");
+                    return;
+                }
             }
             document.execCommand(format, false, value);
             editor.focus();
@@ -2599,7 +3598,31 @@
     });
     
     chatBox.addEventListener('click', (e) => {
-        // MOD TOOLS
+        // --- MODIFICATION: Consolidated click listener ---
+        const actionButton = e.target.closest('.mod-tools-menu button, .edit-controls button');
+        
+        if (actionButton) {
+            const { action, messageId, userId } = actionButton.dataset;
+            switch(action) {
+                // User actions
+                case 'edit': handleEditMessage(messageId); break;
+                case 'delete-self': handleDeleteMessageSelf(messageId); break;
+                case 'save-edit': handleSaveEdit(messageId); break;
+                case 'cancel-edit': handleCancelEdit(messageId); break;
+                // Mod actions
+                case 'delete': deleteMessageAsMod(messageId); break;
+                case 'timeout-10m': applySanction(userId, 'TIMEOUT', 10); break;
+                case 'timeout-1h': applySanction(userId, 'TIMEOUT', 60); break;
+                case 'ban': applySanction(userId, 'BAN'); break;
+                case 'pardon': pardonUser(userId); break;
+            }
+            // Close menu if it was a menu button
+            if (actionButton.parentElement.classList.contains('mod-tools-menu')) {
+                 actionButton.parentElement.classList.remove('visible');
+            }
+            return;
+        }
+
         const toggle = e.target.closest('.mod-tools-toggle');
         if (toggle) {
             document.querySelectorAll('.mod-tools-menu.visible').forEach(m => m.classList.remove('visible'));
@@ -2608,20 +3631,7 @@
             e.stopPropagation();
             return;
         }
-
-        const actionButton = e.target.closest('.mod-tools-menu button');
-        if (actionButton) {
-            const { action, messageId, userId } = actionButton.dataset;
-            switch(action) {
-                case 'delete': deleteMessageAsMod(messageId); break;
-                case 'timeout-10m': applySanction(userId, 'TIMEOUT', 10); break;
-                case 'timeout-1h': applySanction(userId, 'TIMEOUT', 60); break;
-                case 'ban': applySanction(userId, 'BAN'); break;
-                case 'pardon': pardonUser(userId); break;
-            }
-            actionButton.parentElement.classList.remove('visible');
-            return;
-        }
+        // --- END CONSOLIDATION ---
 
         // IMAGE LIGHTBOX
         if (e.target.tagName === 'IMG' && e.target.closest('.message-content')) {
@@ -2635,10 +3645,10 @@
         if (avatarLink) {
             e.preventDefault();
             const { userId, username, avatarUrl } = avatarLink.dataset;
+            if (userId === window.currentUser.id) return; // Don't show profile for self
             showUserProfile(userId, username, avatarUrl);
             return;
         }
-
     });
     
     document.addEventListener('click', (e) => {
@@ -2651,6 +3661,19 @@
         const profileMsgContainer = document.getElementById('user-profile-messages');
         document.getElementById('profile-view-avatar').src = avatarUrl;
         document.getElementById('profile-view-username').textContent = `${username}'s Posts`;
+        
+        // --- MODIFICATION: Update Block Button State ---
+        profileActionBtn.dataset.userId = userId;
+        profileActionBtn.dataset.username = username;
+        const blockedUsers = getBlockedUsers();
+        if (blockedUsers.includes(userId)) {
+            profileActionBtn.textContent = 'Unblock';
+            profileActionBtn.dataset.action = 'unblock';
+        } else {
+            profileActionBtn.textContent = 'Block';
+            profileActionBtn.dataset.action = 'block';
+        }
+        
         profileMsgContainer.innerHTML = '<div id="loading-older" style="display: block;"></div>';
         userProfileView.classList.add('visible');
 
@@ -2675,6 +3698,16 @@
         }
     }
 
+    // --- MODIFICATION: Block Button Listener ---
+    profileActionBtn.addEventListener('click', (e) => {
+        const { action, userId, username } = e.target.dataset;
+        if (action === 'block') {
+            handleBlockUser(userId, username);
+        } else if (action === 'unblock') {
+            handleUnblockUser(userId, username);
+        }
+    });
+
 
     // MODAL/VIEW CLOSE LISTENERS
     function closeModalOnClick(modal) {
@@ -2690,11 +3723,22 @@
              closeModalOnClick(modMenuModal);
         }
     });
+    // --- MODIFICATION: Settings Modal Listeners ---
+    settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal || e.target === settingsMenuClose) {
+             closeModalOnClick(settingsModal);
+        }
+    });
+    settingsBtn.addEventListener('click', () => {
+        settingsModal.classList.add('visible');
+    });
+    // --- END SETTINGS ---
+    
     modMenuBtn.addEventListener('click', () => {
         modMenuModal.classList.add('visible');
     });
     fireworkTestBtn.addEventListener('click', () => {
-        runFireworkShow();
+        runFireworkShow(true); // Run test (ignore settings)
         closeModalOnClick(modMenuModal);
     });
     updatePfpsBtn.addEventListener('click', () => {
@@ -2709,16 +3753,98 @@
         userProfileView.classList.remove('visible');
     });
 
+    // --- MODIFICATION: Search Bar Listeners ---
+    searchBtn.addEventListener('click', () => {
+        const isVisible = searchBar.style.display === 'flex';
+        if (isVisible) {
+            // Hide search
+            searchBar.style.display = 'none';
+            chatHeaderTitle.style.display = 'block';
+            searchBtn.classList.remove('active');
+            searchInput.value = '';
+            // Trigger input event to clear filter
+            searchInput.dispatchEvent(new Event('input')); 
+        } else {
+            // Show search
+            searchBar.style.display = 'flex';
+            chatHeaderTitle.style.display = 'none';
+            searchBtn.classList.add('active');
+            searchInput.focus();
+        }
+    });
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        
+        document.querySelectorAll('.message').forEach(msgEl => {
+            const username = msgEl.dataset.username.toLowerCase();
+            const textEl = msgEl.querySelector('.text');
+            if (!textEl) return;
+            
+            const textContent = textEl.textContent.toLowerCase();
+            
+            // Remove old highlights
+            textEl.innerHTML = textEl.innerHTML.replace(/<mark>|<\/mark>/g, '');
+
+            if (query === "") {
+                msgEl.style.display = 'flex';
+                return;
+            }
+
+            if (username.includes(query) || textContent.includes(query)) {
+                msgEl.style.display = 'flex';
+                // Add new highlight
+                try {
+                    const regex = new RegExp(`(${query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+                    textEl.innerHTML = textEl.innerHTML.replace(regex, '<mark>$1</mark>');
+                } catch(e) {
+                    console.warn("Invalid regex for highlighting:", e);
+                }
+            } else {
+                msgEl.style.display = 'none';
+            }
+        });
+    });
+    // --- END SEARCH ---
+
+
+    // --- APP INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', async () => {
         sendBtn.addEventListener('click', handleSendClick);
+        
+        // --- MODIFICATION: Swapped Enter/Shift+Enter behavior ---
         editor.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            // Handle mention UI first
+            if (mentionSuggestions.style.display !== 'none') {
+                handleMentionKeydown(e);
+                if (['ArrowDown', 'ArrowUp', 'Enter', 'Tab', 'Escape'].includes(e.key)) {
+                    return; // Don't process send/newline
+                }
+            }
+            
+            if (e.key === 'Enter' && e.shiftKey) {
+                // Shift+Enter sends
                 e.preventDefault();
                 handleSendClick();
-            } else if (e.key === 'Enter' && e.shiftKey) {
-                document.execCommand('insertLineBreak');
-                e.preventDefault();
             }
+            // By default, 'Enter' now just inserts a new line.
+        });
+        
+        // --- MODIFICATION: Typing indicator & @mention listener ---
+        editor.addEventListener('input', () => {
+            // Typing indicator
+            if (channel) {
+                // Send typing event, but not on every keypress (debounce)
+                clearTimeout(typeTimer);
+                channel.track({ event: 'typing', payload: { username: currentUsername } });
+                
+                typeTimer = setTimeout(() => {
+                    channel.track({ event: 'stopped_typing', payload: { username: currentUsername } });
+                }, 3000); // 3 second timeout
+            }
+            
+            // @Mention
+            handleMentionInput();
         });
 
         editor.addEventListener('paste', (e) => {
@@ -2739,6 +3865,7 @@
             }
         });
 
+        // --- MODIFICATION: Settings Listeners ---
         const bgUploader = document.getElementById('background-uploader');
         if (bgUploader) {
             bgUploader.addEventListener('change', (e) => {
@@ -2759,8 +3886,33 @@
                 }
             });
         }
+        
+        document.getElementById('settings-text-size').addEventListener('input', (e) => {
+            localStorage.setItem('settings-text-size', e.target.value);
+            applySettings();
+        });
+        document.getElementById('settings-transparency').addEventListener('input', (e) => {
+            localStorage.setItem('settings-transparency', e.target.value);
+            applySettings();
+        });
+        document.getElementById('settings-hide-images').addEventListener('change', (e) => {
+            localStorage.setItem('settings-hide-images', e.target.checked);
+            applySettings();
+        });
+        document.getElementById('settings-hide-events').addEventListener('change', (e) => {
+            localStorage.setItem('settings-hide-events', e.target.checked);
+        });
+        // --- END SETTINGS LISTENERS ---
 
         setSavedTheme(true); 
+        loadSettings(); // Load and apply all other settings
+
+        // === START SCHEDULE TRACKER INIT ===
+        loadPeriodNames(); // Load custom names
+        updatePeriodTimer(); // Run once immediately
+        setInterval(updatePeriodTimer, 1000); // Update every second
+        // === END SCHEDULE TRACKER INIT ===
+
         typingIndicator = createTypingIndicator();
         await updateGlobalAvatarAndName();
         await loadInitialMessages();
@@ -2769,17 +3921,59 @@
             await updateGlobalAvatarAndName();
         });
 
+        // --- MODIFICATION: Replaced visibilitychange listener ---
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {
                 console.log("Tab is visible again. Re-syncing...");
+                
+                // Always remove and re-add the channel to ensure connection
                 if (channel) {
                     supabase.removeChannel(channel);
                 }
-                await updateGlobalAvatarAndName();
-                await loadInitialMessages(); 
                 channel = subscribeToMessages(); 
+
+                // Re-auth
+                await updateGlobalAvatarAndName();
+
+                if (loadedMessages.length > 0) {
+                    // We have messages, just fetch what's new
+                    const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
+                    
+                    const { data: newMessages, error } = await supabase
+                        .from('messages')
+                        .select('id, user_id, username, avatar_url, message, timestamp')
+                        .gt('timestamp', lastTimestamp)
+                        .order('timestamp', { ascending: true });
+
+                    if (error) {
+                        console.error("Error fetching new messages on re-focus:", error);
+                        // Fallback to full reload
+                        await loadInitialMessages();
+                        return;
+                    }
+
+                    if (newMessages && newMessages.length > 0) {
+                        console.log(`Fetched ${newMessages.length} new messages.`);
+                        const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+                        for (const msg of newMessages) {
+                            if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
+                                loadedMessages.push(msg);
+                                await displayMessage(msg); // This appends to the chatBox
+                            }
+                        }
+                        if (wasScrolledToBottom) {
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
+                    } else {
+                        console.log("No new messages since last focus.");
+                    }
+                } else {
+                    // No messages were loaded, do a full initial load
+                    await loadInitialMessages();
+                }
             }
         });
+        // --- END MODIFICATION ---
 
         scheduleDailyEvent();
     });
@@ -2820,7 +4014,14 @@
         }, delay);
     }
 
-    function runFireworkShow() {
+    function runFireworkShow(isTest = false) {
+        // --- MODIFICATION: Check settings ---
+        const hideEvents = localStorage.getItem('settings-hide-events') === 'true';
+        if (hideEvents && !isTest) {
+            console.log("Fireworks hidden due to user settings.");
+            return;
+        }
+        
         const dimOverlay = document.createElement('div');
         dimOverlay.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -2860,7 +4061,16 @@
         const startX = Math.random() * 80 + 10;
         const startY = 100;
         const endY = Math.random() * 50 + 10;
-        const hue = Math.random() * 360;
+        
+        // --- MODIFICATION: 6.7% Yellow Chance ---
+        let hue;
+        if (Math.random() < 0.067) {
+            // Yellow hue is around 60
+            hue = Math.random() * 10 + 55; // 55-65
+        } else {
+            hue = Math.random() * 360;
+        }
+        // --- END MODIFICATION ---
         
         rocket.style.left = `${startX}vw`;
         rocket.style.bottom = '0px';
@@ -2892,13 +4102,15 @@
         explosion.style.top = `${y}vh`;
         container.appendChild(explosion);
         
-        const particleCount = Math.random() * 50 + 50;
+        // --- MODIFICATION: More particles ---
+        const particleCount = Math.random() * 80 + 70; // 70-150 particles
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             
             const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 150 + 50;
+            // --- MODIFICATION: Faster/Larger explosion ---
+            const speed = Math.random() * 200 + 100; // 100-300 speed
             const gravity = 1.8;
             const endX = Math.cos(angle) * speed;
             const endY = Math.sin(angle) * speed;
@@ -2916,9 +4128,15 @@
             if (document.styleSheets.length > 0) {
                 const styleSheet = document.styleSheets[document.styleSheets.length - 1];
                 try {
+                    // Use insertRule, it's more standard
                     styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
                 } catch(e) {
-                    console.warn("Could not insert keyframe rule:", e);
+                    // Fallback for Safari/IE in some cases
+                    try {
+                        styleSheet.addRule(keyframes, '');
+                    } catch (e2) {
+                         console.warn("Could not insert keyframe rule:", e2);
+                    }
                 }
             }
 
@@ -2976,6 +4194,7 @@
 </style>
 
 <script>
+  // This script is intentionally left as-is, as it's separate from the main module.
   const { createClient } = supabase;
   const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -2991,4 +4210,3 @@
 
 </body>
 </html>
-
