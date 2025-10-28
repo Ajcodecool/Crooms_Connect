@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -2057,21 +2058,23 @@
         }
 </style>
 <body class="theme-dark">
+<div id="chatWindow" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto; margin-bottom:10px;"></div>
+<input id="messageInput" placeholder="Type your message here" style="width:80%;" type="text"/>
+<button onclick="sendMessage()">Send</button>
+
 <a class="back-button" href="index.html">← Back to Home</a>
 <div class="chat-container">
-    <div id="scroll-to-bottom" class="scroll-to-bottom-btn">
-        <i class="fas fa-arrow-down"></i>
-    </div>
-    <div class="chat-header">
-        <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
-        
-        <!-- --- MODIFICATION: Search Bar --- -->
-        <div class="search-bar" id="search-bar">
-            <input type="text" id="search-input" placeholder="Search loaded messages...">
-        </div>
-        
-        <!-- NEW SCHEDULE TRACKER BAR -->
-        <div id="schedule-tracker-bar" style="
+<div class="scroll-to-bottom-btn" id="scroll-to-bottom">
+<i class="fas fa-arrow-down"></i>
+</div>
+<div class="chat-header">
+<div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
+<!-- --- MODIFICATION: Search Bar --- -->
+<div class="search-bar" id="search-bar">
+<input id="search-input" placeholder="Search loaded messages..." type="text"/>
+</div>
+<!-- NEW SCHEDULE TRACKER BAR -->
+<div id="schedule-tracker-bar" style="
             background: var(--toolbar-bg); 
             color: var(--text-color); 
             padding: 4px 12px; 
@@ -2085,176 +2088,159 @@
         ">
             Loading schedule...
         </div>
-        <!-- END NEW BAR -->
-        <div class="flex items-center gap-2">
-            <!-- --- MODIFICATION: New Header Buttons --- -->
-            <button id="search-btn" class="header-icon-btn" title="Search"><i class="fas fa-search"></i></button>
-            <button id="settings-btn" class="header-icon-btn" title="Settings"><i class="fas fa-cog"></i></button>
-            <button id="mod-menu-btn" class="header-icon-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
-            <!-- --- END MODIFICATION --- -->
-
-            <!-- Theme selector removed from here -->
-            
-            <div class="user-info" id="user-info" style="display: none;">
-                <img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
-                <span id="user-name">Loading...</span>
-                <span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
-            </div>
-        </div>
-    </div>
-    <div class="chat-messages" id="chat-box">
-        <div id="loading-older" style="display:none">Loading...</div>
-        <!-- Typing indicator will be appended here by JS -->
-    </div>
-    <div class="chat-input">
-        <!-- --- MODIFICATION: @Mention Suggestions --- -->
-        <div id="mention-suggestions"></div>
-        
-        <div class="rich-text-toolbar" id="rich-text-toolbar">
-            <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
-            <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
-            <button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
-            <button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
-            <button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
-            <button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
-        </div>
-        <div class="chat-input-row">
-            <div id="chat-input-editor" contenteditable="true" placeholder="Type your message (Enter for new line, Shift+Enter to send)"></div>
-            <button id="send-button">Send</button>
-        </div>
-    </div>
-    <!-- USER PROFILE VIEW (NEW) -->
-    <div class="user-profile-view" id="user-profile-view">
-        <div class="user-profile-header">
-            <button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
-            <img id="profile-view-avatar" src="" alt="avatar">
-            <h2 id="profile-view-username">User Profile</h2>
-            <!-- --- MODIFICATION: Block/Unblock Button --- -->
-            <button id="profile-action-btn" data-user-id="" data-username=""></button>
-        </div>
-        <div class="user-profile-messages" id="user-profile-messages">
-            <!-- Messages will be loaded here -->
-        </div>
-    </div>
+<!-- END NEW BAR -->
+<div class="flex items-center gap-2">
+<!-- --- MODIFICATION: New Header Buttons --- -->
+<button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+<button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
+<button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
+<!-- --- END MODIFICATION --- -->
+<!-- Theme selector removed from here -->
+<div class="user-info" id="user-info" style="display: none;">
+<img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
+<span id="user-name">Loading...</span>
+<span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
 </div>
-
+</div>
+</div>
+<div class="chat-messages" id="chat-box">
+<div id="loading-older" style="display:none">Loading...</div>
+<!-- Typing indicator will be appended here by JS -->
+</div>
+<div class="chat-input">
+<!-- --- MODIFICATION: @Mention Suggestions --- -->
+<div id="mention-suggestions"></div>
+<div class="rich-text-toolbar" id="rich-text-toolbar">
+<button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
+<button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
+<button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
+<button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
+<button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
+<button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+</div>
+<div class="chat-input-row">
+<div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Enter for new line, Shift+Enter to send)"></div>
+<button id="send-button">Send</button>
+</div>
+</div>
+<!-- USER PROFILE VIEW (NEW) -->
+<div class="user-profile-view" id="user-profile-view">
+<div class="user-profile-header">
+<button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
+<img alt="avatar" id="profile-view-avatar" src=""/>
+<h2 id="profile-view-username">User Profile</h2>
+<!-- --- MODIFICATION: Block/Unblock Button --- -->
+<button data-user-id="" data-username="" id="profile-action-btn"></button>
+</div>
+<div class="user-profile-messages" id="user-profile-messages">
+<!-- Messages will be loaded here -->
+</div>
+</div>
+</div>
 <!-- IMAGE LIGHTBOX MODAL (NEW) -->
-<div id="image-modal" class="image-modal-overlay">
-    <span id="image-modal-close" class="modal-close-btn">&times;</span>
-    <img id="image-modal-content" class="image-modal-content" src="" alt="Full view image">
+<div class="image-modal-overlay" id="image-modal">
+<span class="modal-close-btn" id="image-modal-close">×</span>
+<img alt="Full view image" class="image-modal-content" id="image-modal-content" src=""/>
 </div>
-
 <!-- MOD MENU MODAL (ENHANCED) -->
-<div id="mod-menu-modal" class="mod-menu-overlay">
-     <div class="mod-menu-content">
-        <span id="mod-menu-close" class="modal-close-btn">&times;</span>
-        <h2>Moderator Menu</h2>
-        <div class="mod-menu-item">
-            <div>
-                <p>Test Daily Fireworks</p>
-                <small>Triggers the firework animation for 30 seconds.</small>
-            </div>
-            <button id="firework-test-btn">Run Test</button>
-        </div>
-        <div class="mod-menu-item">
-            <div>
-                <p>Update My Message PFPs</p>
-                <small>Updates all your past messages to use your current profile picture.</small>
-            </div>
-            <button id="update-pfps-btn">Sync</button>
-        </div>
-    </div>
+<div class="mod-menu-overlay" id="mod-menu-modal">
+<div class="mod-menu-content">
+<span class="modal-close-btn" id="mod-menu-close">×</span>
+<h2>Moderator Menu</h2>
+<div class="mod-menu-item">
+<div>
+<p>Test Daily Fireworks</p>
+<small>Triggers the firework animation for 30 seconds.</small>
 </div>
-
+<button id="firework-test-btn">Run Test</button>
+</div>
+<div class="mod-menu-item">
+<div>
+<p>Update My Message PFPs</p>
+<small>Updates all your past messages to use your current profile picture.</small>
+</div>
+<button id="update-pfps-btn">Sync</button>
+</div>
+</div>
+</div>
 <!-- --- MODIFICATION: SETTINGS MODAL (NEW) --- -->
-<div id="settings-modal" class="settings-modal-overlay">
-     <div class="settings-menu-content">
-        <span id="settings-menu-close" class="modal-close-btn">&times;</span>
-        <h2>Settings</h2>
-        
-        <div class="settings-menu-item">
-            <p>
+<div class="settings-modal-overlay" id="settings-modal">
+<div class="settings-menu-content">
+<span class="modal-close-btn" id="settings-menu-close">×</span>
+<h2>Settings</h2>
+<div class="settings-menu-item">
+<p>
                 Theme
                 <small>Change the look and feel of the chat.</small>
-            </p>
-            <select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
-                <option value="dark">Modern Dark</option>
-                <option value="light">Light</option>
-                <option value="aim">AOL Instant Messenger</option>
-                <option value="win98">Windows 98</option>
-                <option value="win7">Windows 7 Aero</option>
-                <option value="ios">iOS iMessage</option>
-                <option value="msn">MSN</option>
-                <option value="dos">DOS Terminal</option>
-                <option value="xp">Windows XP Bliss</option>
-                <option value="xerox">Xerox Star GUI</option>
-                <option value="custom">Custom</option>
-            </select>
-        </div>
-        
-        <div class="settings-menu-item" id="custom-theme-settings-container" style="display: none;">
-            <p>
+</p>
+<select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
+<option value="dark">Modern Dark</option>
+<option value="light">Light</option>
+<option value="aim">AOL Instant Messenger</option>
+<option value="win98">Windows 98</option>
+<option value="win7">Windows 7 Aero</option>
+<option value="ios">iOS iMessage</option>
+<option value="msn">MSN</option>
+<option value="dos">DOS Terminal</option>
+<option value="xp">Windows XP Bliss</option>
+<option value="xerox">Xerox Star GUI</option>
+<option value="custom">Custom</option>
+</select>
+</div>
+<div class="settings-menu-item" id="custom-theme-settings-container" style="display: none;">
+<p>
                 Custom Background
                 <small>Upload your own background for the 'Custom' theme.</small>
-            </p>
-            <input type="file" id="background-uploader" accept="image/*" style="max-width: 150px;">
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input accept="image/*" id="background-uploader" style="max-width: 150px;" type="file"/>
+</div>
+<div class="settings-menu-item">
+<p>
                 Text Size
                 <small>Adjust the base font size for the application.</small>
-            </p>
-            <input type="range" id="settings-text-size" min="12" max="20" step="1" value="16">
-            <span id="settings-text-size-label" class="ml-2 w-8 text-right">16px</span>
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input id="settings-text-size" max="20" min="12" step="1" type="range" value="16"/>
+<span class="ml-2 w-8 text-right" id="settings-text-size-label">16px</span>
+</div>
+<div class="settings-menu-item">
+<p>
                 Window Transparency
                 <small>Adjust transparency for themes that support it (e.g., Win7, XP, Custom).</small>
-            </p>
-            <input type="range" id="settings-transparency" min="0.1" max="1.0" step="0.05" value="0.85">
-            <span id="settings-transparency-label" class="ml-2 w-10 text-right">85%</span>
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input id="settings-transparency" max="1.0" min="0.1" step="0.05" type="range" value="0.85"/>
+<span class="ml-2 w-10 text-right" id="settings-transparency-label">85%</span>
+</div>
+<div class="settings-menu-item">
+<p>
                 Hide Images
                 <small>Don't load images sent in messages.</small>
-            </p>
-            <input type="checkbox" id="settings-hide-images">
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input id="settings-hide-images" type="checkbox"/>
+</div>
+<div class="settings-menu-item">
+<p>
                 Hide Events
                 <small>Disable special events like daily fireworks.</small>
-            </p>
-            <input type="checkbox" id="settings-hide-events">
-        </div>
-        
-        <div class="settings-menu-item" style="flex-direction: column; align-items: flex-start;">
-            <p>
+</p>
+<input id="settings-hide-events" type="checkbox"/>
+</div>
+<div class="settings-menu-item" style="flex-direction: column; align-items: flex-start;">
+<p>
                 Blocked Users
                 <small>Messages from these users will be hidden.</small>
-            </p>
-            <div id="blocked-users-list" class="mt-2 w-full">
-                <!-- Blocked users will be listed here -->
-            </div>
-        </div>
-
-    </div>
+</p>
+<div class="mt-2 w-full" id="blocked-users-list">
+<!-- Blocked users will be listed here -->
+</div>
+</div>
+</div>
 </div>
 <!-- --- END MODIFICATION --- -->
-
-
 <!-- TOAST NOTIFICATION (NEW) -->
 <div id="toast-notification">
-    <span class="icon"></span>
-    <span class="message"></span>
+<span class="icon"></span>
+<span class="message"></span>
 </div>
-
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -4149,7 +4135,6 @@
         setTimeout(() => explosion.remove(), 2000);
     }
 </script>
-
 <style>
 .secret-theme {
     background-color: rgba(0, 255, 0, 0.2);
@@ -4192,7 +4177,6 @@
     100% { opacity: 0; }
 }
 </style>
-
 <script>
   // This script is intentionally left as-is, as it's separate from the main module.
   const { createClient } = supabase;
@@ -4207,6 +4191,24 @@
 
   enforceAuth();
 </script>
+<script>
+function sendMessage() {
+    const messageInput = document.getElementById("messageInput");
+    const message = messageInput.value;
+    console.log("Sending message:", message);
 
-</body>
-</html>
+    if (message.trim() === "") {
+        console.warn("Attempted to send an empty message.");
+        return;
+    }
+
+    const chatWindow = document.getElementById("chatWindow");
+    const newMessage = document.createElement("div");
+    newMessage.textContent = message;
+    chatWindow.appendChild(newMessage);
+
+    console.log("Message sent and added to chat window.");
+    messageInput.value = "";
+}
+</script></body>
+</head></html>
