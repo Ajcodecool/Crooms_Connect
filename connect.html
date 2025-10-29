@@ -2709,14 +2709,23 @@
     }
 
     async function updateGlobalAvatarAndName() {
+        // === DEBUG ===
+        console.log('[updateGlobalAvatarAndName] Running auth check...');
+        // === END DEBUG ===
         const { data: authData, error: authErr } = await supabase.auth.getUser();
         
         if (!authData?.user) {
+            // === DEBUG ===
+            console.warn('[updateGlobalAvatarAndName] No user found. Redirecting to auth.html');
+            // === END DEBUG ===
             window.currentUser = null;
             window.location.href = "auth.html";
             return;
         }
 
+        // === DEBUG ===
+        console.log('[updateGlobalAvatarAndName] User found:', authData.user.id);
+        // === END DEBUG ===
         const userId = authData.user.id;
         const { data: profile } = await supabase
             .from("profiles")
@@ -2727,6 +2736,10 @@
         window.currentUser = authData.user;
         currentUsername = cleanUsername(profile?.username) || "Anonymous";
         currentUserIsVerified = !!profile?.is_verified;
+        
+        // === DEBUG ===
+        console.log(`[updateGlobalAvatarAndName] State updated. currentUser: ${window.currentUser.id}, currentUsername: ${currentUsername}`);
+        // === END DEBUG ===
         
         const customAvatar = authData.user.user_metadata?.avatar_url;
         userAvatarImg.src = customAvatar && customAvatar.trim() !== ""
@@ -3089,6 +3102,9 @@
     }
     
     async function sendMessage() {
+        // === DEBUG ===
+        console.log('[sendMessage] Fired. Message content:', editor.innerHTML);
+        // === END DEBUG ===
         const rawMessage = editor.innerHTML;
         const message = sanitizeHTML(rawMessage).trim();
         if (!message || message === '<br>') return null;
@@ -3126,17 +3142,34 @@
             throw new Error("Failed to insert message into database.");
         }
         
+        // === DEBUG ===
+        console.log('[sendMessage] Insert successful. New message ID:', newMessage.id);
+        // === END DEBUG ===
         return newMessage;
     }
 
     function subscribeToMessages() {
+        // === DEBUG ===
+        console.log('[subscribeToMessages] Creating new subscription.');
+        // === END DEBUG ===
         const channel = supabase.channel('messages-channel');
         channel
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
+                // === DEBUG ===
+                console.log('[RT:INSERT] Received new message payload. ID:', payload.new.id);
+                // === END DEBUG ===
+
                 // Prevent duplicating the message we just added locally
                 if (loadedMessages.some(m => m.id === payload.new.id)) {
+                    // === DEBUG ===
+                    console.log(`[RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
+                    // === END DEBUG ===
                     return;
                 }
+                
+                // === DEBUG ===
+                console.log(`[RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
+                // === END DEBUG ===
                 
                 const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
 
@@ -3150,6 +3183,9 @@
                 }
             })
             .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
+                 // === DEBUG ===
+                 console.log('[RT:DELETE] Received delete for ID:', payload.old.id);
+                 // === END DEBUG ===
                  const messageId = payload.old.id;
                  const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
                  if (messageElement) {
@@ -3159,6 +3195,9 @@
             })
             // --- MODIFICATION: Handle message edits and avatar updates ---
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+                 // === DEBUG ===
+                 console.log('[RT:UPDATE] Received update for ID:', payload.new.id);
+                 // === END DEBUG ===
                  const updatedMessage = payload.new;
                  const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
                  
@@ -3236,6 +3275,10 @@
     }
 
     async function handleSendClick() {
+        // === DEBUG ===
+        console.log(`[handleSendClick] Fired. currentUser: ${window.currentUser ? window.currentUser.id : 'null'}`);
+        // === END DEBUG ===
+        
         if (!window.currentUser) { 
             showToast("You must be signed in to send messages.", 'error');
             return;
@@ -3250,6 +3293,10 @@
             .limit(1)
             .single();
 
+        // === DEBUG ===
+        console.log('[handleSendClick] Sanction check complete.');
+        // === END DEBUG ===
+
         if (sanction) {
             if (sanction.action_type === 'BAN') {
                 showToast('You are permanently banned and cannot send messages.', 'error');
@@ -3262,20 +3309,32 @@
 
         if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>") return;
         
+        // === DEBUG ===
+        console.log('[handleSendClick] Disabling editor and sending...');
+        // === END DEBUG ===
         editor.setAttribute('contenteditable', 'false');
         sendBtn.disabled = true;
 
         try {
             const newMessage = await sendMessage();
             if (newMessage) {
+                // === DEBUG ===
+                console.log('[handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
+                // === END DEBUG ===
                 loadedMessages.push(newMessage);
                 await displayMessage(newMessage);
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
         } catch (e) {
+            // === DEBUG ===
+            console.error("[handleSendClick] ERROR:", e);
+            // === END DEBUG ===
             console.error("Send error:", e);
             showToast("Failed to send message: " + e.message, 'error');
         } finally {
+            // === DEBUG ===
+            console.log('[handleSendClick] Re-enabling editor.');
+            // === END DEBUG ===
             editor.setAttribute('contenteditable', 'true');
             sendBtn.disabled = false;
             editor.focus(); 
@@ -3918,19 +3977,31 @@
         await loadInitialMessages();
         channel = subscribeToMessages();
         supabase.auth.onAuthStateChange(async (event, session) => {
+            // === DEBUG ===
+            console.log('[onAuthStateChange] Auth state changed:', event);
+            // === END DEBUG ===
             await updateGlobalAvatarAndName();
         });
 
         // --- MODIFICATION: Replaced visibilitychange listener ---
         document.addEventListener('visibilitychange', async () => {
+            // === DEBUG ===
+            console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
+            // === END DEBUG ===
             if (document.visibilityState === 'visible') {
-                console.log("Tab is visible again. Re-syncing...");
+                console.log("[visibilitychange] Tab is visible again. Re-syncing...");
                 
                 // Always remove and re-add the channel to ensure connection
                 if (channel) {
+                    // === DEBUG ===
+                    console.log('[visibilitychange] Removing old channel.');
+                    // === END DEBUG ===
                     supabase.removeChannel(channel);
                 }
                 channel = subscribeToMessages(); 
+                // === DEBUG ===
+                console.log('[visibilitychange] New channel subscribed.');
+                // === END DEBUG ===
 
                 // Re-auth
                 await updateGlobalAvatarAndName();
@@ -3939,6 +4010,10 @@
                     // We have messages, just fetch what's new
                     const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
                     
+                    // === DEBUG ===
+                    console.log('[visibilitychange] Fetching new messages >', lastTimestamp);
+                    // === END DEBUG ===
+
                     const { data: newMessages, error } = await supabase
                         .from('messages')
                         .select('id, user_id, username, avatar_url, message, timestamp')
@@ -3946,26 +4021,40 @@
                         .order('timestamp', { ascending: true });
 
                     if (error) {
-                        console.error("Error fetching new messages on re-focus:", error);
+                        console.error("[visibilitychange] Error fetching new messages on re-focus:", error);
                         // Fallback to full reload
                         await loadInitialMessages();
                         return;
                     }
 
                     if (newMessages && newMessages.length > 0) {
-                        console.log(`Fetched ${newMessages.length} new messages.`);
+                        // === DEBUG ===
+                        console.log(`[visibilitychange] Fetched ${newMessages.length} new messages on focus.`);
+                        // === END DEBUG ===
                         const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
                         for (const msg of newMessages) {
+                            // === DEBUG ===
+                            console.log(`[visibilitychange] Processing fetched message ID: ${msg.id}`);
+                            // === END DEBUG ===
                             if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
+                                // === DEBUG ===
+                                console.log(`[visibilitychange] Fetched message ${msg.id} is new. Adding to UI.`);
+                                // === END DEBUG ===
                                 loadedMessages.push(msg);
                                 await displayMessage(msg); // This appends to the chatBox
+                            } else {
+                                // === DEBUG ===
+                                console.log(`[visibilitychange] Fetched message ${msg.id} is NOT new. Skipping.`);
+                                // === END DEBUG ===
                             }
                         }
                         if (wasScrolledToBottom) {
                             chatBox.scrollTop = chatBox.scrollHeight;
                         }
                     } else {
-                        console.log("No new messages since last focus.");
+                        // === DEBUG ===
+                        console.log("[visibilitychange] No new messages since last focus.");
+                        // === END DEBUG ===
                     }
                 } else {
                     // No messages were loaded, do a full initial load
@@ -3992,221 +4081,3 @@
         }
     })();
 </script>
-<script id="daily-event-script">
-    function scheduleDailyEvent() {
-        const now = new Date();
-        const targetHour = 14; 
-        const targetMinute = 20;
-
-        let eventTime = new Date();
-        eventTime.setHours(targetHour, targetMinute, 0, 0);
-
-        if (now > eventTime) {
-            eventTime.setDate(eventTime.getDate() + 1);
-        }
-
-        const delay = eventTime.getTime() - now.getTime();
-        console.log(`Fireworks scheduled in ${delay / 1000 / 60} minutes.`);
-
-        setTimeout(() => {
-            runFireworkShow();
-            setInterval(runFireworkShow, 24 * 60 * 60 * 1000);
-        }, delay);
-    }
-
-    function runFireworkShow(isTest = false) {
-        // --- MODIFICATION: Check settings ---
-        const hideEvents = localStorage.getItem('settings-hide-events') === 'true';
-        if (hideEvents && !isTest) {
-            console.log("Fireworks hidden due to user settings.");
-            return;
-        }
-        
-        const dimOverlay = document.createElement('div');
-        dimOverlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: rgba(0, 0, 0, 0.7); z-index: 9998;
-            transition: opacity 1s ease-in-out; opacity: 0;
-        `;
-        document.body.appendChild(dimOverlay);
-        setTimeout(() => { dimOverlay.style.opacity = '1'; }, 10);
-
-        const fireworksContainer = document.createElement('div');
-        fireworksContainer.id = 'fireworks-container';
-        document.body.appendChild(fireworksContainer);
-        
-        const launchCount = 15;
-        for (let i = 0; i < launchCount; i++) {
-            setTimeout(createFirework, Math.random() * 25000);
-        }
-
-        setTimeout(() => {
-            dimOverlay.style.opacity = '0';
-            setTimeout(() => {
-                 const oldContainer = document.getElementById('fireworks-container');
-                 if(oldContainer) oldContainer.remove();
-                 dimOverlay.remove();
-            }, 1000);
-        }, 30000);
-    }
-    
-    function createFirework() {
-        const container = document.getElementById('fireworks-container');
-        if (!container) return;
-
-        const rocket = document.createElement('div');
-        rocket.className = 'firework-particle';
-        container.appendChild(rocket);
-
-        const startX = Math.random() * 80 + 10;
-        const startY = 100;
-        const endY = Math.random() * 50 + 10;
-        
-        // --- MODIFICATION: 6.7% Yellow Chance ---
-        let hue;
-        if (Math.random() < 0.067) {
-            // Yellow hue is around 60
-            hue = Math.random() * 10 + 55; // 55-65
-        } else {
-            hue = Math.random() * 360;
-        }
-        // --- END MODIFICATION ---
-        
-        rocket.style.left = `${startX}vw`;
-        rocket.style.bottom = '0px';
-        rocket.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
-        rocket.style.width = '3px';
-        rocket.style.height = '3px';
-
-        const flightTime = Math.random() * 1.5 + 1;
-        rocket.style.transition = `transform ${flightTime}s cubic-bezier(0.5, 0, 1, 0.5), opacity ${flightTime}s ease-in`;
-        
-        requestAnimationFrame(() => {
-            rocket.style.transform = `translateY(-${startY - endY}vh)`;
-            rocket.style.opacity = '0';
-        });
-
-        setTimeout(() => {
-            rocket.remove();
-            createExplosion(startX, endY, hue);
-        }, flightTime * 1000);
-    }
-
-    function createExplosion(x, y, hue) {
-        const container = document.getElementById('fireworks-container');
-        if (!container) return;
-        
-        const explosion = document.createElement('div');
-        explosion.className = 'firework-explosion';
-        explosion.style.left = `${x}vw`;
-        explosion.style.top = `${y}vh`;
-        container.appendChild(explosion);
-        
-        // --- MODIFICATION: More particles ---
-        const particleCount = Math.random() * 80 + 70; // 70-150 particles
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            const angle = Math.random() * Math.PI * 2;
-            // --- MODIFICATION: Faster/Larger explosion ---
-            const speed = Math.random() * 200 + 100; // 100-300 speed
-            const gravity = 1.8;
-            const endX = Math.cos(angle) * speed;
-            const endY = Math.sin(angle) * speed;
-
-            particle.style.backgroundColor = `hsl(${hue + (Math.random() * 60 - 30)}, 100%, 70%)`;
-            particle.style.setProperty('--transform-end', `translate(${endX}px, ${endY}px)`);
-
-            const keyframes = `
-                @keyframes explode-${i} {
-                    0% { transform: translate(0, 0); opacity: 1; }
-                    100% { transform: translate(${endX}px, ${endY + 150}px); opacity: 0; }
-                }
-            `;
-            // A more robust way to add dynamic keyframes
-            if (document.styleSheets.length > 0) {
-                const styleSheet = document.styleSheets[document.styleSheets.length - 1];
-                try {
-                    // Use insertRule, it's more standard
-                    styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
-                } catch(e) {
-                    // Fallback for Safari/IE in some cases
-                    try {
-                        styleSheet.addRule(keyframes, '');
-                    } catch (e2) {
-                         console.warn("Could not insert keyframe rule:", e2);
-                    }
-                }
-            }
-
-
-            particle.style.animation = `explode-${i} ${Math.random() * 0.8 + 0.8}s cubic-bezier(0.1, 0.5, 0.1, 1) forwards`;
-
-            explosion.appendChild(particle);
-        }
-
-        setTimeout(() => explosion.remove(), 2000);
-    }
-</script>
-
-<style>
-.secret-theme {
-    background-color: rgba(0, 255, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.secret-theme .chat-container,
-.secret-theme .message-box,
-.secret-theme .dropdown {
-    background-color: rgba(0, 255, 0, 0.3);
-    border: 1px solid rgba(0, 255, 0, 0.5);
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-}
-
-.green-cloud-transition {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, rgba(0,255,0,0.6) 0%, transparent 70%);
-    animation: sweepCloud 1s ease-out forwards;
-    z-index: 9999;
-}
-
-@keyframes sweepCloud {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); opacity: 0; }
-}
-
-.green-cloud-transition.fade-out {
-    animation: fadeOutCloud 1s ease-in forwards;
-}
-
-@keyframes fadeOutCloud {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
-}
-</style>
-
-<script>
-  // This script is intentionally left as-is, as it's separate from the main module.
-  const { createClient } = supabase;
-  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  async function enforceAuth() {
-    const { data: authData } = await supabaseClient.auth.getUser();
-    if (!authData.user) {
-      window.location.href = "auth.html";
-    }
-  }
-
-  enforceAuth();
-</script>
-
-</body>
-</html>
