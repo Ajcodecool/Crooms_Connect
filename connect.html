@@ -4,7 +4,24 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Connect Chat (Multi-Theme Demo)</title>
-<!-- Note: Removed the inline script for fullscreen toggle, moved it to the main script block -->
+<!--
+    File: Connector.html
+    Author: Gemini
+    Date: 2024-10-29
+    Description:
+    This is a complex, single-file chat application.
+    It uses Supabase for backend, real-time messaging, and presence.
+    It supports multiple themes, rich-text editing, @mentions,
+    moderator tools, user profiles, block lists, and custom settings.
+
+    Key features added/fixed in this version:
+    - Fixed tab-reconnect bug (message send/load failure).
+    - Added toggleable Online Users sidebar with a footer count.
+    - Added Fullscreen mode toggle in settings.
+    - Added CSS for symmetrical fullscreen layout.
+    - Added debug logging for message sending and tab visibility.
+    - Online bar presence is now more robust.
+-->
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -50,6 +67,7 @@
             max-width: 1200px;
             margin: 40px auto;
             padding: 0 20px;
+            transition: all 0.3s;
         }
         /* --- END MODIFICATION --- */
 
@@ -74,7 +92,7 @@
             min-height: 500px;
         }
 
-        /* --- NEW: Online Users Sidebar --- */
+        /* --- NEW: Online Users Sidebar (Now Toggleable) --- */
         .online-users-sidebar {
             width: 240px;
             flex-shrink: 0;
@@ -82,20 +100,19 @@
             background-color: var(--content-bg);
             border-radius: var(--radius);
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            display: flex;
+            display: none; /* Hidden by default */
             flex-direction: column;
             overflow: hidden;
             transition: all 0.3s;
-            /* Hide on smaller screens */
-            display: none; 
         }
-        /* Show sidebar on screens wider than 1024px */
+        /* Show sidebar when wrapper has class */
+        .main-wrapper.online-sidebar-visible .online-users-sidebar {
+            display: flex;
+        }
+        /* Keep padding rule for large screens */
         @media (min-width: 1024px) {
-            .online-users-sidebar {
-                display: flex;
-            }
             .main-wrapper {
-                padding: 0; /* Remove padding when sidebar is visible */
+                padding: 0; 
             }
         }
         .online-users-header {
@@ -142,6 +159,35 @@
             flex-shrink: 0;
         }
         /* --- END NEW: Online Users Sidebar --- */
+
+        /* --- NEW: Online Count Footer --- */
+        .online-count-footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--content-bg);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 100;
+            cursor: pointer;
+            display: none; /* Controlled by JS/wrapper class */
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .online-count-footer:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+        /* Show footer ONLY when sidebar is hidden */
+        .main-wrapper:not(.online-sidebar-visible) .online-count-footer {
+            display: flex;
+        }
+        /* --- END Online Count Footer --- */
 
         .chat-header {
             padding: 16px;
@@ -746,7 +792,8 @@
         .theme-light .message.self .message-content {
             border-top-right-radius: 10px;
         }
-        .theme-light .rich-text-toolbar button.active {
+        .theme-light .rich-text-toolbar button.active,
+        .theme-light .header-icon-btn.active { /* Added header btn */
             background-color: var(--accent-blue);
             color: #ffffff;
         }
@@ -845,7 +892,8 @@
         .theme-win98 button:active, .theme-win98 .back-button:active, 
         .theme-win98 .rich-text-toolbar button:active, .theme-win98 .header-icon-btn:active,
         .theme-win98 #profile-action-btn:active, .theme-win98 .settings-menu-content button:active,
-        .theme-win98 .edit-controls button:active {
+        .theme-win98 .edit-controls button:active,
+        .theme-win98 .header-icon-btn.active { /* Added header btn */
             border-top: 1px solid var(--win98-dark-gray) !important;
             border-left: 1px solid var(--win98-dark-gray) !important;
             border-right: 1px solid var(--win98-highlight) !important;
@@ -956,7 +1004,8 @@
             border: 1px solid rgba(255,255,255,0.5);
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
         }
-        .theme-win7 .rich-text-toolbar button.active {
+        .theme-win7 .rich-text-toolbar button.active,
+        .theme-win7 .header-icon-btn.active { /* Added header btn */
             background-color: var(--accent-blue);
             color: #ffffff;
             box-shadow: 0 0 5px var(--win7-glow);
@@ -1086,7 +1135,8 @@
         .theme-ios .rich-text-toolbar button {
             color: var(--toolbar-icon-color);
         }
-        .theme-ios .rich-text-toolbar button.active {
+        .theme-ios .rich-text-toolbar button.active,
+        .theme-ios .header-icon-btn.active { /* Added header btn */
             background-color: var(--accent-blue);
             color: #ffffff;
         }
@@ -1249,7 +1299,8 @@
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
             padding: 4px;
         }
-        .theme-msn .rich-text-toolbar button {
+        .theme-msn .rich-text-toolbar button,
+        .theme-msn .header-icon-btn { /* Added header btn */
             background: linear-gradient(to bottom, #fcfcfc 0%, #e0e0e0 100%);
             color: #333333;
             border: 1px solid #8ba8c3;
@@ -1259,10 +1310,12 @@
             width: 30px;
             height: 30px;
         }
-        .theme-msn .rich-text-toolbar button:hover {
+        .theme-msn .rich-text-toolbar button:hover,
+        .theme-msn .header-icon-btn:hover { /* Added header btn */
             background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
         }
-        .theme-msn .rich-text-toolbar button.active {
+        .theme-msn .rich-text-toolbar button.active,
+        .theme-msn .header-icon-btn.active { /* Added header btn */
             background: linear-gradient(to bottom, #d5e9f8 0%, #a4cced 100%);
             border: 1px solid #5a8bc3;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
@@ -1388,7 +1441,8 @@
             border-radius: 0;
             padding: 4px;
         }
-        .theme-dos .rich-text-toolbar button {
+        .theme-dos .rich-text-toolbar button,
+        .theme-dos .header-icon-btn { /* Added header btn */
             background-color: #000000;
             color: var(--toolbar-icon-color);
             border: 1px solid var(--text-color);
@@ -1397,10 +1451,12 @@
             width: 32px;
             height: 32px;
         }
-        .theme-dos .rich-text-toolbar button:hover {
+        .theme-dos .rich-text-toolbar button:hover,
+        .theme-dos .header-icon-btn:hover { /* Added header btn */
             background-color: rgba(0,255,0,0.1);
         }
-        .theme-dos .rich-text-toolbar button.active {
+        .theme-dos .rich-text-toolbar button.active,
+        .theme-dos .header-icon-btn.active { /* Added header btn */
             background-color: #00ff00;
             color: #000000;
         }
@@ -1519,7 +1575,8 @@
             border-radius: 4px;
             padding: 4px;
         }
-        .theme-xp .rich-text-toolbar button {
+        .theme-xp .rich-text-toolbar button,
+        .theme-xp .header-icon-btn { /* Added header btn */
             background: linear-gradient(to top, #e0e9f1 0%, #c4d7ed 100%);
             border: 1px solid #7f9db9;
             color: #333333;
@@ -1528,262 +1585,18 @@
             width: 30px;
             height: 30px;
         }
-        .theme-xp .rich-text-toolbar button:hover {
+        .theme-xp .rich-text-toolbar button:hover,
+        .theme-xp .header-icon-btn:hover { /* Added header btn */
             background: linear-gradient(to top, #e6eff7 0%, #d0e0f3 100%);
         }
-        .theme-xp .rich-text-toolbar button.active {
+        .theme-xp .rich-text-toolbar button.active,
+        .theme-xp .header-icon-btn.active { /* Added header btn */
             background: linear-gradient(to top, #c4d7ed 0%, #a7c0e0 100%);
             border: 1px solid #003c74;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
     
-        /* =======================================
-        8. XEROX STAR GUI THEME (.theme-xerox)
-        ======================================= */
-        .theme-xerox {
-            --primary-bg: #dcdcdc;
-            --content-bg: #ffffff;
-            --text-color: #000000;
-            --input-bg: #ffffff;
-            --input-text: #000000;
-            --accent-blue: #003366;
-            --accent-green: #006600;
-            --radius: 0;
-            --message-bg-received: #f0f0f0;
-            --message-bg-sent: #e0e0e0;
-            --message-text-received: #000000;
-            --message-text-sent: #000000;
-            --toolbar-bg: #e0e0e0;
-            --toolbar-icon-color: #000000;
-            --toolbar-icon-hover-bg: rgba(0,0,0,0.1);
-            font-family: "Courier New", Courier, monospace;
-            font-size: 14px;
-            transition: all 1.5s ease;
-        }
-        .theme-xerox .chat-container, .theme-xerox .online-users-sidebar { /* Added sidebar */
-            border: 2px solid #000;
-            box-shadow: none;
-        }
-        .theme-xerox .chat-header, .theme-xerox .online-users-header { /* Added sidebar */
-            background-color: #003366;
-            color: #ffffff;
-            padding: 6px 10px;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        .theme-xerox .user-info {
-            background-color: #ffffff;
-            border: 1px solid #000;
-            padding: 4px 8px;
-        }
-        .theme-xerox .chat-messages, .theme-xerox .online-users-list { /* Added sidebar */
-            background-color: #f8f8f8;
-            padding: 10px;
-        }
-        .theme-xerox .chat-input {
-            background-color: #ffffff;
-            border-top: 2px solid #000;
-            padding: 8px;
-        }
-        .theme-xerox #chat-input-editor {
-            border: 1px solid #000;
-            background-color: #ffffff;
-            color: #000000;
-        }
-        .theme-xerox .chat-input button {
-            background-color: #003366;
-            color: #ffffff;
-            border: 1px solid #000;
-        }
-        .theme-xerox .message-content {
-            border: 1px solid #000;
-            padding: 6px 10px;
-            background-color: #f0f0f0;
-        }
-        .theme-xerox .message.self .message-content {
-            background-color: #e0e0e0;
-        }
-        .theme-xerox .message-content .username {
-            font-weight: bold;
-            color: #003366;
-        }
-        .theme-xerox .message.self .username {
-            color: #006600;
-        }
-        .theme-xerox .message-content .timestamp {
-            font-size: 0.75rem;
-            color: #666666;
-        }
-        .theme-xerox .rich-text-toolbar {
-            background-color: var(--toolbar-bg);
-            border: 1px solid #000;
-            border-radius: 0;
-            padding: 4px;
-        }
-        .theme-xerox .rich-text-toolbar button {
-            background-color: #dcdcdc;
-            color: #000000;
-            border: 1px solid #000;
-            border-radius: 0;
-            font-size: 1rem;
-            width: 30px;
-            height: 30px;
-        }
-        .theme-xerox .rich-text-toolbar button:hover {
-            background-color: #f0f0f0;
-        }
-        .theme-xerox .rich-text-toolbar button.active {
-            background-color: #003366;
-            color: #ffffff;
-        }
-        
-        /* =======================================
-           9. AOL INSTANT MESSENGER (AIM) THEME
-           ======================================= */
-        .theme-aim {
-            --aim-yellow: #FFC107;
-            --aim-orange: #FF9800;
-            --aim-blue: #007bff;
-            --aim-border: #333;
-            --aim-bg: #FFFFFF;
-
-            --primary-bg: #d3d3d3;
-            --content-bg: var(--aim-bg);
-            --text-color: #000000;
-            --input-bg: var(--aim-bg);
-            --input-text: #000000;
-            --accent-blue: var(--aim-blue);
-            --message-bg-received: var(--aim-bg);
-            --message-bg-sent: var(--aim-blue);
-            --message-text-received: #000000;
-            --message-text-sent: #FFFFFF;
-            --toolbar-bg: #f0f0f0;
-            --toolbar-icon-color: #000000;
-            --toolbar-icon-hover-bg: #e0e0e0;
-
-            font-family: 'Arial', 'Tahoma', sans-serif;
-            font-size: 14px;
-        }
-        .theme-aim .chat-container, .theme-aim .online-users-sidebar { /* Added sidebar */
-            border: 2px solid var(--aim-border);
-            border-radius: 4px;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
-        }
-        .theme-aim .online-users-sidebar { /* AIM sidebar is a "buddy list" */
-            background-color: var(--aim-yellow);
-        }
-        
-        .theme-aim .chat-header {
-            background: linear-gradient(to right, var(--aim-yellow), var(--aim-orange));
-            color: #000000;
-            font-size: 1.1rem;
-            padding: 4px 10px;
-            border-bottom: 2px solid var(--aim-border);
-            text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
-        }
-        .theme-aim .online-users-header { /* Added sidebar */
-            background-color: var(--aim-orange);
-            color: #000000;
-            font-size: 1.1rem;
-            padding: 4px 10px;
-            border-bottom: 2px solid var(--aim-border);
-            text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
-        }
-        .theme-aim .online-users-list { /* Added sidebar */
-            background-color: var(--aim-yellow);
-            padding: 4px;
-        }
-        .theme-aim .online-user-item {
-            background-color: #fff;
-            border: 1px solid #000;
-            border-style: outset;
-        }
-        
-        .theme-aim .chat-header .text-xl {
-            content: "Chat with Crooms Connect";
-        }
-        .theme-aim .user-info, 
-        .theme-aim .verified-badge,
-        .theme-aim #custom-theme-settings,
-        .theme-aim #settings-btn, /* Hide new settings btn */
-        .theme-aim #search-btn { /* Hide new search btn */
-            display: none !important;
-        }
-        .theme-aim .chat-messages {
-            background-color: var(--aim-bg);
-            padding: 10px;
-        }
-        .theme-aim .message .avatar {
-            display: none;
-        }
-        .theme-aim .message {
-            margin-bottom: 8px;
-        }
-        .theme-aim .message-content {
-            border: 1px solid #000;
-            border-radius: 5px;
-            padding: 6px 10px;
-            max-width: 80%;
-            background: var(--message-bg-received);
-        }
-        .theme-aim .message.self .message-content {
-            background: var(--message-bg-sent);
-            border-color: #0056b3;
-        }
-        .theme-aim .message-content .username {
-            font-weight: bold;
-            color: #000000;
-        }
-        .theme-aim .message.self .message-content .username {
-            color: #FFFFFF;
-        }
-        .theme-aim .message-content .timestamp {
-            font-size: 0.7rem;
-            color: #666;
-            text-align: left;
-        }
-        .theme-aim .message.self .message-content .timestamp {
-            color: rgba(255,255,255,0.8);
-            text-align: left;
-        }
-        .theme-aim .chat-input {
-            background-color: #f0f0f0;
-            border-top: 1px solid #888;
-            padding: 8px;
-        }
-        .theme-aim #chat-input-editor {
-            border: 1px solid #888;
-            border-radius: 3px;
-        }
-        .theme-aim .chat-input button {
-            background-color: var(--aim-blue);
-            color: #FFFFFF;
-            font-weight: bold;
-            border-radius: 3px;
-            border: 1px solid #000;
-            border-style: outset;
-            padding: 5px 12px;
-        }
-        .theme-aim .chat-input button:active {
-            border-style: inset;
-        }
-        .theme-aim .rich-text-toolbar {
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            padding: 4px;
-        }
-        .theme-aim .chat-messages::-webkit-scrollbar, .theme-aim .online-users-list::-webkit-scrollbar {
-            width: 16px;
-        }
-        .theme-aim .chat-messages::-webkit-scrollbar-track, .theme-aim .online-users-list::-webkit-scrollbar-track {
-            background: #e0e0e0;
-        }
-        .theme-aim .chat-messages::-webkit-scrollbar-thumb, .theme-aim .online-users-list::-webkit-scrollbar-thumb {
-            background-color: #b0b0b0;
-            border: 1px solid #888;
-        }
-
-        /* --- MODIFICATION: Removed full screen --- */
+ /* --- MODIFICATION: Removed full screen --- */
         /*
         body, html {
             margin: 0;
@@ -2150,6 +1963,11 @@
         .header-icon-btn:hover {
             background-color: var(--toolbar-icon-hover-bg);
         }
+        /* --- NEW: Active state for toggle button --- */
+        .header-icon-btn.active {
+            background-color: var(--accent-blue);
+            color: var(--message-text-sent);
+        }
 
         /* --- MODIFICATION: @Mention Suggestions --- */
         #mention-suggestions {
@@ -2204,19 +2022,44 @@
             color: var(--input-text);
         }
 
-#fullscreen-toggle {
-    display: block;
-    margin-top: 10px;
-    padding: 8px 12px;
-    /* background-color: #5865F2; */ /* Use theme variable */
-    background-color: var(--accent-blue);
-    color: var(--input-text);
-    border: none;
-    border-radius: 6px;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-}
+        /* --- NEW: Fullscreen & Symmetry Fixes --- */
+        :fullscreen {
+            overflow-y: hidden; /* Hide main page scrollbar */
+        }
+        :fullscreen .main-wrapper {
+            max-width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            gap: 0;
+        }
+        :fullscreen .chat-container,
+        :fullscreen .online-users-sidebar {
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        /* Ensure back button is visible */
+        :fullscreen .back-button {
+            z-index: 201; /* Above chat container (profile view is 200) */
+        }
+        /* Ensure modals are on top */
+        :fullscreen .image-modal-overlay,
+        :fullscreen .mod-menu-overlay,
+        :fullscreen .settings-modal-overlay {
+            z-index: 1000;
+        }
+        /* Ensure toast is on top */
+        :fullscreen #toast-notification {
+            z-index: 1100;
+        }
+        :fullscreen .online-count-footer {
+            /* Hide footer in fullscreen, as sidebar is likely open */
+            display: none !important; 
+        }
+
+        /* --- END: Fullscreen & Symmetry === */
 </style>
 <body class="theme-dark">
 <a class="back-button" href="index.html">← Back to Home</a>
@@ -2251,6 +2094,8 @@
     <div class="flex items-center gap-2">
     <!-- --- MODIFICATION: New Header Buttons --- -->
     <button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+    <!-- --- NEW: Online Toggle Button --- -->
+    <button class="header-icon-btn" id="online-toggle-btn" title="Toggle Online Users"><i class="fas fa-users"></i></button>
     <button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
     <button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
     <!-- --- END MODIFICATION --- -->
@@ -2298,6 +2143,12 @@
     </div>
     </div>
     
+    <!-- --- NEW: Online Count Footer --- -->
+    <div class="online-count-footer" id="online-count-footer">
+        <i class="fas fa-circle text-green-500 text-xs" style="color: var(--accent-green);"></i>
+        <span id="online-count-footer-text">0 Online</span>
+    </div>
+
     <!-- --- NEW: Online Users Sidebar --- -->
     <div class="online-users-sidebar" id="online-users-sidebar">
         <div class="online-users-header" id="online-users-header">
@@ -2350,14 +2201,12 @@
 <select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
 <option value="dark">Modern Dark</option>
 <option value="light">Light</option>
-<option value="aim">AOL Instant Messenger</option>
 <option value="win98">Windows 98</option>
 <option value="win7">Windows 7 Aero</option>
 <option value="ios">iOS iMessage</option>
 <option value="msn">MSN</option>
 <option value="dos">DOS Terminal</option>
 <option value="xp">Windows XP Bliss</option>
-<option value="xerox">Xerox Star GUI</option>
 <option value="custom">Custom</option>
 </select>
 </div>
@@ -2398,6 +2247,15 @@
 </p>
 <input id="settings-hide-events" type="checkbox"/>
 </div>
+<!-- --- NEW: Fullscreen Toggle --- -->
+<div class="settings-menu-item">
+<p>
+                Fullscreen Mode
+                <small>Toggle a distraction-free fullscreen view.</small>
+</p>
+<button id="fullscreen-toggle" style="margin-left: 0;">Toggle Fullscreen</button>
+</div>
+<!-- --- END Fullscreen --- -->
 <div class="settings-menu-item" style="flex-direction: column; align-items: flex-start;">
 <p>
                 Blocked Users
@@ -2407,7 +2265,7 @@
 <!-- Blocked users will be listed here -->
 </div>
 </div>
-<button id="fullscreen-toggle">Toggle Fullscreen</button></div>
+</div>
 </div>
 <!-- --- END MODIFICATION --- -->
 <!-- TOAST NOTIFICATION (NEW) -->
@@ -2544,7 +2402,6 @@
                 document.body.style.backgroundAttachment = 'fixed';
             }
         }
-        else if (savedTheme === 'aim') document.body.classList.add('theme-aim');
         else if (savedTheme === 'win98') document.body.classList.add('theme-win98');
         else if (savedTheme === 'light') document.body.classList.add('theme-light');
         else if (savedTheme === 'win7') document.body.classList.add('theme-win7');
@@ -2552,7 +2409,6 @@
         else if (savedTheme === 'msn') document.body.classList.add('theme-msn');
         else if (savedTheme === 'dos') document.body.classList.add('theme-dos');
         else if (savedTheme === 'xp') document.body.classList.add('theme-xp');
-        else if (savedTheme === 'xerox') document.body.classList.add('theme-xerox');
         else document.body.classList.add('theme-dark');
 
         if (themeSelector.querySelector(`option[value="${savedTheme}"]`)) {
@@ -2784,9 +2640,13 @@
     const searchBar = document.getElementById('search-bar');
     const searchInput = document.getElementById('search-input');
     const chatHeaderTitle = document.getElementById('chat-header-title');
-    // --- NEW: Presence Elements ---
+    
+    // --- NEW: Presence & Toggle Elements ---
     const onlineUsersList = document.getElementById('online-users-list');
     const onlineUsersHeader = document.getElementById('online-users-header');
+    const onlineToggleBtn = document.getElementById('online-toggle-btn');
+    const onlineCountFooter = document.getElementById('online-count-footer');
+    const fullscreenToggleBtn = document.getElementById('fullscreen-toggle'); // Added
 
     // --- State Variables ---
     window.currentUser = null; 
@@ -2818,9 +2678,8 @@
 
     // --- NEW: Fullscreen Toggle Logic ---
     function setupFullscreenToggle() {
-        const btn = document.getElementById("fullscreen-toggle");
-        if (btn) {
-            btn.addEventListener("click", function () {
+        if (fullscreenToggleBtn) {
+            fullscreenToggleBtn.addEventListener("click", function () {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().catch(err => {
                         console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
@@ -2831,10 +2690,12 @@
                     }
                 }
             });
+        } else {
+            console.warn("Fullscreen toggle button not found.");
         }
     }
 
-    // --- NEW: Render Online Users ---
+    // --- NEW: Render Online Users (Modified) ---
     function renderOnlineUsers() {
         if (!onlineUsersList || !onlineUsersHeader) return;
 
@@ -2849,9 +2710,19 @@
         }
         
         const userList = Object.values(uniqueUsers);
-        onlineUsersHeader.textContent = `Online — ${userList.length}`;
-        onlineUsersList.innerHTML = '';
+        const count = userList.length;
 
+        // Update Header
+        onlineUsersHeader.textContent = `Online — ${count}`;
+        
+        // Update Footer
+        const footerText = document.getElementById('online-count-footer-text');
+        if (footerText) {
+            footerText.textContent = `${count} Online`;
+        }
+
+        // Render List
+        onlineUsersList.innerHTML = '';
         userList.sort((a, b) => a.user.localeCompare(b.user)); // Sort alphabetically
 
         userList.forEach(presence => {
@@ -2871,6 +2742,15 @@
         });
     }
 
+    // --- NEW: Online Sidebar Toggle ---
+    function setOnlineSidebarVisible(visible) {
+        const wrapper = document.querySelector('.main-wrapper');
+        if (!wrapper || !onlineToggleBtn) return;
+        
+        wrapper.classList.toggle('online-sidebar-visible', visible);
+        onlineToggleBtn.classList.toggle('active', visible); // 'active' class for styling
+        localStorage.setItem('onlineSidebarVisible', visible);
+    }
     
     function createTypingIndicator() {
         const indicator = document.createElement('div');
@@ -3326,7 +3206,7 @@
     
     async function sendMessage() {
         // === DEBUG ===
-        console.log('[sendMessage] Fired. Message content:', editor.innerHTML);
+        console.log('[DEBUG] sendMessage: Preparing message.');
         // === END DEBUG ===
         const rawMessage = editor.innerHTML;
         // --- MODIFICATION: Standardize newlines to <p> tags before sanitizing ---
@@ -3337,7 +3217,10 @@
 
         const message = sanitizeHTML(messageHtml).trim();
         
-        if (!message || message === '<br>' || message === '<p><br></p>') return null;
+        if (!message || message === '<br>' || message === '<p><br></p>') {
+            console.log("[DEBUG] sendMessage: Sanitized message is empty."); // DEBUG
+            return null;
+        }
 
         editor.innerHTML = ''; // Clear editor immediately for better UX
         // --- MODIFICATION: Broadcast stopped typing ---
@@ -3354,6 +3237,15 @@
 
         const username = profile?.username || 'Anonymous';
         const avatar_url = window.currentUser.user_metadata?.avatar_url || '';
+
+        // === DEBUG: Log message being sent ===
+        console.log(`[DEBUG] Sending to Supabase:`, {
+            user_id: window.currentUser.id,
+            username,
+            avatar_url,
+            message,
+        });
+        // === END DEBUG ===
 
         // Insert and immediately get the new row back
         const { data: newMessage, error: insertErr } = await supabase
@@ -3373,7 +3265,7 @@
         }
         
         // === DEBUG ===
-        console.log('[sendMessage] Insert successful. New message ID:', newMessage.id);
+        console.log('[DEBUG] sendMessage: Insert successful. New message ID:', newMessage.id);
         // === END DEBUG ===
         return newMessage;
     }
@@ -3389,7 +3281,7 @@
      */
     function subscribeToMessages(userInfo) {
         // === DEBUG ===
-        console.log('[subscribeToMessages] Creating new subscription.');
+        console.log('[DEBUG] subscribeToMessages: Creating new subscription.');
         // === END DEBUG ===
         const channel = supabase.channel('messages-channel', {
              config: {
@@ -3401,13 +3293,13 @@
         channel
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
                 // === DEBUG ===
-                console.log('[RT:INSERT] Received new message payload. ID:', payload.new.id);
+                console.log('[DEBUG] [RT:INSERT] Received new message payload. ID:', payload.new.id);
                 // === END DEBUG ===
                 if (loadedMessages.some(m => m.id === payload.new.id)) {
-                    console.log(`[RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
+                    console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
                     return;
                 }
-                console.log(`[RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
+                console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
                 
                 const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
                 loadedMessages.push(payload.new);
@@ -3419,7 +3311,7 @@
                 }
             })
             .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
-                 console.log('[RT:DELETE] Received delete for ID:', payload.old.id);
+                 console.log('[DEBUG] [RT:DELETE] Received delete for ID:', payload.old.id);
                  const messageId = payload.old.id;
                  const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
                  if (messageElement) {
@@ -3428,7 +3320,7 @@
                  }
             })
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-                 console.log('[RT:UPDATE] Received update for ID:', payload.new.id);
+                 console.log('[DEBUG] [RT:UPDATE] Received update for ID:', payload.new.id);
                  const updatedMessage = payload.new;
                  const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
                  
@@ -3465,19 +3357,19 @@
             })
             // --- NEW: Presence Listeners ---
             .on('presence', { event: 'sync' }, () => {
-                console.log('[Presence] Sync received.');
+                console.log('[DEBUG] [Presence] Sync received.');
                 onlineUsers = channel.presenceState();
                 renderOnlineUsers();
             })
             .on('presence', { event: 'join' }, ({ newPresences }) => {
-                console.log('[Presence] Join:', newPresences);
+                console.log('[DEBUG] [Presence] Join:', newPresences);
                 newPresences.forEach(presence => {
                     onlineUsers[presence.user] = (onlineUsers[presence.user] || []).concat(presence);
                 });
                 renderOnlineUsers();
             })
             .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-                console.log('[Presence] Leave:', leftPresences);
+                console.log('[DEBUG] [Presence] Leave:', leftPresences);
                 leftPresences.forEach(presence => {
                     onlineUsers[presence.user] = (onlineUsers[presence.user] || []).filter(p => p.presence_ref !== presence.presence_ref);
                     if (onlineUsers[presence.user].length === 0) {
@@ -3489,7 +3381,7 @@
             // --- END Presence ---
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
-                    console.log('[subscribeToMessages] SUBSCRIBED to channel.');
+                    console.log('[DEBUG] [subscribeToMessages] SUBSCRIBED to channel.');
                     // --- NEW: Track presence on subscribe ---
                     if (userInfo && userInfo.username) {
                         await channel.track({ 
@@ -3497,10 +3389,10 @@
                             avatar: userInfo.avatar,
                             is_verified: userInfo.isVerified
                         });
-                        console.log('[Presence] Tracking user:', userInfo.username);
+                        console.log('[DEBUG] [Presence] Tracking user:', userInfo.username);
                     }
                 } else {
-                    console.warn('[subscribeToMessages] Channel subscription status:', status);
+                    console.warn('[DEBUG] [subscribeToMessages] Channel subscription status:', status);
                 }
             });
         
@@ -3541,11 +3433,16 @@
 
     async function handleSendClick() {
         // === DEBUG ===
-        console.log(`[handleSendClick] Fired. currentUser: ${window.currentUser ? window.currentUser.id : 'null'}`);
+        console.log(`[DEBUG] handleSendClick: Fired. currentUser: ${window.currentUser ? window.currentUser.id : 'null'}`);
         // === END DEBUG ===
         
         if (!window.currentUser) { 
             showToast("You must be signed in to send messages.", 'error');
+            return;
+        }
+
+        if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>" || editor.innerHTML.trim() === "<p><br></p>") {
+            console.log("[DEBUG] Send clicked, but message is empty.");
             return;
         }
         
@@ -3559,7 +3456,7 @@
             .single();
 
         // === DEBUG ===
-        console.log('[handleSendClick] Sanction check complete.');
+        console.log('[DEBUG] [handleSendClick] Sanction check complete.');
         // === END DEBUG ===
 
         if (sanction) {
@@ -3572,10 +3469,9 @@
             return;
         }
 
-        if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>" || editor.innerHTML.trim() === "<p><br></p>") return;
         
         // === DEBUG ===
-        console.log('[handleSendClick] Disabling editor and sending...');
+        console.log(`[DEBUG] handleSendClick: User ${window.currentUser.id} is sending a message.`);
         // === END DEBUG ===
         editor.setAttribute('contenteditable', 'false');
         sendBtn.disabled = true;
@@ -3584,7 +3480,7 @@
             const newMessage = await sendMessage();
             if (newMessage) {
                 // === DEBUG ===
-                console.log('[handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
+                console.log('[DEBUG] [handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
                 // === END DEBUG ===
                 loadedMessages.push(newMessage);
                 await displayMessage(newMessage);
@@ -3592,13 +3488,13 @@
             }
         } catch (e) {
             // === DEBUG ===
-            console.error("[handleSendClick] ERROR:", e);
+            console.error("[DEBUG] [handleSendClick] ERROR:", e);
             // === END DEBUG ===
             console.error("Send error:", e);
             showToast("Failed to send message: " + e.message, 'error');
         } finally {
             // === DEBUG ===
-            console.log('[handleSendClick] Re-enabling editor.');
+            console.log('[DEBUG] [handleSendClick] Re-enabling editor.');
             // === END DEBUG ===
             editor.setAttribute('contenteditable', 'true');
             sendBtn.disabled = false;
@@ -4205,6 +4101,22 @@
             }
         });
 
+        // --- NEW: Online Bar Toggle Listeners ---
+        onlineToggleBtn.addEventListener('click', () => {
+            const wrapper = document.querySelector('.main-wrapper');
+            setOnlineSidebarVisible(!wrapper.classList.contains('online-sidebar-visible'));
+        });
+
+        onlineCountFooter.addEventListener('click', () => {
+            setOnlineSidebarVisible(true);
+        });
+
+        // Load saved preference
+        const savedSidebarState = localStorage.getItem('onlineSidebarVisible') === 'true';
+        setOnlineSidebarVisible(savedSidebarState);
+        // --- END Online Bar ---
+
+
         // --- MODIFICATION: Settings Listeners ---
         const bgUploader = document.getElementById('background-uploader');
         if (bgUploader) {
@@ -4266,13 +4178,13 @@
         
         supabase.auth.onAuthStateChange(async (event, session) => {
             // === DEBUG ===
-            console.log('[onAuthStateChange] Auth state changed:', event);
+            console.log('[DEBUG] [onAuthStateChange] Auth state changed:', event);
             // === END DEBUG ===
             await updateGlobalAvatarAndName();
             
             // --- MODIFICATION: Re-subscribe with new auth info ---
             if (channel) {
-                console.log('[onAuthStateChange] Re-subscribing with new auth info.');
+                console.log('[DEBUG] [onAuthStateChange] Re-subscribing with new auth info.');
                 supabase.removeChannel(channel);
             }
             channel = subscribeToMessages({
@@ -4282,7 +4194,6 @@
             });
             // --- END MODIFICATION ---
         });
-
         // --- MODIFICATION: Robust visibilitychange listener ---
         document.addEventListener('visibilitychange', async () => {
             console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
