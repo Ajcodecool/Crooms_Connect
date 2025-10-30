@@ -4,8 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Connect Chat (Multi-Theme Demo)</title>
-<script src="https://cdn.tailwindcss.com">
-</script>
+<!-- Note: Removed the inline script for fullscreen toggle, moved it to the main script block -->
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
@@ -40,9 +40,25 @@
             padding: 0;
             transition: background-color 0.3s;
         }
-        .chat-container {
-            max-width: 800px;
+
+        /* --- MODIFICATION: Main App Wrapper --- */
+        .main-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            max-width: 1200px;
             margin: 40px auto;
+            padding: 0 20px;
+        }
+        /* --- END MODIFICATION --- */
+
+        .chat-container {
+            /* max-width: 800px; */ /* Removed max-width to allow flex-grow */
+            width: 100%;
+            flex-grow: 1;
+            /* margin: 40px auto; */ /* Handled by main-wrapper */
+            margin: 0;
             background-color: var(--content-bg);
             border-radius: var(--radius);
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
@@ -52,13 +68,81 @@
             position: relative;
             transition: all 0.3s;
             overflow: hidden;
-            /* --- MODIFICATION: Added resizability --- */
             resize: both;
             overflow: auto;
             min-width: 400px;
             min-height: 500px;
-            /* --- END MODIFICATION --- */
         }
+
+        /* --- NEW: Online Users Sidebar --- */
+        .online-users-sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            height: 80vh;
+            background-color: var(--content-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s;
+            /* Hide on smaller screens */
+            display: none; 
+        }
+        /* Show sidebar on screens wider than 1024px */
+        @media (min-width: 1024px) {
+            .online-users-sidebar {
+                display: flex;
+            }
+            .main-wrapper {
+                padding: 0; /* Remove padding when sidebar is visible */
+            }
+        }
+        .online-users-header {
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+            flex-shrink: 0;
+            color: var(--text-color);
+        }
+        .online-users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        .online-user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+        }
+        .online-user-item:hover {
+            background-color: var(--toolbar-icon-hover-bg);
+        }
+        .online-user-item img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .online-user-item span {
+            font-weight: 500;
+            color: var(--text-color);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .online-user-item .verified-badge {
+            font-size: 0.8em;
+            margin-left: -5px;
+            flex-shrink: 0;
+        }
+        /* --- END NEW: Online Users Sidebar --- */
+
         .chat-header {
             padding: 16px;
             font-size: 1.5rem;
@@ -129,6 +213,16 @@
             color: #9ca3af;
             pointer-events: none;
         }
+        /* --- MODIFICATION: Fix for editor newlines --- */
+        #chat-input-editor p {
+            margin: 0;
+        }
+        #chat-input-editor ul, #chat-input-editor ol {
+            padding-inline-start: 25px;
+            margin-block: 0.5em;
+        }
+        /* --- END MODIFICATION --- */
+        
         .chat-input-row {
             display: flex;
             align-items: flex-end;
@@ -224,9 +318,10 @@
             color: rgba(0,0,0,0.6);
         }
         .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+            /* --- MODIFICATION: Repositioned back button --- */
+            position: fixed;
+            top: 10px;
+            left: 10px;
             background-color: var(--accent-green);
             color: #1a1b2f;
             padding: 8px 14px;
@@ -296,7 +391,13 @@
         }
 
         .message-content a { color: var(--accent-blue); text-decoration: underline; }
-        /* --- MODIFICATION: Improved list styles --- */
+        /* --- MODIFICATION: Improved list/p styles --- */
+        .message-content p {
+            margin-block: 0.5em; /* Add space between paragraphs */
+        }
+        .message-content p:first-child { margin-top: 0; }
+        .message-content p:last-child { margin-bottom: 0; }
+        
         .message-content ul, .message-content ol {
             padding-inline-start: 25px;
             margin-block: 0.5em;
@@ -413,6 +514,12 @@
             outline: none;
             box-shadow: 0 0 5px rgba(var(--accent-blue), 0.5);
         }
+        .edit-editor p { margin: 0; }
+        .edit-editor ul, .edit-editor ol {
+            padding-inline-start: 25px;
+            margin-block: 0.5em;
+        }
+        
         .edit-controls {
             display: flex;
             gap: 8px;
@@ -623,10 +730,10 @@
             --toolbar-icon-color: #212529;
             --toolbar-icon-hover-bg: rgba(0,0,0,0.05);
         }
-        .theme-light .chat-container {
+        .theme-light .chat-container, .theme-light .online-users-sidebar { /* Added sidebar */
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .theme-light .chat-header {
+        .theme-light .chat-header, .theme-light .online-users-header { /* Added sidebar */
             border-bottom: 1px solid #dee2e6;
             color: var(--text-color);
         }
@@ -672,12 +779,12 @@
             font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
             font-size: 11px;
         }
-        .theme-win98 .chat-container {
+        .theme-win98 .chat-container, .theme-win98 .online-users-sidebar { /* Added sidebar */
             border-radius: 0;
             border: 1px solid var(--win98-black);
             box-shadow: 4px 4px 0 0 var(--win98-dark-shadow);
         }
-        .theme-win98 .chat-header {
+        .theme-win98 .chat-header, .theme-win98 .online-users-header { /* Added sidebar */
             background-color: var(--win98-blue);
             color: var(--win98-white);
             border-bottom: none;
@@ -695,7 +802,7 @@
         .theme-win98 .user-info span, .theme-win98 .user-info img {
             display: none;
         }
-        .theme-win98 .chat-messages {
+        .theme-win98 .chat-messages, .theme-win98 .online-users-list { /* Added sidebar */
             padding: 8px;
             border-top: 1px solid var(--win98-dark-gray);
             border-left: 1px solid var(--win98-dark-gray);
@@ -703,6 +810,8 @@
             border-bottom: 1px solid var(--win98-highlight);
             margin: 4px;
         }
+        .theme-win98 .online-users-list { padding: 4px; } /* Sidebar list tighter */
+        
         .theme-win98 .chat-input {
             border-top: none;
             padding: 4px;
@@ -743,7 +852,7 @@
             border-bottom: 1px solid var(--win98-highlight) !important;
             padding: 4px 7px 2px 9px !important; 
         }
-        .theme-win98 .back-button { top: 10px; left: 10px; }
+        .theme-win98 .back-button { top: 10px; left: 10px; position: fixed; } /* Fixed pos */
         .theme-win98 .message-content { border-radius: 0; padding: 2px 5px; }
         .theme-win98 .message.self .message-content { border-top-right-radius: 0; }
         .theme-win98 .message-content .username { color: var(--win98-blue); margin-bottom: 2px; }
@@ -794,18 +903,22 @@
             --toolbar-icon-hover-bg: rgba(0, 110, 192, 0.2);
             font-family: 'Segoe UI', 'Tahoma', sans-serif;
         }
-        .theme-win7 .chat-container {
+        .theme-win7 .chat-container, .theme-win7 .online-users-sidebar { /* Added sidebar */
             background-color: var(--content-bg);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
         }
-        .theme-win7 .chat-header {
+        .theme-win7 .chat-header, .theme-win7 .online-users-header { /* Added sidebar */
             background: linear-gradient(to bottom, var(--win7-blue) 0%, #005aa0 100%);
             color: #ffffff;
             border-bottom: 1px solid var(--win7-dark-blue);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+        }
+        .theme-win7 .online-users-sidebar .online-users-header { /* Sidebar header radius */
             border-top-left-radius: 7px;
             border-top-right-radius: 7px;
         }
@@ -870,20 +983,25 @@
             --toolbar-icon-hover-bg: rgba(0, 122, 255, 0.1);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji';
         }
-        .theme-ios .chat-container {
+        .theme-ios .main-wrapper { /* Adjust wrapper for this theme */
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        .theme-ios .chat-container, .theme-ios .online-users-sidebar { /* Added sidebar */
             box-shadow: none;
             border: none;
             background-color: transparent;
             margin-top: 0;
-            /* --- MODIFICATION: Allow resizability --- */
-            height: 80vh; 
-            max-width: 800px;
-            margin: 40px auto;
+            height: 90vh; /* Taller */
+            max-width: none;
+            margin: 0;
             background-color: var(--primary-bg);
             border-radius: var(--radius);
-            /* --- END MODIFICATION --- */
         }
-        .theme-ios .chat-header {
+        .theme-ios .chat-container { background-color: var(--content-bg); }
+        .theme-ios .online-users-sidebar { background-color: #f6f6f6; }
+        
+        .theme-ios .chat-header, .theme-ios .online-users-header { /* Added sidebar */
             background-color: var(--content-bg);
             border-bottom: 1px solid #c8c7cc;
             font-size: 1.1rem;
@@ -954,6 +1072,7 @@
             font-weight: normal;
             box-shadow: none;
             padding: 5px 10px;
+            position: fixed;
         }
         .theme-ios .back-button:hover {
             background-color: transparent;
@@ -1004,13 +1123,13 @@
             --toolbar-icon-hover-bg: rgba(0,0,0,0.05);
             font-family: 'Tahoma', 'Arial', sans-serif;
         }
-        .theme-msn .chat-container {
+        .theme-msn .chat-container, .theme-msn .online-users-sidebar { /* Added sidebar */
             border-radius: 6px;
             border: 1px solid #7cb1df;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             max-height: 80vh;
         }
-        .theme-msn .chat-header {
+        .theme-msn .chat-header, .theme-msn .online-users-header { /* Added sidebar */
             background: var(--msn-header-bg);
             color: var(--msn-blue);
             font-size: 1.2rem;
@@ -1043,7 +1162,7 @@
             border: 1px solid var(--msn-input-border);
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
-        .theme-msn .chat-messages {
+        .theme-msn .chat-messages, .theme-msn .online-users-list { /* Added sidebar */
             padding: 10px;
             background-color: var(--msn-window-bg);
         }
@@ -1118,6 +1237,7 @@
             color: #333;
             border: 1px solid #8ba8c3;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: fixed;
         }
         .theme-msn .back-button:hover {
             background-color: #ffffff;
@@ -1170,14 +1290,14 @@
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 14px;
         }
-        .theme-dos .chat-container {
+        .theme-dos .main-wrapper { max-width: 1000px; } /* Widen for sidebar */
+        .theme-dos .chat-container, .theme-dos .online-users-sidebar { /* Added sidebar */
             border-radius: 0;
             box-shadow: none;
             border: 2px solid var(--text-color);
-            margin: 20px auto;
-            max-width: 700px;
+            margin: 0;
         }
-        .theme-dos .chat-header {
+        .theme-dos .chat-header, .theme-dos .online-users-header { /* Added sidebar */
             background-color: #000080;
             color: #ffffff;
             border-bottom: 2px solid var(--text-color);
@@ -1192,7 +1312,7 @@
             display: block !important;
             font-size: 1.1rem;
         }
-        .theme-dos .chat-messages {
+        .theme-dos .chat-messages, .theme-dos .online-users-list { /* Added sidebar */
             padding: 8px;
             color: var(--text-color);
             line-height: 1.2;
@@ -1256,6 +1376,7 @@
         .theme-dos .back-button {
             top: 10px;
             left: 10px;
+            position: fixed;
         }
         .theme-dos .mention {
             color: var(--accent-blue);
@@ -1311,12 +1432,12 @@
             --toolbar-icon-hover-bg: rgba(0,0,0,0.05);
             font-family: 'Tahoma', 'Verdana', sans-serif;
         }
-        .theme-xp .chat-container {
+        .theme-xp .chat-container, .theme-xp .online-users-sidebar { /* Added sidebar */
             border-radius: 8px;
             border: 1px solid #8e8e8e;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-        .theme-xp .chat-header {
+        .theme-xp .chat-header, .theme-xp .online-users-header { /* Added sidebar */
             background: linear-gradient(to right, #4a8df4 0%, #3665a3 100%);
             color: var(--xp-white);
             border-bottom: 1px solid #8e8e8e;
@@ -1336,6 +1457,10 @@
         .theme-xp .chat-messages {
             padding: 12px;
             background-color: var(--xp-green-bg);
+        }
+        .theme-xp .online-users-list { /* Added sidebar */
+             padding: 12px;
+             background-color: #f5f5f5; /* Lighter bg for user list */
         }
         .theme-xp .chat-input {
             border-top: 1px solid #d4d4d4;
@@ -1385,6 +1510,7 @@
             color: #000000;
             border: 1px solid #003c74;
             font-weight: bold;
+            position: fixed;
         }
         .theme-xp .rich-text-toolbar {
             background-color: var(--toolbar-bg);
@@ -1434,11 +1560,11 @@
             font-size: 14px;
             transition: all 1.5s ease;
         }
-        .theme-xerox .chat-container {
+        .theme-xerox .chat-container, .theme-xerox .online-users-sidebar { /* Added sidebar */
             border: 2px solid #000;
             box-shadow: none;
         }
-        .theme-xerox .chat-header {
+        .theme-xerox .chat-header, .theme-xerox .online-users-header { /* Added sidebar */
             background-color: #003366;
             color: #ffffff;
             padding: 6px 10px;
@@ -1450,7 +1576,7 @@
             border: 1px solid #000;
             padding: 4px 8px;
         }
-        .theme-xerox .chat-messages {
+        .theme-xerox .chat-messages, .theme-xerox .online-users-list { /* Added sidebar */
             background-color: #f8f8f8;
             padding: 10px;
         }
@@ -1538,11 +1664,15 @@
             font-family: 'Arial', 'Tahoma', sans-serif;
             font-size: 14px;
         }
-        .theme-aim .chat-container {
+        .theme-aim .chat-container, .theme-aim .online-users-sidebar { /* Added sidebar */
             border: 2px solid var(--aim-border);
             border-radius: 4px;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
         }
+        .theme-aim .online-users-sidebar { /* AIM sidebar is a "buddy list" */
+            background-color: var(--aim-yellow);
+        }
+        
         .theme-aim .chat-header {
             background: linear-gradient(to right, var(--aim-yellow), var(--aim-orange));
             color: #000000;
@@ -1551,6 +1681,24 @@
             border-bottom: 2px solid var(--aim-border);
             text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
         }
+        .theme-aim .online-users-header { /* Added sidebar */
+            background-color: var(--aim-orange);
+            color: #000000;
+            font-size: 1.1rem;
+            padding: 4px 10px;
+            border-bottom: 2px solid var(--aim-border);
+            text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
+        }
+        .theme-aim .online-users-list { /* Added sidebar */
+            background-color: var(--aim-yellow);
+            padding: 4px;
+        }
+        .theme-aim .online-user-item {
+            background-color: #fff;
+            border: 1px solid #000;
+            border-style: outset;
+        }
+        
         .theme-aim .chat-header .text-xl {
             content: "Chat with Crooms Connect";
         }
@@ -1624,13 +1772,13 @@
             border-radius: 3px;
             padding: 4px;
         }
-        .theme-aim .chat-messages::-webkit-scrollbar {
+        .theme-aim .chat-messages::-webkit-scrollbar, .theme-aim .online-users-list::-webkit-scrollbar {
             width: 16px;
         }
-        .theme-aim .chat-messages::-webkit-scrollbar-track {
+        .theme-aim .chat-messages::-webkit-scrollbar-track, .theme-aim .online-users-list::-webkit-scrollbar-track {
             background: #e0e0e0;
         }
-        .theme-aim .chat-messages::-webkit-scrollbar-thumb {
+        .theme-aim .chat-messages::-webkit-scrollbar-thumb, .theme-aim .online-users-list::-webkit-scrollbar-thumb {
             background-color: #b0b0b0;
             border: 1px solid #888;
         }
@@ -1651,9 +1799,9 @@
         */
         /* --- END MODIFICATION --- */
 
-        .theme-xp .chat-container,
-        .theme-msn .chat-container,
-        .theme-win7 .chat-container {
+        .theme-xp .chat-container, .theme-xp .online-users-sidebar,
+        .theme-msn .chat-container, .theme-msn .online-users-sidebar,
+        .theme-win7 .chat-container, .theme-win7 .online-users-sidebar {
             /* --- MODIFICATION: Use alpha var --- */
             background-color: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
             backdrop-filter: blur(8px);
@@ -1682,9 +1830,9 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-        .theme-xp .chat-container,
-        .theme-msn .chat-container,
-        .theme-win7 .chat-container {
+        .theme-xp .chat-container, .theme-xp .online-users-sidebar,
+        .theme-msn .chat-container, .theme-msn .online-users-sidebar,
+        .theme-win7 .chat-container, .theme-win7 .online-users-sidebar {
             /* --- MODIFICATION: Use alpha var --- */
             background: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
             backdrop-filter: blur(8px);
@@ -1694,21 +1842,21 @@
         /* =======================================
            10. UI/UX ENHANCEMENTS & ANIMATIONS
            ======================================= */
-        .chat-messages::-webkit-scrollbar {
+        .chat-messages::-webkit-scrollbar, .online-users-list::-webkit-scrollbar { /* Added sidebar */
             width: 8px;
         }
-        .chat-messages::-webkit-scrollbar-track {
+        .chat-messages::-webkit-scrollbar-track, .online-users-list::-webkit-scrollbar-track { /* Added sidebar */
             background: rgba(0,0,0,0.1);
         }
-        .chat-messages::-webkit-scrollbar-thumb {
+        .chat-messages::-webkit-scrollbar-thumb, .online-users-list::-webkit-scrollbar-thumb { /* Added sidebar */
             background-color: var(--accent-blue);
             border-radius: 10px;
             border: 2px solid transparent;
             background-clip: content-box;
         }
-        .theme-win98 .chat-messages::-webkit-scrollbar { display: none; }
+        .theme-win98 .chat-messages::-webkit-scrollbar, .theme-win98 .online-users-list::-webkit-scrollbar { display: none; }
 
-        .message {
+        .message, .online-user-item { /* Added sidebar */
             animation: fadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes fadeIn {
@@ -1843,7 +1991,7 @@
             --toolbar-icon-color: #f8f9fa;
             --toolbar-icon-hover-bg: rgba(255,255,255,0.1);
         }
-        .theme-custom .chat-container {
+        .theme-custom .chat-container, .theme-custom .online-users-sidebar { /* Added sidebar */
             background-color: var(--content-bg);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -2055,206 +2203,218 @@
             background-color: var(--accent-green);
             color: var(--input-text);
         }
+
+#fullscreen-toggle {
+    display: block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    /* background-color: #5865F2; */ /* Use theme variable */
+    background-color: var(--accent-blue);
+    color: var(--input-text);
+    border: none;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
 </style>
 <body class="theme-dark">
 <a class="back-button" href="index.html">← Back to Home</a>
-<div class="chat-container">
-    <div id="scroll-to-bottom" class="scroll-to-bottom-btn">
-        <i class="fas fa-arrow-down"></i>
+<!-- --- MODIFICATION: Added Main Wrapper --- -->
+<div class="main-wrapper">
+    <div class="chat-container">
+    <div class="scroll-to-bottom-btn" id="scroll-to-bottom">
+    <i class="fas fa-arrow-down"></i>
     </div>
     <div class="chat-header">
-        <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
-        
-        <!-- --- MODIFICATION: Search Bar --- -->
-        <div class="search-bar" id="search-bar">
-            <input type="text" id="search-input" placeholder="Search loaded messages...">
-        </div>
-        
-        <!-- NEW SCHEDULE TRACKER BAR -->
-        <div id="schedule-tracker-bar" style="
-            background: var(--toolbar-bg); 
-            color: var(--text-color); 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-size: 0.9rem; 
-            font-weight: bold; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            flex-shrink: 1;
-            min-width: 150px;
-            text-align: center;
-        ">
-            Loading schedule...
-        </div>
-        <!-- END NEW BAR -->
-        <div class="flex items-center gap-2">
-            <!-- --- MODIFICATION: New Header Buttons --- -->
-            <button id="search-btn" class="header-icon-btn" title="Search"><i class="fas fa-search"></i></button>
-            <button id="settings-btn" class="header-icon-btn" title="Settings"><i class="fas fa-cog"></i></button>
-            <button id="mod-menu-btn" class="header-icon-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
-            <!-- --- END MODIFICATION --- -->
-
-            <!-- Theme selector removed from here -->
-            
-            <div class="user-info" id="user-info" style="display: none;">
-                <img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
-                <span id="user-name">Loading...</span>
-                <span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
+    <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
+    <!-- --- MODIFICATION: Search Bar --- -->
+    <div class="search-bar" id="search-bar">
+    <input id="search-input" placeholder="Search loaded messages..." type="text"/>
+    </div>
+    <!-- NEW SCHEDULE TRACKER BAR -->
+    <div id="schedule-tracker-bar" style="
+                background: var(--toolbar-bg); 
+                color: var(--text-color); 
+                padding: 4px 12px; 
+                border-radius: 20px; 
+                font-size: 0.9rem; 
+                font-weight: bold; 
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                flex-shrink: 1;
+                min-width: 150px;
+                text-align: center;
+            ">
+                Loading schedule...
             </div>
-        </div>
+    <!-- END NEW BAR -->
+    <div class="flex items-center gap-2">
+    <!-- --- MODIFICATION: New Header Buttons --- -->
+    <button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+    <button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
+    <button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
+    <!-- --- END MODIFICATION --- -->
+    <!-- Theme selector removed from here -->
+    <div class="user-info" id="user-info" style="display: none;">
+    <img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
+    <span id="user-name">Loading...</span>
+    <span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
+    </div>
+    </div>
     </div>
     <div class="chat-messages" id="chat-box">
-        <div id="loading-older" style="display:none">Loading...</div>
-        <!-- Typing indicator will be appended here by JS -->
+    <div id="loading-older" style="display:none">Loading...</div>
+    <!-- Typing indicator will be appended here by JS -->
     </div>
     <div class="chat-input">
-        <!-- --- MODIFICATION: @Mention Suggestions --- -->
-        <div id="mention-suggestions"></div>
-        
-        <div class="rich-text-toolbar" id="rich-text-toolbar">
-            <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
-            <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
-            <button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
-            <button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
-            <button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
-            <button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
-        </div>
-        <div class="chat-input-row">
-            <div id="chat-input-editor" contenteditable="true" placeholder="Type your message (Enter for new line, Shift+Enter to send)"></div>
-            <button id="send-button">Send</button>
-        </div>
+    <!-- --- MODIFICATION: @Mention Suggestions --- -->
+    <div id="mention-suggestions"></div>
+    <div class="rich-text-toolbar" id="rich-text-toolbar">
+    <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
+    <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
+    <button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
+    <button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
+    <button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
+    <button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+    </div>
+    <div class="chat-input-row">
+    <!-- --- MODIFICATION: Updated placeholder text --- -->
+    <div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Shift+Enter to send, Enter for new line)"></div>
+    <button id="send-button">Send</button>
+    </div>
     </div>
     <!-- USER PROFILE VIEW (NEW) -->
     <div class="user-profile-view" id="user-profile-view">
-        <div class="user-profile-header">
-            <button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
-            <img id="profile-view-avatar" src="" alt="avatar">
-            <h2 id="profile-view-username">User Profile</h2>
-            <!-- --- MODIFICATION: Block/Unblock Button --- -->
-            <button id="profile-action-btn" data-user-id="" data-username=""></button>
+    <div class="user-profile-header">
+    <button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
+    <img alt="avatar" id="profile-view-avatar" src=""/>
+    <h2 id="profile-view-username">User Profile</h2>
+    <!-- --- MODIFICATION: Block/Unblock Button --- -->
+    <button data-user-id="" data-username="" id="profile-action-btn"></button>
+    </div>
+    <div class="user-profile-messages" id="user-profile-messages">
+    <!-- Messages will be loaded here -->
+    </div>
+    </div>
+    </div>
+    
+    <!-- --- NEW: Online Users Sidebar --- -->
+    <div class="online-users-sidebar" id="online-users-sidebar">
+        <div class="online-users-header" id="online-users-header">
+            Online — 0
         </div>
-        <div class="user-profile-messages" id="user-profile-messages">
-            <!-- Messages will be loaded here -->
+        <div class="online-users-list" id="online-users-list">
+            <!-- Online users will be appended here by JS -->
         </div>
     </div>
-</div>
+    <!-- --- END NEW: Online Users Sidebar --- -->
+
+</div> <!-- End Main Wrapper -->
 
 <!-- IMAGE LIGHTBOX MODAL (NEW) -->
-<div id="image-modal" class="image-modal-overlay">
-    <span id="image-modal-close" class="modal-close-btn">&times;</span>
-    <img id="image-modal-content" class="image-modal-content" src="" alt="Full view image">
+<div class="image-modal-overlay" id="image-modal">
+<span class="modal-close-btn" id="image-modal-close">×</span>
+<img alt="Full view image" class="image-modal-content" id="image-modal-content" src=""/>
 </div>
-
 <!-- MOD MENU MODAL (ENHANCED) -->
-<div id="mod-menu-modal" class="mod-menu-overlay">
-     <div class="mod-menu-content">
-        <span id="mod-menu-close" class="modal-close-btn">&times;</span>
-        <h2>Moderator Menu</h2>
-        <div class="mod-menu-item">
-            <div>
-                <p>Test Daily Fireworks</p>
-                <small>Triggers the firework animation for 30 seconds.</small>
-            </div>
-            <button id="firework-test-btn">Run Test</button>
-        </div>
-        <div class="mod-menu-item">
-            <div>
-                <p>Update My Message PFPs</p>
-                <small>Updates all your past messages to use your current profile picture.</small>
-            </div>
-            <button id="update-pfps-btn">Sync</button>
-        </div>
-    </div>
+<div class="mod-menu-overlay" id="mod-menu-modal">
+<div class="mod-menu-content">
+<span class="modal-close-btn" id="mod-menu-close">×</span>
+<h2>Moderator Menu</h2>
+<div class="mod-menu-item">
+<div>
+<p>Test Daily Fireworks</p>
+<small>Triggers the firework animation for 30 seconds.</small>
 </div>
-
+<button id="firework-test-btn">Run Test</button>
+</div>
+<div class="mod-menu-item">
+<div>
+<p>Update My Message PFPs</p>
+<small>Updates all your past messages to use your current profile picture.</small>
+</div>
+<button id="update-pfps-btn">Sync</button>
+</div>
+</div>
+</div>
 <!-- --- MODIFICATION: SETTINGS MODAL (NEW) --- -->
-<div id="settings-modal" class="settings-modal-overlay">
-     <div class="settings-menu-content">
-        <span id="settings-menu-close" class="modal-close-btn">&times;</span>
-        <h2>Settings</h2>
-        
-        <div class="settings-menu-item">
-            <p>
+<div class="settings-modal-overlay" id="settings-modal">
+<div class="settings-menu-content">
+<span class="modal-close-btn" id="settings-menu-close">×</span>
+<h2>Settings</h2>
+<div class="settings-menu-item">
+<p>
                 Theme
                 <small>Change the look and feel of the chat.</small>
-            </p>
-            <select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
-                <option value="dark">Modern Dark</option>
-                <option value="light">Light</option>
-                <option value="aim">AOL Instant Messenger</option>
-                <option value="win98">Windows 98</option>
-                <option value="win7">Windows 7 Aero</option>
-                <option value="ios">iOS iMessage</option>
-                <option value="msn">MSN</option>
-                <option value="dos">DOS Terminal</option>
-                <option value="xp">Windows XP Bliss</option>
-                <option value="xerox">Xerox Star GUI</option>
-                <option value="custom">Custom</option>
-            </select>
-        </div>
-        
-        <div class="settings-menu-item" id="custom-theme-settings-container" style="display: none;">
-            <p>
+</p>
+<select class="p-2 rounded-md bg-gray-700 text-white text-sm font-semibold transition duration-150" id="theme-selector">
+<option value="dark">Modern Dark</option>
+<option value="light">Light</option>
+<option value="aim">AOL Instant Messenger</option>
+<option value="win98">Windows 98</option>
+<option value="win7">Windows 7 Aero</option>
+<option value="ios">iOS iMessage</option>
+<option value="msn">MSN</option>
+<option value="dos">DOS Terminal</option>
+<option value="xp">Windows XP Bliss</option>
+<option value="xerox">Xerox Star GUI</option>
+<option value="custom">Custom</option>
+</select>
+</div>
+<div class="settings-menu-item" id="custom-theme-settings-container" style="display: none;">
+<p>
                 Custom Background
                 <small>Upload your own background for the 'Custom' theme.</small>
-            </p>
-            <input type="file" id="background-uploader" accept="image/*" style="max-width: 150px;">
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input accept="image/*" id="background-uploader" style="max-width: 150px;" type="file"/>
+</div>
+<div class="settings-menu-item">
+<p>
                 Text Size
                 <small>Adjust the base font size for the application.</small>
-            </p>
-            <input type="range" id="settings-text-size" min="12" max="20" step="1" value="16">
-            <span id="settings-text-size-label" class="ml-2 w-8 text-right">16px</span>
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input id="settings-text-size" max="20" min="12" step="1" type="range" value="16"/>
+<span class="ml-2 w-8 text-right" id="settings-text-size-label">16px</span>
+</div>
+<div class="settings-menu-item">
+<p>
                 Window Transparency
                 <small>Adjust transparency for themes that support it (e.g., Win7, XP, Custom).</small>
-            </p>
-            <input type="range" id="settings-transparency" min="0.1" max="1.0" step="0.05" value="0.85">
-            <span id="settings-transparency-label" class="ml-2 w-10 text-right">85%</span>
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input id="settings-transparency" max="1.0" min="0.1" step="0.05" type="range" value="0.85"/>
+<span class="ml-2 w-10 text-right" id="settings-transparency-label">85%</span>
+</div>
+<div class="settings-menu-item">
+<p>
                 Hide Images
                 <small>Don't load images sent in messages.</small>
-            </p>
-            <input type="checkbox" id="settings-hide-images">
-        </div>
-
-        <div class="settings-menu-item">
-            <p>
+</p>
+<input id="settings-hide-images" type="checkbox"/>
+</div>
+<div class="settings-menu-item">
+<p>
                 Hide Events
                 <small>Disable special events like daily fireworks.</small>
-            </p>
-            <input type="checkbox" id="settings-hide-events">
-        </div>
-        
-        <div class="settings-menu-item" style="flex-direction: column; align-items: flex-start;">
-            <p>
+</p>
+<input id="settings-hide-events" type="checkbox"/>
+</div>
+<div class="settings-menu-item" style="flex-direction: column; align-items: flex-start;">
+<p>
                 Blocked Users
                 <small>Messages from these users will be hidden.</small>
-            </p>
-            <div id="blocked-users-list" class="mt-2 w-full">
-                <!-- Blocked users will be listed here -->
-            </div>
-        </div>
-
-    </div>
+</p>
+<div class="mt-2 w-full" id="blocked-users-list">
+<!-- Blocked users will be listed here -->
+</div>
+</div>
+<button id="fullscreen-toggle">Toggle Fullscreen</button></div>
 </div>
 <!-- --- END MODIFICATION --- -->
-
-
 <!-- TOAST NOTIFICATION (NEW) -->
 <div id="toast-notification">
-    <span class="icon"></span>
-    <span class="message"></span>
+<span class="icon"></span>
+<span class="message"></span>
 </div>
-
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -2624,6 +2784,9 @@
     const searchBar = document.getElementById('search-bar');
     const searchInput = document.getElementById('search-input');
     const chatHeaderTitle = document.getElementById('chat-header-title');
+    // --- NEW: Presence Elements ---
+    const onlineUsersList = document.getElementById('online-users-list');
+    const onlineUsersHeader = document.getElementById('online-users-header');
 
     // --- State Variables ---
     window.currentUser = null; 
@@ -2643,12 +2806,71 @@
     let allOlderLoaded = false;
     let totalMessageCount = null; 
 
+    // --- NEW: Presence State ---
+    let onlineUsers = {};
+
     const verifiedCache = {};
     function clearVerifiedCache() {
         for (const key in verifiedCache) {
             delete verifiedCache[key];
         }
     }
+
+    // --- NEW: Fullscreen Toggle Logic ---
+    function setupFullscreenToggle() {
+        const btn = document.getElementById("fullscreen-toggle");
+        if (btn) {
+            btn.addEventListener("click", function () {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+        }
+    }
+
+    // --- NEW: Render Online Users ---
+    function renderOnlineUsers() {
+        if (!onlineUsersList || !onlineUsersHeader) return;
+
+        // Get unique users. Presence can list multiple entries per user (e.g., different tabs).
+        const uniqueUsers = {};
+        for (const key in onlineUsers) {
+            const presences = onlineUsers[key];
+            if (presences.length > 0) {
+                const userPresence = presences[0]; // Take the first presence entry
+                uniqueUsers[userPresence.user] = userPresence;
+            }
+        }
+        
+        const userList = Object.values(uniqueUsers);
+        onlineUsersHeader.textContent = `Online — ${userList.length}`;
+        onlineUsersList.innerHTML = '';
+
+        userList.sort((a, b) => a.user.localeCompare(b.user)); // Sort alphabetically
+
+        userList.forEach(presence => {
+            const div = document.createElement('div');
+            div.className = 'online-user-item';
+            
+            const avatar = (presence.avatar && presence.avatar.trim() !== "")
+                ? presence.avatar
+                : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(presence.user)}`;
+
+            div.innerHTML = `
+                <img src="${avatar}" alt="${presence.user} avatar">
+                <span>${presence.user}</span>
+                ${presence.is_verified ? `<span class="verified-badge" title="Verified">✅</span>` : ""}
+            `;
+            onlineUsersList.appendChild(div);
+        });
+    }
+
     
     function createTypingIndicator() {
         const indicator = document.createElement('div');
@@ -3069,6 +3291,7 @@
         // Allow (edited) tag
         html = html.replace(/<small class="text-xs opacity-70 ml-1">\(edited\)<\/small>/g, '');
 
+        // --- MODIFICATION: Added 'p' tag ---
         const allowedTags = ['strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'br', 'div', 'p', 'span', 'img'];
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const allElements = doc.body.querySelectorAll('*');
@@ -3106,8 +3329,15 @@
         console.log('[sendMessage] Fired. Message content:', editor.innerHTML);
         // === END DEBUG ===
         const rawMessage = editor.innerHTML;
-        const message = sanitizeHTML(rawMessage).trim();
-        if (!message || message === '<br>') return null;
+        // --- MODIFICATION: Standardize newlines to <p> tags before sanitizing ---
+        // This handles the <br> from Shift+Enter and <div> from Enter
+        let messageHtml = rawMessage
+            .replace(/<div><br><\/div>/g, '<p><br></p>') // empty div line
+            .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>'); // div with content
+
+        const message = sanitizeHTML(messageHtml).trim();
+        
+        if (!message || message === '<br>' || message === '<p><br></p>') return null;
 
         editor.innerHTML = ''; // Clear editor immediately for better UX
         // --- MODIFICATION: Broadcast stopped typing ---
@@ -3148,44 +3378,48 @@
         return newMessage;
     }
 
-    function subscribeToMessages() {
+    /**
+     * --- MODIFICATION: Robust Channel Subscription ---
+     * Subscribes to messages, typing, and presence.
+     * Tracks user presence upon successful subscription.
+     * @param {object} userInfo - Info about the current user.
+     * @param {string} userInfo.username - The user's display name.
+     * @param {string} userInfo.avatar - The user's avatar URL.
+     * @param {boolean} userInfo.isVerified - The user's verification status.
+     */
+    function subscribeToMessages(userInfo) {
         // === DEBUG ===
         console.log('[subscribeToMessages] Creating new subscription.');
         // === END DEBUG ===
-        const channel = supabase.channel('messages-channel');
+        const channel = supabase.channel('messages-channel', {
+             config: {
+                presence: {
+                    key: userInfo.username, // Use username as key
+                },
+            },
+        });
         channel
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
                 // === DEBUG ===
                 console.log('[RT:INSERT] Received new message payload. ID:', payload.new.id);
                 // === END DEBUG ===
-
-                // Prevent duplicating the message we just added locally
                 if (loadedMessages.some(m => m.id === payload.new.id)) {
-                    // === DEBUG ===
                     console.log(`[RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
-                    // === END DEBUG ===
                     return;
                 }
-                
-                // === DEBUG ===
                 console.log(`[RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
-                // === END DEBUG ===
                 
                 const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
-
                 loadedMessages.push(payload.new);
                 totalMessageCount += 1;
-                await displayMessage(payload.new); // This will respect blocklist
+                await displayMessage(payload.new);
                 
-                // Only auto-scroll if user was already at the bottom
                 if (wasScrolledToBottom) {
                     chatBox.scrollTop = chatBox.scrollHeight;
                 }
             })
             .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
-                 // === DEBUG ===
                  console.log('[RT:DELETE] Received delete for ID:', payload.old.id);
-                 // === END DEBUG ===
                  const messageId = payload.old.id;
                  const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
                  if (messageElement) {
@@ -3193,23 +3427,17 @@
                      loadedMessages = loadedMessages.filter(m => m.id !== messageId);
                  }
             })
-            // --- MODIFICATION: Handle message edits and avatar updates ---
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-                 // === DEBUG ===
                  console.log('[RT:UPDATE] Received update for ID:', payload.new.id);
-                 // === END DEBUG ===
                  const updatedMessage = payload.new;
                  const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
                  
                  if (msgEl) {
-                     // Handle message text update (for edits)
                      const textEl = msgEl.querySelector('.text');
                      const newHtml = cleanMessageMentions(updatedMessage.message);
                      if (textEl && textEl.innerHTML !== newHtml) {
                          textEl.innerHTML = newHtml;
                      }
-
-                     // Handle avatar update
                      const avatarImg = msgEl.querySelector('.avatar');
                      const username = cleanUsername(updatedMessage.username);
                      const newAvatar = updatedMessage.avatar_url && updatedMessage.avatar_url.trim() !== ""
@@ -3218,13 +3446,11 @@
                      
                      if (avatarImg && avatarImg.src !== newAvatar) {
                         avatarImg.src = newAvatar;
-                        // Update avatar link data
                         const avatarLink = msgEl.querySelector('.avatar-link');
                         if (avatarLink) avatarLink.dataset.avatarUrl = newAvatar;
                      }
                  }
             })
-            // --- MODIFICATION: Listen for typing events ---
             .on('broadcast', { event: 'typing' }, ({ payload }) => {
                 if (payload.username && payload.username !== currentUsername) {
                     activeTypers[payload.username] = Date.now();
@@ -3237,7 +3463,46 @@
                     updateTypingIndicator();
                 }
             })
-            .subscribe();
+            // --- NEW: Presence Listeners ---
+            .on('presence', { event: 'sync' }, () => {
+                console.log('[Presence] Sync received.');
+                onlineUsers = channel.presenceState();
+                renderOnlineUsers();
+            })
+            .on('presence', { event: 'join' }, ({ newPresences }) => {
+                console.log('[Presence] Join:', newPresences);
+                newPresences.forEach(presence => {
+                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).concat(presence);
+                });
+                renderOnlineUsers();
+            })
+            .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+                console.log('[Presence] Leave:', leftPresences);
+                leftPresences.forEach(presence => {
+                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).filter(p => p.presence_ref !== presence.presence_ref);
+                    if (onlineUsers[presence.user].length === 0) {
+                        delete onlineUsers[presence.user];
+                    }
+                });
+                renderOnlineUsers();
+            })
+            // --- END Presence ---
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('[subscribeToMessages] SUBSCRIBED to channel.');
+                    // --- NEW: Track presence on subscribe ---
+                    if (userInfo && userInfo.username) {
+                        await channel.track({ 
+                            user: userInfo.username, 
+                            avatar: userInfo.avatar,
+                            is_verified: userInfo.isVerified
+                        });
+                        console.log('[Presence] Tracking user:', userInfo.username);
+                    }
+                } else {
+                    console.warn('[subscribeToMessages] Channel subscription status:', status);
+                }
+            });
         
         // Periodically clear out old typers
         setInterval(() => {
@@ -3307,7 +3572,7 @@
             return;
         }
 
-        if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>") return;
+        if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>" || editor.innerHTML.trim() === "<p><br></p>") return;
         
         // === DEBUG ===
         console.log('[handleSendClick] Disabling editor and sending...');
@@ -3392,7 +3657,12 @@
         const editorEl = document.getElementById(`edit-editor-${messageId}`);
         if (!editorEl) return;
         
-        const newHtml = sanitizeHTML(editorEl.innerHTML).trim() + ' <small>(edited)</small>'; // Add (edited) tag
+        // --- MODIFICATION: Standardize newlines on save ---
+        let messageHtml = editorEl.innerHTML
+            .replace(/<div><br><\/div>/g, '<p><br></p>')
+            .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>');
+            
+        const newHtml = sanitizeHTML(messageHtml).trim() + ' <small>(edited)</small>'; // Add (edited) tag
 
         const { data, error } = await supabase
             .from('messages')
@@ -3869,24 +4139,35 @@
 
     // --- APP INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', async () => {
+        setupFullscreenToggle(); // Setup the fullscreen button
         sendBtn.addEventListener('click', handleSendClick);
         
-        // --- MODIFICATION: Swapped Enter/Shift+Enter behavior ---
+        // --- MODIFICATION: Updated keydown listener for list fix ---
         editor.addEventListener('keydown', (e) => {
             // Handle mention UI first
             if (mentionSuggestions.style.display !== 'none') {
                 handleMentionKeydown(e);
-                if (['ArrowDown', 'ArrowUp', 'Enter', 'Tab', 'Escape'].includes(e.key)) {
-                    return; // Don't process send/newline
-                }
+                // If mention logic handled the key, stop processing
+                if (e.defaultPrevented) return; 
             }
             
-            if (e.key === 'Enter' && e.shiftKey) {
-                // Shift+Enter sends
+            if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                    // Shift+Enter sends
+                    e.preventDefault();
+                    handleSendClick();
+                    return;
+                }
+                
+                // --- FIX for Lists & Newlines ---
+                // We're not sending, so we're inserting a new line.
+                // Prevent default 'Enter' behavior (which inserts <div>)
                 e.preventDefault();
-                handleSendClick();
+                // Use 'insertParagraph' which is list-aware.
+                // It will create a new <li> in a list or a <p> outside.
+                document.execCommand('insertParagraph');
+                // --- END FIX ---
             }
-            // By default, 'Enter' now just inserts a new line.
         });
         
         // --- MODIFICATION: Typing indicator & @mention listener ---
@@ -3975,44 +4256,58 @@
         typingIndicator = createTypingIndicator();
         await updateGlobalAvatarAndName();
         await loadInitialMessages();
-        channel = subscribeToMessages();
+        
+        // --- MODIFICATION: Pass user info to subscription ---
+        channel = subscribeToMessages({
+            username: currentUsername,
+            avatar: userAvatarImg.src,
+            isVerified: currentUserIsVerified
+        });
+        
         supabase.auth.onAuthStateChange(async (event, session) => {
             // === DEBUG ===
             console.log('[onAuthStateChange] Auth state changed:', event);
             // === END DEBUG ===
             await updateGlobalAvatarAndName();
+            
+            // --- MODIFICATION: Re-subscribe with new auth info ---
+            if (channel) {
+                console.log('[onAuthStateChange] Re-subscribing with new auth info.');
+                supabase.removeChannel(channel);
+            }
+            channel = subscribeToMessages({
+                username: currentUsername,
+                avatar: userAvatarImg.src,
+                isVerified: currentUserIsVerified
+            });
+            // --- END MODIFICATION ---
         });
 
-        // --- MODIFICATION: Replaced visibilitychange listener ---
+        // --- MODIFICATION: Robust visibilitychange listener ---
         document.addEventListener('visibilitychange', async () => {
-            // === DEBUG ===
             console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
-            // === END DEBUG ===
             if (document.visibilityState === 'visible') {
                 console.log("[visibilitychange] Tab is visible again. Re-syncing...");
                 
-                // Always remove and re-add the channel to ensure connection
+                // 1. Re-authenticate
+                await updateGlobalAvatarAndName();
+                
+                // 2. Remove old channel and re-subscribe with current user info
                 if (channel) {
-                    // === DEBUG ===
                     console.log('[visibilitychange] Removing old channel.');
-                    // === END DEBUG ===
                     supabase.removeChannel(channel);
                 }
-                channel = subscribeToMessages(); 
-                // === DEBUG ===
-                console.log('[visibilitychange] New channel subscribed.');
-                // === END DEBUG ===
+                channel = subscribeToMessages({
+                    username: currentUsername,
+                    avatar: userAvatarImg.src,
+                    isVerified: currentUserIsVerified
+                });
+                console.log('[visibilitychange] New channel subscribed and presence tracked.');
 
-                // Re-auth
-                await updateGlobalAvatarAndName();
-
+                // 3. Fetch missed messages
                 if (loadedMessages.length > 0) {
-                    // We have messages, just fetch what's new
                     const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
-                    
-                    // === DEBUG ===
                     console.log('[visibilitychange] Fetching new messages >', lastTimestamp);
-                    // === END DEBUG ===
 
                     const { data: newMessages, error } = await supabase
                         .from('messages')
@@ -4028,33 +4323,19 @@
                     }
 
                     if (newMessages && newMessages.length > 0) {
-                        // === DEBUG ===
                         console.log(`[visibilitychange] Fetched ${newMessages.length} new messages on focus.`);
-                        // === END DEBUG ===
                         const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
                         for (const msg of newMessages) {
-                            // === DEBUG ===
-                            console.log(`[visibilitychange] Processing fetched message ID: ${msg.id}`);
-                            // === END DEBUG ===
                             if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
-                                // === DEBUG ===
-                                console.log(`[visibilitychange] Fetched message ${msg.id} is new. Adding to UI.`);
-                                // === END DEBUG ===
                                 loadedMessages.push(msg);
-                                await displayMessage(msg); // This appends to the chatBox
-                            } else {
-                                // === DEBUG ===
-                                console.log(`[visibilitychange] Fetched message ${msg.id} is NOT new. Skipping.`);
-                                // === END DEBUG ===
+                                await displayMessage(msg);
                             }
                         }
                         if (wasScrolledToBottom) {
                             chatBox.scrollTop = chatBox.scrollHeight;
                         }
                     } else {
-                        // === DEBUG ===
                         console.log("[visibilitychange] No new messages since last focus.");
-                        // === END DEBUG ===
                     }
                 } else {
                     // No messages were loaded, do a full initial load
@@ -4081,3 +4362,5 @@
         }
     })();
 </script>
+</body>
+</html>
