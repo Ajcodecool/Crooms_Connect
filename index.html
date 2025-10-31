@@ -779,6 +779,14 @@ font-size: 14px;
 </div>
 <div class="card" id="account-card"><span class="icon"> 🔑 </span><h3>Account</h3><p>Privacy and security options.</p></div>
 <div class="card" id="display-card" style="cursor: pointer;"><span class="icon"> ⚙️ </span><h3>Display</h3><p>Adjust font size and layout.</p></div>
+<div class="card sign-out-card">
+<span class="icon"> 🚪 </span>
+<h3>Sign Out</h3>
+<p style="margin-bottom: 20px; font-size: 14px;">Log out of your account.</p>
+<button class="save-settings-button" id="sign-out-button" style="background: linear-gradient(45deg, var(--accent-red), #c1121f); box-shadow: 0 4px 8px rgba(239, 71, 111, 0.4);">
+    Sign Out Now
+</button>
+</div>
 </div>
 </section>
 </div>
@@ -1182,6 +1190,19 @@ async function loadUserSession() {
     
     document.getElementById('userIdDisplay').textContent = `Logged in as: ${currentUsername}`;
 }
+
+// --- NEW: Sign Out Function ---
+async function handleSignOut() {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        console.error('Error signing out:', error.message);
+        alert('Error signing out: ' + error.message);
+    } else {
+        // Sign-out was successful, reload the page to reset state
+        window.location.reload(); 
+    }
+}
+
 
 // --- NEW "MY POSTS" DISPLAY SETTINGS FUNCTIONS (Supabase) ---
 const applyMyPostsDisplaySettings = (settings) => {
@@ -2876,6 +2897,12 @@ if (myPostsBgImageInput) myPostsBgImageInput.addEventListener('change', async (e
         await saveMyPostsDisplaySettings({ bg_image_url: urlData.publicUrl });
     }
 });
+
+// --- NEW: Sign Out Button Listener ---
+const signOutButton = document.getElementById('sign-out-button');
+if (signOutButton) {
+    signOutButton.addEventListener('click', handleSignOut);
+}
 
 
 });
