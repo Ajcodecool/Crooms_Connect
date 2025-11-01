@@ -5,22 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Connect Chat (Multi-Theme Demo)</title>
 <!--
-    File: Connector.html
-    Author: Gemini
-    Date: 2024-10-29
-    Description:
-    This is a complex, single-file chat application.
-    It uses Supabase for backend, real-time messaging, and presence.
-    It supports multiple themes, rich-text editing, @mentions,
-    moderator tools, user profiles, block lists, and custom settings.
-
-    Key features added/fixed in this version:
-    - Fixed tab-reconnect bug (message send/load failure).
-    - Added toggleable Online Users sidebar with a footer count.
-    - Added Fullscreen mode toggle in settings.
-    - Added CSS for symmetrical fullscreen layout.
-    - Added debug logging for message sending and tab visibility.
-    - Online bar presence is now more robust.
+67
 -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
@@ -2124,7 +2109,7 @@
     </div>
     <div class="chat-input-row">
     <!-- --- MODIFICATION: Updated placeholder text --- -->
-    <div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Shift+Enter to send, Enter for new line)"></div>
+    <div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Enter to send, Shift+Enter for new line)"></div>
     <button id="send-button">Send</button>
     </div>
     </div>
@@ -2649,7 +2634,7 @@
     const fullscreenToggleBtn = document.getElementById('fullscreen-toggle'); // Added
 
     // --- State Variables ---
-    window.currentUser = null; 
+    window.currentUser = null;
     let currentUsername = 'Anonymous';
     let currentUserIsVerified = false;
     let channel = null; // To hold the channel subscription
@@ -2658,6 +2643,7 @@
     let activeTypers = {};
     let mentionCache = {};
     let currentMentionQuery = null;
+    let isSending = false; // Flag to prevent double sends
     
     // Infinite scroll state
     const PAGE_SIZE = 20;
@@ -4044,25 +4030,21 @@
             if (mentionSuggestions.style.display !== 'none') {
                 handleMentionKeydown(e);
                 // If mention logic handled the key, stop processing
-                if (e.defaultPrevented) return; 
+                if (e.defaultPrevented) return;
             }
-            
+
             if (e.key === 'Enter') {
                 if (e.shiftKey) {
-                    // Shift+Enter sends
+                    // Shift+Enter inserts new line
                     e.preventDefault();
-                    handleSendClick();
+                    document.execCommand('insertParagraph');
                     return;
                 }
-                
-                // --- FIX for Lists & Newlines ---
-                // We're not sending, so we're inserting a new line.
-                // Prevent default 'Enter' behavior (which inserts <div>)
+
+                // Enter sends
                 e.preventDefault();
-                // Use 'insertParagraph' which is list-aware.
-                // It will create a new <li> in a list or a <p> outside.
-                document.execCommand('insertParagraph');
-                // --- END FIX ---
+                handleSendClick();
+                return;
             }
         });
         
@@ -4259,6 +4241,65 @@
         scheduleDailyEvent();
     });
 
+    // === FIREWORKS FUNCTIONS ===
+    function runFireworkShow(ignoreSettings = false) {
+        if (!ignoreSettings && localStorage.getItem('settings-hide-events') === 'true') {
+            return;
+        }
+        const container = document.getElementById('fireworks-container');
+        if (!container) return;
+        container.innerHTML = ''; // Clear previous fireworks
+        // Create multiple fireworks
+        for (let i = 0; i < 10; i++) {
+            setTimeout(() => {
+                createFirework(container);
+            }, i * 200); // Stagger launches
+        }
+    }
+
+    function createFirework(container) {
+        const firework = document.createElement('div');
+        firework.className = 'firework-particle';
+        firework.style.left = Math.random() * 100 + '%';
+        firework.style.top = '100%';
+        firework.style.setProperty('--transform-end', `translate(${Math.random() * 200 - 100}px, ${Math.random() * -200 - 100}px)`);
+        container.appendChild(firework);
+        // After fly animation, explode
+        setTimeout(() => {
+            const explosion = document.createElement('div');
+            explosion.className = 'firework-explosion';
+            explosion.style.left = firework.style.left;
+            explosion.style.top = firework.offsetTop + 'px';
+            for (let j = 0; j < 20; j++) { // 20 explosion particles
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.setProperty('--transform-end', `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px)`);
+                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                explosion.appendChild(particle);
+            }
+            container.appendChild(explosion);
+            // Remove after animation
+            setTimeout(() => {
+                explosion.remove();
+                firework.remove();
+            }, 2000);
+        }, 1000); // After 1s fly
+    }
+
+    function scheduleDailyEvent() {
+        const now = new Date();
+        const nextMidnight = new Date(now);
+        nextMidnight.setHours(24, 0, 0, 0); // Next midnight
+        const timeToMidnight = nextMidnight - now;
+        setTimeout(() => {
+            runFireworkShow(false); // Run at midnight, respect settings
+            setInterval(() => {
+                runFireworkShow(false);
+            }, 24 * 60 * 60 * 1000); // Every 24 hours
+        }, timeToMidnight);
+    }
+    // === END FIREWORKS FUNCTIONS ===
+
     (async function ensureAJTechVerified() {
         const { data } = await supabase
             .from('profiles')
@@ -4275,3 +4316,5 @@
 </script>
 </body>
 </html>
+
+
