@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -2050,18 +2051,18 @@
 <a class="back-button" href="index.html">← Back to Home</a>
 <!-- --- MODIFICATION: Added Main Wrapper --- -->
 <div class="main-wrapper">
-    <div class="chat-container">
-    <div class="scroll-to-bottom-btn" id="scroll-to-bottom">
-    <i class="fas fa-arrow-down"></i>
-    </div>
-    <div class="chat-header">
-    <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
-    <!-- --- MODIFICATION: Search Bar --- -->
-    <div class="search-bar" id="search-bar">
-    <input id="search-input" placeholder="Search loaded messages..." type="text"/>
-    </div>
-    <!-- NEW SCHEDULE TRACKER BAR -->
-    <div id="schedule-tracker-bar" style="
+<div class="chat-container">
+<div class="scroll-to-bottom-btn" id="scroll-to-bottom">
+<i class="fas fa-arrow-down"></i>
+</div>
+<div class="chat-header">
+<div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
+<!-- --- MODIFICATION: Search Bar --- -->
+<div class="search-bar" id="search-bar">
+<input id="search-input" placeholder="Search loaded messages..." type="text"/>
+</div>
+<!-- NEW SCHEDULE TRACKER BAR -->
+<div id="schedule-tracker-bar" style="
                 background: var(--toolbar-bg); 
                 color: var(--text-color); 
                 padding: 4px 12px; 
@@ -2075,78 +2076,74 @@
             ">
                 Loading schedule...
             </div>
-    <!-- END NEW BAR -->
-    <div class="flex items-center gap-2">
-    <!-- --- MODIFICATION: New Header Buttons --- -->
-    <button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
-    <!-- --- NEW: Online Toggle Button --- -->
-    <button class="header-icon-btn" id="online-toggle-btn" title="Toggle Online Users"><i class="fas fa-users"></i></button>
-    <button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
-    <button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
-    <!-- --- END MODIFICATION --- -->
-    <!-- Theme selector removed from here -->
-    <div class="user-info" id="user-info" style="display: none;">
-    <img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
-    <span id="user-name">Loading...</span>
-    <span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
-    </div>
-    </div>
-    </div>
-    <div class="chat-messages" id="chat-box">
-    <div id="loading-older" style="display:none">Loading...</div>
-    <!-- Typing indicator will be appended here by JS -->
-    </div>
-    <div class="chat-input">
-    <!-- --- MODIFICATION: @Mention Suggestions --- -->
-    <div id="mention-suggestions"></div>
-    <div class="rich-text-toolbar" id="rich-text-toolbar">
-    <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
-    <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
-    <button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
-    <button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
-    <button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
-    <button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
-    </div>
-    <div class="chat-input-row">
-    <!-- --- MODIFICATION: Updated placeholder text --- -->
-    <div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Enter to send, Shift+Enter for new line)"></div>
-    <button id="send-button">Send</button>
-    </div>
-    </div>
-    <!-- USER PROFILE VIEW (NEW) -->
-    <div class="user-profile-view" id="user-profile-view">
-    <div class="user-profile-header">
-    <button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
-    <img alt="avatar" id="profile-view-avatar" src=""/>
-    <h2 id="profile-view-username">User Profile</h2>
-    <!-- --- MODIFICATION: Block/Unblock Button --- -->
-    <button data-user-id="" data-username="" id="profile-action-btn"></button>
-    </div>
-    <div class="user-profile-messages" id="user-profile-messages">
-    <!-- Messages will be loaded here -->
-    </div>
-    </div>
-    </div>
-    
-    <!-- --- NEW: Online Count Footer --- -->
-    <div class="online-count-footer" id="online-count-footer">
-        <i class="fas fa-circle text-green-500 text-xs" style="color: var(--accent-green);"></i>
-        <span id="online-count-footer-text">0 Online</span>
-    </div>
-
-    <!-- --- NEW: Online Users Sidebar --- -->
-    <div class="online-users-sidebar" id="online-users-sidebar">
-        <div class="online-users-header" id="online-users-header">
+<!-- END NEW BAR -->
+<div class="flex items-center gap-2">
+<!-- --- MODIFICATION: New Header Buttons --- -->
+<button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+<!-- --- NEW: Online Toggle Button --- -->
+<button class="header-icon-btn" id="online-toggle-btn" title="Toggle Online Users"><i class="fas fa-users"></i></button>
+<button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
+<button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
+<!-- --- END MODIFICATION --- -->
+<!-- Theme selector removed from here -->
+<div class="user-info" id="user-info" style="display: none;">
+<img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
+<span id="user-name">Loading...</span>
+<span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
+</div>
+</div>
+</div>
+<div class="chat-messages" id="chat-box">
+<div id="loading-older" style="display:none">Loading...</div>
+<!-- Typing indicator will be appended here by JS -->
+</div>
+<div class="chat-input">
+<!-- --- MODIFICATION: @Mention Suggestions --- -->
+<div id="mention-suggestions"></div>
+<div class="rich-text-toolbar" id="rich-text-toolbar">
+<button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
+<button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
+<button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
+<button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
+<button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
+<button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+</div>
+<div class="chat-input-row">
+<!-- --- MODIFICATION: Updated placeholder text --- -->
+<div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Enter to send, Shift+Enter for new line)"></div>
+<button id="send-button">Send</button>
+</div>
+</div>
+<!-- USER PROFILE VIEW (NEW) -->
+<div class="user-profile-view" id="user-profile-view">
+<div class="user-profile-header">
+<button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
+<img alt="avatar" id="profile-view-avatar" src=""/>
+<h2 id="profile-view-username">User Profile</h2>
+<!-- --- MODIFICATION: Block/Unblock Button --- -->
+<button data-user-id="" data-username="" id="profile-action-btn"></button>
+</div>
+<div class="user-profile-messages" id="user-profile-messages">
+<!-- Messages will be loaded here -->
+</div>
+</div>
+</div>
+<!-- --- NEW: Online Count Footer --- -->
+<div class="online-count-footer" id="online-count-footer">
+<i class="fas fa-circle text-green-500 text-xs" style="color: var(--accent-green);"></i>
+<span id="online-count-footer-text">0 Online</span>
+</div>
+<!-- --- NEW: Online Users Sidebar --- -->
+<div class="online-users-sidebar" id="online-users-sidebar">
+<div class="online-users-header" id="online-users-header">
             Online — 0
         </div>
-        <div class="online-users-list" id="online-users-list">
-            <!-- Online users will be appended here by JS -->
-        </div>
-    </div>
-    <!-- --- END NEW: Online Users Sidebar --- -->
-
+<div class="online-users-list" id="online-users-list">
+<!-- Online users will be appended here by JS -->
+</div>
+</div>
+<!-- --- END NEW: Online Users Sidebar --- -->
 </div> <!-- End Main Wrapper -->
-
 <!-- IMAGE LIGHTBOX MODAL (NEW) -->
 <div class="image-modal-overlay" id="image-modal">
 <span class="modal-close-btn" id="image-modal-close">×</span>
@@ -4314,7 +4311,115 @@
         }
     })();
 </script>
-</body>
-</html>
-
-
+<script>
+function subscribeToMessages(userInfo) {
+    return new Promise((resolve) => {
+        console.log('[DEBUG] subscribeToMessages: Creating new subscription.');
+        const channel = supabase.channel('messages-channel', {
+            config: {
+                presence: {
+                    key: userInfo.username,
+                },
+            },
+        });
+        channel
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
+                console.log('[DEBUG] [RT:INSERT] Received new message payload. ID:', payload.new.id);
+                if (loadedMessages.some(m => m.id === payload.new.id)) {
+                    console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
+                    return;
+                }
+                console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
+                const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+                loadedMessages.push(payload.new);
+                totalMessageCount += 1;
+                await displayMessage(payload.new);
+                if (wasScrolledToBottom) {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
+                console.log('[DEBUG] [RT:DELETE] Received delete for ID:', payload.old.id);
+                const messageId = payload.old.id;
+                const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    messageElement.remove();
+                    loadedMessages = loadedMessages.filter(m => m.id !== messageId);
+                }
+            })
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+                console.log('[DEBUG] [RT:UPDATE] Received update for ID:', payload.new.id);
+                const updatedMessage = payload.new;
+                const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
+                if (msgEl) {
+                    const textEl = msgEl.querySelector('.text');
+                    const newHtml = cleanMessageMentions(updatedMessage.message);
+                    if (textEl && textEl.innerHTML !== newHtml) {
+                        textEl.innerHTML = newHtml;
+                    }
+                    const avatarImg = msgEl.querySelector('.avatar');
+                    const username = cleanUsername(updatedMessage.username);
+                    const newAvatar = updatedMessage.avatar_url && updatedMessage.avatar_url.trim() !== ""
+                        ? updatedMessage.avatar_url
+                        : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(username)}`;
+                    if (avatarImg && avatarImg.src !== newAvatar) {
+                        avatarImg.src = newAvatar;
+                        const avatarLink = msgEl.querySelector('.avatar-link');
+                        if (avatarLink) avatarLink.dataset.avatarUrl = newAvatar;
+                    }
+                }
+            })
+            .on('broadcast', { event: 'typing' }, ({ payload }) => {
+                if (payload.username && payload.username !== currentUsername) {
+                    activeTypers[payload.username] = Date.now();
+                    updateTypingIndicator();
+                }
+            })
+            .on('broadcast', { event: 'stopped_typing' }, ({ payload }) => {
+                if (payload.username) {
+                    delete activeTypers[payload.username];
+                    updateTypingIndicator();
+                }
+            })
+            .on('presence', { event: 'sync' }, () => {
+                console.log('[DEBUG] [Presence] Sync received.');
+                onlineUsers = channel.presenceState();
+                renderOnlineUsers();
+            })
+            .on('presence', { event: 'join' }, ({ newPresences }) => {
+                console.log('[DEBUG] [Presence] Join:', newPresences);
+                newPresences.forEach(presence => {
+                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).concat(presence);
+                });
+                renderOnlineUsers();
+            })
+            .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+                console.log('[DEBUG] [Presence] Leave:', leftPresences);
+                leftPresences.forEach(presence => {
+                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).filter(p => p.presence_ref !== presence.presence_ref);
+                    if (onlineUsers[presence.user].length === 0) {
+                        delete onlineUsers[presence.user];
+                    }
+                });
+                renderOnlineUsers();
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('[DEBUG] [subscribeToMessages] SUBSCRIBED to channel.');
+                    if (userInfo && userInfo.username) {
+                        await channel.track({
+                            user: userInfo.username,
+                            avatar: userInfo.avatar,
+                            is_verified: userInfo.isVerified
+                        });
+                        console.log('[DEBUG] [Presence] Tracking user:', userInfo.username);
+                    }
+                    resolve(channel);
+                } else {
+                    console.warn('[DEBUG] [subscribeToMessages] Channel subscription status:', status);
+                }
+            });
+    });
+}
+</script></body>
+</head></html>
