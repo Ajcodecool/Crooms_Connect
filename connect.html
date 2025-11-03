@@ -1,12 +1,26 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Connect Chat (Multi-Theme Demo)</title>
 <!--
-67
+    File: Connector.html
+    Author: Gemini
+    Date: 2024-10-29
+    Description:
+    This is a complex, single-file chat application.
+    It uses Supabase for backend, real-time messaging, and presence.
+    It supports multiple themes, rich-text editing, @mentions,
+    moderator tools, user profiles, block lists, and custom settings.
+
+    Key features added/fixed in this version:
+    - Fixed tab-reconnect bug (message send/load failure).
+    - Added toggleable Online Users sidebar with a footer count.
+    - Added Fullscreen mode toggle in settings.
+    - Added CSS for symmetrical fullscreen layout.
+    - Added debug logging for message sending and tab visibility.
+    - Online bar presence is now more robust.
 -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
@@ -2051,18 +2065,18 @@
 <a class="back-button" href="index.html">← Back to Home</a>
 <!-- --- MODIFICATION: Added Main Wrapper --- -->
 <div class="main-wrapper">
-<div class="chat-container">
-<div class="scroll-to-bottom-btn" id="scroll-to-bottom">
-<i class="fas fa-arrow-down"></i>
-</div>
-<div class="chat-header">
-<div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
-<!-- --- MODIFICATION: Search Bar --- -->
-<div class="search-bar" id="search-bar">
-<input id="search-input" placeholder="Search loaded messages..." type="text"/>
-</div>
-<!-- NEW SCHEDULE TRACKER BAR -->
-<div id="schedule-tracker-bar" style="
+    <div class="chat-container">
+    <div class="scroll-to-bottom-btn" id="scroll-to-bottom">
+    <i class="fas fa-arrow-down"></i>
+    </div>
+    <div class="chat-header">
+    <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
+    <!-- --- MODIFICATION: Search Bar --- -->
+    <div class="search-bar" id="search-bar">
+    <input id="search-input" placeholder="Search loaded messages..." type="text"/>
+    </div>
+    <!-- NEW SCHEDULE TRACKER BAR -->
+    <div id="schedule-tracker-bar" style="
                 background: var(--toolbar-bg); 
                 color: var(--text-color); 
                 padding: 4px 12px; 
@@ -2076,74 +2090,78 @@
             ">
                 Loading schedule...
             </div>
-<!-- END NEW BAR -->
-<div class="flex items-center gap-2">
-<!-- --- MODIFICATION: New Header Buttons --- -->
-<button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
-<!-- --- NEW: Online Toggle Button --- -->
-<button class="header-icon-btn" id="online-toggle-btn" title="Toggle Online Users"><i class="fas fa-users"></i></button>
-<button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
-<button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
-<!-- --- END MODIFICATION --- -->
-<!-- Theme selector removed from here -->
-<div class="user-info" id="user-info" style="display: none;">
-<img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
-<span id="user-name">Loading...</span>
-<span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
-</div>
-</div>
-</div>
-<div class="chat-messages" id="chat-box">
-<div id="loading-older" style="display:none">Loading...</div>
-<!-- Typing indicator will be appended here by JS -->
-</div>
-<div class="chat-input">
-<!-- --- MODIFICATION: @Mention Suggestions --- -->
-<div id="mention-suggestions"></div>
-<div class="rich-text-toolbar" id="rich-text-toolbar">
-<button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
-<button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
-<button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
-<button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
-<button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
-<button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
-</div>
-<div class="chat-input-row">
-<!-- --- MODIFICATION: Updated placeholder text --- -->
-<div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Enter to send, Shift+Enter for new line)"></div>
-<button id="send-button">Send</button>
-</div>
-</div>
-<!-- USER PROFILE VIEW (NEW) -->
-<div class="user-profile-view" id="user-profile-view">
-<div class="user-profile-header">
-<button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
-<img alt="avatar" id="profile-view-avatar" src=""/>
-<h2 id="profile-view-username">User Profile</h2>
-<!-- --- MODIFICATION: Block/Unblock Button --- -->
-<button data-user-id="" data-username="" id="profile-action-btn"></button>
-</div>
-<div class="user-profile-messages" id="user-profile-messages">
-<!-- Messages will be loaded here -->
-</div>
-</div>
-</div>
-<!-- --- NEW: Online Count Footer --- -->
-<div class="online-count-footer" id="online-count-footer">
-<i class="fas fa-circle text-green-500 text-xs" style="color: var(--accent-green);"></i>
-<span id="online-count-footer-text">0 Online</span>
-</div>
-<!-- --- NEW: Online Users Sidebar --- -->
-<div class="online-users-sidebar" id="online-users-sidebar">
-<div class="online-users-header" id="online-users-header">
+    <!-- END NEW BAR -->
+    <div class="flex items-center gap-2">
+    <!-- --- MODIFICATION: New Header Buttons --- -->
+    <button class="header-icon-btn" id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+    <!-- --- NEW: Online Toggle Button --- -->
+    <button class="header-icon-btn" id="online-toggle-btn" title="Toggle Online Users"><i class="fas fa-users"></i></button>
+    <button class="header-icon-btn" id="settings-btn" title="Settings"><i class="fas fa-cog"></i></button>
+    <button class="header-icon-btn" id="mod-menu-btn" style="display: none;" title="Mod Menu"><i class="fas fa-user-shield"></i></button>
+    <!-- --- END MODIFICATION --- -->
+    <!-- Theme selector removed from here -->
+    <div class="user-info" id="user-info" style="display: none;">
+    <img alt="avatar" id="user-avatar" src="https://api.dicebear.com/6.x/thumbs/svg?seed=Anonymous"/>
+    <span id="user-name">Loading...</span>
+    <span class="verified-badge" id="user-verified" style="display:none;" title="Verified">✅</span>
+    </div>
+    </div>
+    </div>
+    <div class="chat-messages" id="chat-box">
+    <div id="loading-older" style="display:none">Loading...</div>
+    <!-- Typing indicator will be appended here by JS -->
+    </div>
+    <div class="chat-input">
+    <!-- --- MODIFICATION: @Mention Suggestions --- -->
+    <div id="mention-suggestions"></div>
+    <div class="rich-text-toolbar" id="rich-text-toolbar">
+    <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
+    <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
+    <button data-format="underline" title="Underline"><i class="fas fa-underline"></i></button>
+    <button data-format="createLink" title="Link"><i class="fas fa-link"></i></button>
+    <button data-format="insertUnorderedList" title="Bulleted List"><i class="fas fa-list-ul"></i></button>
+    <button data-format="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+    </div>
+    <div class="chat-input-row">
+    <!-- --- MODIFICATION: Updated placeholder text --- -->
+    <div contenteditable="true" id="chat-input-editor" placeholder="Type your message (Enter to send, Shift+Enter for new line)"></div>
+    <button id="send-button">Send</button>
+    </div>
+    </div>
+    <!-- USER PROFILE VIEW (NEW) -->
+    <div class="user-profile-view" id="user-profile-view">
+    <div class="user-profile-header">
+    <button class="back" id="profile-back-btn"><i class="fas fa-arrow-left"></i></button>
+    <img alt="avatar" id="profile-view-avatar" src=""/>
+    <h2 id="profile-view-username">User Profile</h2>
+    <!-- --- MODIFICATION: Block/Unblock Button --- -->
+    <button data-user-id="" data-username="" id="profile-action-btn"></button>
+    </div>
+    <div class="user-profile-messages" id="user-profile-messages">
+    <!-- Messages will be loaded here -->
+    </div>
+    </div>
+    </div>
+    
+    <!-- --- NEW: Online Count Footer --- -->
+    <div class="online-count-footer" id="online-count-footer">
+        <i class="fas fa-circle text-green-500 text-xs" style="color: var(--accent-green);"></i>
+        <span id="online-count-footer-text">0 Online</span>
+    </div>
+
+    <!-- --- NEW: Online Users Sidebar --- -->
+    <div class="online-users-sidebar" id="online-users-sidebar">
+        <div class="online-users-header" id="online-users-header">
             Online — 0
         </div>
-<div class="online-users-list" id="online-users-list">
-<!-- Online users will be appended here by JS -->
-</div>
-</div>
-<!-- --- END NEW: Online Users Sidebar --- -->
+        <div class="online-users-list" id="online-users-list">
+            <!-- Online users will be appended here by JS -->
+        </div>
+    </div>
+    <!-- --- END NEW: Online Users Sidebar --- -->
+
 </div> <!-- End Main Wrapper -->
+
 <!-- IMAGE LIGHTBOX MODAL (NEW) -->
 <div class="image-modal-overlay" id="image-modal">
 <span class="modal-close-btn" id="image-modal-close">×</span>
@@ -2623,24 +2641,21 @@
     const searchInput = document.getElementById('search-input');
     const chatHeaderTitle = document.getElementById('chat-header-title');
     
-    // --- REFACTOR: Presence & Toggle Elements (Listeners will be removed) ---
+    // --- NEW: Presence & Toggle Elements ---
     const onlineUsersList = document.getElementById('online-users-list');
     const onlineUsersHeader = document.getElementById('online-users-header');
     const onlineToggleBtn = document.getElementById('online-toggle-btn');
     const onlineCountFooter = document.getElementById('online-count-footer');
-    const fullscreenToggleBtn = document.getElementById('fullscreen-toggle');
+    const fullscreenToggleBtn = document.getElementById('fullscreen-toggle'); // Added
 
     // --- State Variables ---
     window.currentUser = null;
     let currentUsername = 'Anonymous';
     let currentUserIsVerified = false;
-    
-    // --- REFACTOR: Real-time state removed ---
-    // let channel = null; 
-    // let typingIndicator;
-    // let typeTimer = null;
-    // let activeTypers = {};
-    
+    let channel = null; // To hold the channel subscription
+    let typingIndicator;
+    let typeTimer = null;
+    let activeTypers = {};
     let mentionCache = {};
     let currentMentionQuery = null;
     let isSending = false; // Flag to prevent double sends
@@ -2652,8 +2667,8 @@
     let allOlderLoaded = false;
     let totalMessageCount = null; 
 
-    // --- REFACTOR: Presence State removed ---
-    // let onlineUsers = {};
+    // --- NEW: Presence State ---
+    let onlineUsers = {};
 
     const verifiedCache = {};
     function clearVerifiedCache() {
@@ -2662,7 +2677,7 @@
         }
     }
 
-    // --- Fullscreen Toggle Logic (Kept) ---
+    // --- NEW: Fullscreen Toggle Logic ---
     function setupFullscreenToggle() {
         if (fullscreenToggleBtn) {
             fullscreenToggleBtn.addEventListener("click", function () {
@@ -2681,13 +2696,102 @@
         }
     }
 
-    // --- REFACTOR: Presence Functions Removed ---
-    // function renderOnlineUsers() { ... }
-    // function setOnlineSidebarVisible(visible) { ... }
+    // --- NEW: Render Online Users (Modified) ---
+    function renderOnlineUsers() {
+        if (!onlineUsersList || !onlineUsersHeader) return;
+
+        // Get unique users. Presence can list multiple entries per user (e.g., different tabs).
+        const uniqueUsers = {};
+        for (const key in onlineUsers) {
+            const presences = onlineUsers[key];
+            if (presences.length > 0) {
+                const userPresence = presences[0]; // Take the first presence entry
+                uniqueUsers[userPresence.user] = userPresence;
+            }
+        }
+        
+        const userList = Object.values(uniqueUsers);
+        const count = userList.length;
+
+        // Update Header
+        onlineUsersHeader.textContent = `Online — ${count}`;
+        
+        // Update Footer
+        const footerText = document.getElementById('online-count-footer-text');
+        if (footerText) {
+            footerText.textContent = `${count} Online`;
+        }
+
+        // Render List
+        onlineUsersList.innerHTML = '';
+        userList.sort((a, b) => a.user.localeCompare(b.user)); // Sort alphabetically
+
+        userList.forEach(presence => {
+            const div = document.createElement('div');
+            div.className = 'online-user-item';
+            
+            const avatar = (presence.avatar && presence.avatar.trim() !== "")
+                ? presence.avatar
+                : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(presence.user)}`;
+
+            div.innerHTML = `
+                <img src="${avatar}" alt="${presence.user} avatar">
+                <span>${presence.user}</span>
+                ${presence.is_verified ? `<span class="verified-badge" title="Verified">✅</span>` : ""}
+            `;
+            onlineUsersList.appendChild(div);
+        });
+    }
+
+    // --- NEW: Online Sidebar Toggle ---
+    function setOnlineSidebarVisible(visible) {
+        const wrapper = document.querySelector('.main-wrapper');
+        if (!wrapper || !onlineToggleBtn) return;
+        
+        wrapper.classList.toggle('online-sidebar-visible', visible);
+        onlineToggleBtn.classList.toggle('active', visible); // 'active' class for styling
+        localStorage.setItem('onlineSidebarVisible', visible);
+    }
     
-    // --- REFACTOR: Typing Functions Removed ---
-    // function createTypingIndicator() { ... }
-    // function updateTypingIndicator() { ... }
+    function createTypingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'typing-indicator';
+        indicator.className = 'typing-indicator';
+        indicator.innerHTML = `<span id="typing-indicator-text"></span> <div class="dots"><span></span><span></span><span></span></div>`;
+        chatBox.appendChild(indicator);
+        return indicator;
+    }
+
+    // --- MODIFICATION: Update Typing Indicator ---
+    function updateTypingIndicator() {
+        const typerNames = Object.keys(activeTypers).filter(name => name !== currentUsername);
+        const textEl = document.getElementById('typing-indicator-text');
+        
+        if (!typingIndicator || !textEl) return;
+
+        if (typerNames.length === 0) {
+            typingIndicator.classList.remove('visible');
+            return;
+        }
+        
+        let text;
+        if (typerNames.length === 1) {
+            text = `${typerNames[0]} is typing`;
+        } else if (typerNames.length === 2) {
+            text = `${typerNames[0]} and ${typerNames[1]} are typing`;
+        } else {
+            text = `${typerNames.length} users are typing`;
+        }
+        
+        textEl.textContent = text;
+        typingIndicator.classList.add('visible');
+        
+        // Ensure it's scrolled into view if we're at the bottom
+        const isScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+        if (isScrolledToBottom) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
 
     function cleanUsername(name) {
         if (!name) return "Anonymous";
@@ -2781,7 +2885,7 @@
         }, 3000);
     }
 
-    // --- Blocklist Functions (Kept) ---
+    // --- MODIFICATION: Blocklist Functions ---
     function getBlockedUsers() {
         return JSON.parse(localStorage.getItem('blockedUsers') || '[]');
     }
@@ -2880,7 +2984,7 @@
     // --- END BLOCKLIST ---
 
     async function displayMessage(msg, container = chatBox) {
-        // Blocklist Check
+        // --- MODIFICATION: Blocklist Check ---
         const blockedUsers = getBlockedUsers();
         if (blockedUsers.includes(msg.user_id)) {
             return; // Don't display at all
@@ -2913,7 +3017,7 @@
         
         const formattedMessage = cleanMessageMentions(msg.message);
 
-        // Mod tools (Kept)
+        // --- MODIFICATION: Show Edit/Delete for self, Mod tools for others ---
         let modToolsHtml = '';
         if (isSelf) {
             modToolsHtml = `
@@ -2939,6 +3043,7 @@
                 </div>
             `;
         }
+        // --- END MODIFICATION ---
         
         const avatarHtml = `<a class="avatar-link" data-user-id="${msg.user_id}" data-username="${username}" data-avatar-url="${avatarSrc}"><img src="${avatarSrc}" class="avatar" alt="avatar"></a>`;
 
@@ -2962,10 +3067,8 @@
             `;
         }
         
-        // --- REFACTOR: No typing indicator to insert before ---
         if (container === chatBox) {
-            // container.insertBefore(div, typingIndicator); 
-            container.appendChild(div); // Just append to the end
+            container.insertBefore(div, typingIndicator); 
         } else {
             container.appendChild(div);
         }
@@ -2981,6 +3084,8 @@
             for (const msg of loadedMessages) {
                 await displayMessage(msg); // This will now respect blocklist
             }
+            
+            // applyBlocklist(); // No longer needed here, displayMessage handles it
             
             setTimeout(() => {
                 const currentScrollHeight = chatBox.scrollHeight;
@@ -3054,41 +3159,6 @@
         loadingOlder = false;
         loadingOlderDiv.style.display = allOlderLoaded ? 'none' : 'block';
     }
-    
-    // --- NEW: Polling function for new messages ---
-    async function pollForNewMessages() {
-        if (loadedMessages.length === 0 || document.visibilityState !== 'visible') {
-             return; // Don't poll if initial load hasn't happened or tab is hidden
-        }
-        
-        const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
-        const { data: newMessages, error } = await supabase
-            .from('messages')
-            .select('id, user_id, username, avatar_url, message, timestamp')
-            .gt('timestamp', lastTimestamp)
-            .order('timestamp', { ascending: true });
-
-        if (error) {
-            console.warn("Polling error:", error.message);
-            return;
-        }
-
-        if (newMessages && newMessages.length > 0) {
-            console.log(`[POLL] Fetched ${newMessages.length} new messages.`);
-            const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
-            for (const msg of newMessages) {
-                if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
-                    loadedMessages.push(msg);
-                    await displayMessage(msg);
-                    totalMessageCount += 1; // Keep count in sync
-                }
-            }
-            if (wasScrolledToBottom) {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        }
-    }
-
 
     function handleScroll() {
         if (chatBox.scrollTop < 100 && !loadingOlder && !allOlderLoaded) {
@@ -3102,6 +3172,7 @@
         // Allow (edited) tag
         html = html.replace(/<small class="text-xs opacity-70 ml-1">\(edited\)<\/small>/g, '');
 
+        // --- MODIFICATION: Added 'p' tag ---
         const allowedTags = ['strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'br', 'div', 'p', 'span', 'img'];
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const allElements = doc.body.querySelectorAll('*');
@@ -3115,6 +3186,7 @@
                 if (!href || (!href.startsWith('http:') && !href.startsWith('https:'))) {
                     el.removeAttribute('href');
                 } else {
+                    // --- MODIFICATION: Ensure links open in new tab ---
                     el.setAttribute('target', '_blank');
                     el.setAttribute('rel', 'noopener noreferrer');
                 }
@@ -3134,23 +3206,28 @@
     }
     
     async function sendMessage() {
+        // === DEBUG ===
+        console.log('[DEBUG] sendMessage: Preparing message.');
+        // === END DEBUG ===
         const rawMessage = editor.innerHTML;
+        // --- MODIFICATION: Standardize newlines to <p> tags before sanitizing ---
+        // This handles the <br> from Shift+Enter and <div> from Enter
         let messageHtml = rawMessage
-            .replace(/<div><br><\/div>/g, '<p><br></p>') 
-            .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>'); 
+            .replace(/<div><br><\/div>/g, '<p><br></p>') // empty div line
+            .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>'); // div with content
 
         const message = sanitizeHTML(messageHtml).trim();
         
         if (!message || message === '<br>' || message === '<p><br></p>') {
+            console.log("[DEBUG] sendMessage: Sanitized message is empty."); // DEBUG
             return null;
         }
 
         editor.innerHTML = ''; // Clear editor immediately for better UX
-        
-        // --- REFACTOR: Removed typing broadcast ---
-        // if (channel) {
-        //     channel.track({ event: 'stopped_typing', payload: { username: currentUsername } });
-        // }
+        // --- MODIFICATION: Broadcast stopped typing ---
+        if (channel) {
+            channel.track({ event: 'stopped_typing', payload: { username: currentUsername } });
+        }
 
         const { data: profile, error: profileErr } = await supabase
             .from('profiles')
@@ -3161,6 +3238,15 @@
 
         const username = profile?.username || 'Anonymous';
         const avatar_url = window.currentUser.user_metadata?.avatar_url || '';
+
+        // === DEBUG: Log message being sent ===
+        console.log(`[DEBUG] Sending to Supabase:`, {
+            user_id: window.currentUser.id,
+            username,
+            avatar_url,
+            message,
+        });
+        // === END DEBUG ===
 
         // Insert and immediately get the new row back
         const { data: newMessage, error: insertErr } = await supabase
@@ -3179,11 +3265,155 @@
             throw new Error("Failed to insert message into database.");
         }
         
+        // === DEBUG ===
+        console.log('[DEBUG] sendMessage: Insert successful. New message ID:', newMessage.id);
+        // === END DEBUG ===
         return newMessage;
     }
 
-    // --- REFACTOR: Real-time subscription function removed ---
-    // function subscribeToMessages(userInfo) { ... }
+    /**
+     * --- MODIFICATION: Robust Channel Subscription ---
+     * Subscribes to messages, typing, and presence.
+     * Tracks user presence upon successful subscription.
+     * @param {object} userInfo - Info about the current user.
+     * @param {string} userInfo.username - The user's display name.
+     * @param {string} userInfo.avatar - The user's avatar URL.
+     * @param {boolean} userInfo.isVerified - The user's verification status.
+     */
+    function subscribeToMessages(userInfo) {
+        // === DEBUG ===
+        console.log('[DEBUG] subscribeToMessages: Creating new subscription.');
+        // === END DEBUG ===
+        const channel = supabase.channel('messages-channel', {
+             config: {
+                presence: {
+                    key: userInfo.username, // Use username as key
+                },
+            },
+        });
+        channel
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
+                // === DEBUG ===
+                console.log('[DEBUG] [RT:INSERT] Received new message payload. ID:', payload.new.id);
+                // === END DEBUG ===
+                if (loadedMessages.some(m => m.id === payload.new.id)) {
+                    console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
+                    return;
+                }
+                console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
+                
+                const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+                loadedMessages.push(payload.new);
+                totalMessageCount += 1;
+                await displayMessage(payload.new);
+                
+                if (wasScrolledToBottom) {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
+                 console.log('[DEBUG] [RT:DELETE] Received delete for ID:', payload.old.id);
+                 const messageId = payload.old.id;
+                 const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
+                 if (messageElement) {
+                     messageElement.remove();
+                     loadedMessages = loadedMessages.filter(m => m.id !== messageId);
+                 }
+            })
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+                 console.log('[DEBUG] [RT:UPDATE] Received update for ID:', payload.new.id);
+                 const updatedMessage = payload.new;
+                 const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
+                 
+                 if (msgEl) {
+                     const textEl = msgEl.querySelector('.text');
+                     const newHtml = cleanMessageMentions(updatedMessage.message);
+                     if (textEl && textEl.innerHTML !== newHtml) {
+                         textEl.innerHTML = newHtml;
+                     }
+                     const avatarImg = msgEl.querySelector('.avatar');
+                     const username = cleanUsername(updatedMessage.username);
+                     const newAvatar = updatedMessage.avatar_url && updatedMessage.avatar_url.trim() !== ""
+                        ? updatedMessage.avatar_url
+                        : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(username)}`;
+                     
+                     if (avatarImg && avatarImg.src !== newAvatar) {
+                        avatarImg.src = newAvatar;
+                        const avatarLink = msgEl.querySelector('.avatar-link');
+                        if (avatarLink) avatarLink.dataset.avatarUrl = newAvatar;
+                     }
+                 }
+            })
+            .on('broadcast', { event: 'typing' }, ({ payload }) => {
+                if (payload.username && payload.username !== currentUsername) {
+                    activeTypers[payload.username] = Date.now();
+                    updateTypingIndicator();
+                }
+            })
+            .on('broadcast', { event: 'stopped_typing' }, ({ payload }) => {
+                if (payload.username) {
+                    delete activeTypers[payload.username];
+                    updateTypingIndicator();
+                }
+            })
+            // --- NEW: Presence Listeners ---
+            .on('presence', { event: 'sync' }, () => {
+                console.log('[DEBUG] [Presence] Sync received.');
+                onlineUsers = channel.presenceState();
+                renderOnlineUsers();
+            })
+            .on('presence', { event: 'join' }, ({ newPresences }) => {
+                console.log('[DEBUG] [Presence] Join:', newPresences);
+                newPresences.forEach(presence => {
+                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).concat(presence);
+                });
+                renderOnlineUsers();
+            })
+            .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+                console.log('[DEBUG] [Presence] Leave:', leftPresences);
+                leftPresences.forEach(presence => {
+                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).filter(p => p.presence_ref !== presence.presence_ref);
+                    if (onlineUsers[presence.user].length === 0) {
+                        delete onlineUsers[presence.user];
+                    }
+                });
+                renderOnlineUsers();
+            })
+            // --- END Presence ---
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('[DEBUG] [subscribeToMessages] SUBSCRIBED to channel.');
+                    // --- NEW: Track presence on subscribe ---
+                    if (userInfo && userInfo.username) {
+                        await channel.track({ 
+                            user: userInfo.username, 
+                            avatar: userInfo.avatar,
+                            is_verified: userInfo.isVerified
+                        });
+                        console.log('[DEBUG] [Presence] Tracking user:', userInfo.username);
+                    }
+                } else {
+                    console.warn('[DEBUG] [subscribeToMessages] Channel subscription status:', status);
+                }
+            });
+        
+        // Periodically clear out old typers
+        setInterval(() => {
+            const now = Date.now();
+            let changed = false;
+            for (const username in activeTypers) {
+                if (now - activeTypers[username] > 5000) { // 5 second timeout
+                    delete activeTypers[username];
+                    changed = true;
+                }
+            }
+            if (changed) {
+                updateTypingIndicator();
+            }
+        }, 1000);
+        
+        return channel;
+    }
     
     function formatTimeDiff(ms) {
         if (ms <= 0) return "0 seconds";
@@ -3203,12 +3433,17 @@
     }
 
     async function handleSendClick() {
+        // === DEBUG ===
+        console.log(`[DEBUG] handleSendClick: Fired. currentUser: ${window.currentUser ? window.currentUser.id : 'null'}`);
+        // === END DEBUG ===
+        
         if (!window.currentUser) { 
             showToast("You must be signed in to send messages.", 'error');
             return;
         }
 
         if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>" || editor.innerHTML.trim() === "<p><br></p>") {
+            console.log("[DEBUG] Send clicked, but message is empty.");
             return;
         }
         
@@ -3221,6 +3456,10 @@
             .limit(1)
             .single();
 
+        // === DEBUG ===
+        console.log('[DEBUG] [handleSendClick] Sanction check complete.');
+        // === END DEBUG ===
+
         if (sanction) {
             if (sanction.action_type === 'BAN') {
                 showToast('You are permanently banned and cannot send messages.', 'error');
@@ -3230,48 +3469,54 @@
             }
             return;
         }
+
         
+        // === DEBUG ===
+        console.log(`[DEBUG] handleSendClick: User ${window.currentUser.id} is sending a message.`);
+        // === END DEBUG ===
         editor.setAttribute('contenteditable', 'false');
         sendBtn.disabled = true;
 
         try {
             const newMessage = await sendMessage();
             if (newMessage) {
-                // Optimistic UI: Display the message immediately
+                // === DEBUG ===
+                console.log('[DEBUG] [handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
+                // === END DEBUG ===
                 loadedMessages.push(newMessage);
                 await displayMessage(newMessage);
                 chatBox.scrollTop = chatBox.scrollHeight;
-                totalMessageCount += 1; // Keep count in sync
             }
         } catch (e) {
+            // === DEBUG ===
+            console.error("[DEBUG] [handleSendClick] ERROR:", e);
+            // === END DEBUG ===
             console.error("Send error:", e);
             showToast("Failed to send message: " + e.message, 'error');
         } finally {
+            // === DEBUG ===
+            console.log('[DEBUG] [handleSendClick] Re-enabling editor.');
+            // === END DEBUG ===
             editor.setAttribute('contenteditable', 'true');
             sendBtn.disabled = false;
             editor.focus(); 
         }
     }
 
-    // --- User-facing Edit/Delete Functions (Kept) ---
+    // --- MODIFICATION: User-facing Edit/Delete Functions ---
     async function handleDeleteMessageSelf(messageId) {
         if (!confirm('Are you sure you want to delete this message?')) return;
         const { error } = await supabase
             .from('messages')
             .delete()
             .eq('id', messageId)
-            .eq('user_id', window.currentUser.id);
+            .eq('user_id', window.currentUser.id); // Crucial: can only delete their own
 
         if (error) {
             showToast("Failed to delete message: " + error.message, 'error');
         } else {
             showToast("Message deleted.", 'success');
-            // --- REFACTOR: Manually remove from UI ---
-            const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
-            if (messageElement) {
-                messageElement.remove();
-                loadedMessages = loadedMessages.filter(m => m.id !== messageId);
-            }
+            // Realtime will handle the removal from UI
         }
     }
     
@@ -3285,6 +3530,7 @@
         const msg = loadedMessages.find(m => m.id == messageId);
         if (!msg) return;
 
+        // Get raw HTML, but remove the (edited) tag if present
         let currentHtml = msg.message.replace(/ <small>(.*?)<\/small>$/i, '');
         
         textEl.innerHTML = `<div id="edit-editor-${messageId}" contenteditable="true" class="edit-editor">${currentHtml}</div>`;
@@ -3299,6 +3545,7 @@
         
         const editEditor = document.getElementById(`edit-editor-${messageId}`);
         editEditor.focus();
+        // Move cursor to end
         document.execCommand('selectAll', false, null);
         document.getSelection().collapseToEnd();
     }
@@ -3307,6 +3554,7 @@
         const editorEl = document.getElementById(`edit-editor-${messageId}`);
         if (!editorEl) return;
         
+        // --- MODIFICATION: Standardize newlines on save ---
         let messageHtml = editorEl.innerHTML
             .replace(/<div><br><\/div>/g, '<p><br></p>')
             .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>');
@@ -3318,7 +3566,7 @@
             .update({ message: newHtml })
             .eq('id', messageId)
             .eq('user_id', window.currentUser.id) // Security check
-            .select()
+            .select() // Select to get the updated row
             .single();
 
         if (error) {
@@ -3329,7 +3577,7 @@
             if (msgIndex > -1) {
                 loadedMessages[msgIndex] = data;
             }
-            // --- REFACTOR: Manually update UI ---
+            // Realtime will handle the UI update, but we can force it
             const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
             if (msgEl) {
                 msgEl.querySelector('.text').innerHTML = cleanMessageMentions(newHtml);
@@ -3349,7 +3597,7 @@
     // --- END EDIT/DELETE ---
 
 
-    // --- MODERATOR FUNCTIONS (Kept) ---
+    // --- MODERATOR FUNCTIONS ---
     async function deleteMessageAsMod(messageId) {
         const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
         const username = messageEl ? messageEl.dataset.username : 'this user';
@@ -3360,11 +3608,6 @@
             showToast("Failed to delete message: " + error.message, 'error');
         } else {
             showToast("Message deleted successfully.", 'success');
-            // --- REFACTOR: Manually remove from UI ---
-            if (messageElement) {
-                messageElement.remove();
-                loadedMessages = loadedMessages.filter(m => m.id !== messageId);
-            }
         }
     }
     
@@ -3428,25 +3671,15 @@
             showToast("Failed to sync profile pictures: " + error.message, 'error');
         } else {
             showToast("Profile picture sync complete!", 'success');
-            // --- REFACTOR: Manually update UI ---
-            loadedMessages.forEach(msg => {
-                if (msg.user_id === userId) {
-                    msg.avatar_url = newAvatarUrl;
-                }
-            });
-            document.querySelectorAll(`.message[data-user-id="${userId}"] .avatar`).forEach(img => {
-                img.src = newAvatarUrl;
-            });
         }
     }
     // --- END MODERATOR FUNCTIONS ---
     
     
-    // --- @MENTION FUNCTIONS (Kept, but will be slower) ---
+    // --- @MENTION FUNCTIONS (NEW) ---
     async function fetchMentionSuggestions(query) {
-        // --- REFACTOR: Presence cache removed, must always fetch ---
-        // const cached = mentionCache[query];
-        // if (cached) return cached;
+        const cached = mentionCache[query];
+        if (cached) return cached;
         
         const { data, error } = await supabase
             .from('profiles')
@@ -3460,7 +3693,7 @@
         }
         
         const users = data.map(p => cleanUsername(p.username));
-        // mentionCache[query] = users; // No longer caching this way
+        mentionCache[query] = users;
         return users;
     }
 
@@ -3488,19 +3721,23 @@
         const selection = window.getSelection();
         const range = selection.getRangeAt(0);
         
+        // Find the start of the @query
         const textNode = range.startContainer;
         let textContent = textNode.textContent;
         let queryStart = range.startOffset - (currentMentionQuery.length + 1);
 
+        // Replace the @query with the full username + a space
         textContent = textContent.substring(0, queryStart) + `@${username} ` + textContent.substring(range.startOffset);
         
         textNode.textContent = textContent;
         
+        // Move cursor after the inserted mention
         range.setStart(textNode, queryStart + username.length + 2);
         range.setEnd(textNode, queryStart + username.length + 2);
         selection.removeAllRanges();
         selection.addRange(range);
 
+        // Hide suggestions
         mentionSuggestions.style.display = 'none';
         currentMentionQuery = null;
         editor.focus();
@@ -3587,7 +3824,7 @@
     });
     
     chatBox.addEventListener('click', (e) => {
-        // Mod tools click listener (Kept)
+        // --- MODIFICATION: Consolidated click listener ---
         const actionButton = e.target.closest('.mod-tools-menu button, .edit-controls button');
         
         if (actionButton) {
@@ -3605,6 +3842,7 @@
                 case 'ban': applySanction(userId, 'BAN'); break;
                 case 'pardon': pardonUser(userId); break;
             }
+            // Close menu if it was a menu button
             if (actionButton.parentElement.classList.contains('mod-tools-menu')) {
                  actionButton.parentElement.classList.remove('visible');
             }
@@ -3619,6 +3857,7 @@
             e.stopPropagation();
             return;
         }
+        // --- END CONSOLIDATION ---
 
         // IMAGE LIGHTBOX
         if (e.target.tagName === 'IMG' && e.target.closest('.message-content')) {
@@ -3649,7 +3888,7 @@
         document.getElementById('profile-view-avatar').src = avatarUrl;
         document.getElementById('profile-view-username').textContent = `${username}'s Posts`;
         
-        // Update Block Button State
+        // --- MODIFICATION: Update Block Button State ---
         profileActionBtn.dataset.userId = userId;
         profileActionBtn.dataset.username = username;
         const blockedUsers = getBlockedUsers();
@@ -3685,6 +3924,7 @@
         }
     }
 
+    // --- MODIFICATION: Block Button Listener ---
     profileActionBtn.addEventListener('click', (e) => {
         const { action, userId, username } = e.target.dataset;
         if (action === 'block') {
@@ -3695,7 +3935,7 @@
     });
 
 
-    // MODAL/VIEW CLOSE LISTENERS (Kept)
+    // MODAL/VIEW CLOSE LISTENERS
     function closeModalOnClick(modal) {
         modal.classList.remove('visible');
     }
@@ -3709,6 +3949,7 @@
              closeModalOnClick(modMenuModal);
         }
     });
+    // --- MODIFICATION: Settings Modal Listeners ---
     settingsModal.addEventListener('click', (e) => {
         if (e.target === settingsModal || e.target === settingsMenuClose) {
              closeModalOnClick(settingsModal);
@@ -3717,6 +3958,7 @@
     settingsBtn.addEventListener('click', () => {
         settingsModal.classList.add('visible');
     });
+    // --- END SETTINGS ---
     
     modMenuBtn.addEventListener('click', () => {
         modMenuModal.classList.add('visible');
@@ -3737,16 +3979,19 @@
         userProfileView.classList.remove('visible');
     });
 
-    // Search Bar Listeners (Kept)
+    // --- MODIFICATION: Search Bar Listeners ---
     searchBtn.addEventListener('click', () => {
         const isVisible = searchBar.style.display === 'flex';
         if (isVisible) {
+            // Hide search
             searchBar.style.display = 'none';
             chatHeaderTitle.style.display = 'block';
             searchBtn.classList.remove('active');
             searchInput.value = '';
+            // Trigger input event to clear filter
             searchInput.dispatchEvent(new Event('input')); 
         } else {
+            // Show search
             searchBar.style.display = 'flex';
             chatHeaderTitle.style.display = 'none';
             searchBtn.classList.add('active');
@@ -3764,6 +4009,7 @@
             
             const textContent = textEl.textContent.toLowerCase();
             
+            // Remove old highlights
             textEl.innerHTML = textEl.innerHTML.replace(/<mark>|<\/mark>/g, '');
 
             if (query === "") {
@@ -3773,6 +4019,7 @@
 
             if (username.includes(query) || textContent.includes(query)) {
                 msgEl.style.display = 'flex';
+                // Add new highlight
                 try {
                     const regex = new RegExp(`(${query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
                     textEl.innerHTML = textEl.innerHTML.replace(regex, '<mark>$1</mark>');
@@ -3784,6 +4031,7 @@
             }
         });
     });
+    // --- END SEARCH ---
 
 
     // --- APP INITIALIZATION ---
@@ -3791,27 +4039,44 @@
         setupFullscreenToggle(); // Setup the fullscreen button
         sendBtn.addEventListener('click', handleSendClick);
         
+        // --- MODIFICATION: Updated keydown listener for list fix ---
         editor.addEventListener('keydown', (e) => {
+            // Handle mention UI first
             if (mentionSuggestions.style.display !== 'none') {
                 handleMentionKeydown(e);
+                // If mention logic handled the key, stop processing
                 if (e.defaultPrevented) return;
             }
 
             if (e.key === 'Enter') {
                 if (e.shiftKey) {
+                    // Shift+Enter inserts new line
                     e.preventDefault();
                     document.execCommand('insertParagraph');
                     return;
                 }
+
+                // Enter sends
                 e.preventDefault();
                 handleSendClick();
                 return;
             }
         });
         
-        // --- REFACTOR: Typing indicator logic removed ---
+        // --- MODIFICATION: Typing indicator & @mention listener ---
         editor.addEventListener('input', () => {
-            // @Mention logic
+            // Typing indicator
+            if (channel) {
+                // Send typing event, but not on every keypress (debounce)
+                clearTimeout(typeTimer);
+                channel.track({ event: 'typing', payload: { username: currentUsername } });
+                
+                typeTimer = setTimeout(() => {
+                    channel.track({ event: 'stopped_typing', payload: { username: currentUsername } });
+                }, 3000); // 3 second timeout
+            }
+            
+            // @Mention
             handleMentionInput();
         });
 
@@ -3833,17 +4098,23 @@
             }
         });
 
-        // --- REFACTOR: Online Bar Toggle Listeners Removed ---
-        // onlineToggleBtn.addEventListener('click', ...);
-        // onlineCountFooter.addEventListener('click', ...);
-        
-        // --- REFACTOR: Hide online-related UI ---
-        onlineToggleBtn.style.display = 'none';
-        onlineCountFooter.style.display = 'none';
-        onlineUsersSidebar.style.display = 'none';
+        // --- NEW: Online Bar Toggle Listeners ---
+        onlineToggleBtn.addEventListener('click', () => {
+            const wrapper = document.querySelector('.main-wrapper');
+            setOnlineSidebarVisible(!wrapper.classList.contains('online-sidebar-visible'));
+        });
+
+        onlineCountFooter.addEventListener('click', () => {
+            setOnlineSidebarVisible(true);
+        });
+
+        // Load saved preference
+        const savedSidebarState = localStorage.getItem('onlineSidebarVisible') === 'true';
+        setOnlineSidebarVisible(savedSidebarState);
+        // --- END Online Bar ---
 
 
-        // --- Settings Listeners (Kept) ---
+        // --- MODIFICATION: Settings Listeners ---
         const bgUploader = document.getElementById('background-uploader');
         if (bgUploader) {
             bgUploader.addEventListener('change', (e) => {
@@ -3891,29 +4162,101 @@
         setInterval(updatePeriodTimer, 1000); // Update every second
         // === END SCHEDULE TRACKER INIT ===
 
-        // --- REFACTOR: Typing indicator removed ---
-        // typingIndicator = createTypingIndicator();
+        typingIndicator = createTypingIndicator();
         await updateGlobalAvatarAndName();
         await loadInitialMessages();
         
-        // --- REFACTOR: Real-time subscription removed ---
-        // channel = subscribeToMessages(...);
-        
-        // --- NEW: Start polling for messages ---
-        setInterval(pollForNewMessages, 5000);
-        
-        // --- REFACTOR: Auth change only updates profile, no re-subscription ---
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('[DEBUG] [onAuthStateChange] Auth state changed:', event);
-            await updateGlobalAvatarAndName();
+        // --- MODIFICATION: Pass user info to subscription ---
+        channel = subscribeToMessages({
+            username: currentUsername,
+            avatar: userAvatarImg.src,
+            isVerified: currentUserIsVerified
         });
+        
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            // === DEBUG ===
+            console.log('[DEBUG] [onAuthStateChange] Auth state changed:', event);
+            // === END DEBUG ===
+            await updateGlobalAvatarAndName();
+            
+            // --- MODIFICATION: Re-subscribe with new auth info ---
+            if (channel) {
+                console.log('[DEBUG] [onAuthStateChange] Re-subscribing with new auth info.');
+                supabase.removeChannel(channel);
+            }
+            channel = subscribeToMessages({
+                username: currentUsername,
+                avatar: userAvatarImg.src,
+                isVerified: currentUserIsVerified
+            });
+            // --- END MODIFICATION ---
+        });
+        // --- MODIFICATION: Robust visibilitychange listener ---
+        document.addEventListener('visibilitychange', async () => {
+            console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
+            if (document.visibilityState === 'visible') {
+                console.log("[visibilitychange] Tab is visible again. Re-syncing...");
+                
+                // 1. Re-authenticate
+                await updateGlobalAvatarAndName();
+                
+                // 2. Remove old channel and re-subscribe with current user info
+                if (channel) {
+                    console.log('[visibilitychange] Removing old channel.');
+                    supabase.removeChannel(channel);
+                }
+                channel = subscribeToMessages({
+                    username: currentUsername,
+                    avatar: userAvatarImg.src,
+                    isVerified: currentUserIsVerified
+                });
+                console.log('[visibilitychange] New channel subscribed and presence tracked.');
 
-        // --- REFACTOR: visibilitychange listener removed ---
+                // 3. Fetch missed messages
+                if (loadedMessages.length > 0) {
+                    const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
+                    console.log('[visibilitychange] Fetching new messages >', lastTimestamp);
+
+                    const { data: newMessages, error } = await supabase
+                        .from('messages')
+                        .select('id, user_id, username, avatar_url, message, timestamp')
+                        .gt('timestamp', lastTimestamp)
+                        .order('timestamp', { ascending: true });
+
+                    if (error) {
+                        console.error("[visibilitychange] Error fetching new messages on re-focus:", error);
+                        // Fallback to full reload
+                        await loadInitialMessages();
+                        return;
+                    }
+
+                    if (newMessages && newMessages.length > 0) {
+                        console.log(`[visibilitychange] Fetched ${newMessages.length} new messages on focus.`);
+                        const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+                        for (const msg of newMessages) {
+                            if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
+                                loadedMessages.push(msg);
+                                await displayMessage(msg);
+                            }
+                        }
+                        if (wasScrolledToBottom) {
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
+                    } else {
+                        console.log("[visibilitychange] No new messages since last focus.");
+                    }
+                } else {
+                    // No messages were loaded, do a full initial load
+                    await loadInitialMessages();
+                }
+            }
+        });
+        // --- END MODIFICATION ---
 
         scheduleDailyEvent();
     });
 
-    // === FIREWORKS FUNCTIONS (Kept) ===
+    // === FIREWORKS FUNCTIONS ===
     function runFireworkShow(ignoreSettings = false) {
         if (!ignoreSettings && localStorage.getItem('settings-hide-events') === 'true') {
             return;
@@ -3986,115 +4329,7 @@
         }
     })();
 </script>
-<script>
-function subscribeToMessages(userInfo) {
-    return new Promise((resolve) => {
-        console.log('[DEBUG] subscribeToMessages: Creating new subscription.');
-        const channel = supabase.channel('messages-channel', {
-            config: {
-                presence: {
-                    key: userInfo.username,
-                },
-            },
-        });
-        channel
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
-                console.log('[DEBUG] [RT:INSERT] Received new message payload. ID:', payload.new.id);
-                if (loadedMessages.some(m => m.id === payload.new.id)) {
-                    console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is already in local state. Skipping render.`);
-                    return;
-                }
-                console.log(`[DEBUG] [RT:INSERT] Message ID ${payload.new.id} is NOT in local state. Pushing and rendering.`);
-                const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
-                loadedMessages.push(payload.new);
-                totalMessageCount += 1;
-                await displayMessage(payload.new);
-                if (wasScrolledToBottom) {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            })
-            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
-                console.log('[DEBUG] [RT:DELETE] Received delete for ID:', payload.old.id);
-                const messageId = payload.old.id;
-                const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
-                if (messageElement) {
-                    messageElement.remove();
-                    loadedMessages = loadedMessages.filter(m => m.id !== messageId);
-                }
-            })
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-                console.log('[DEBUG] [RT:UPDATE] Received update for ID:', payload.new.id);
-                const updatedMessage = payload.new;
-                const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
-                if (msgEl) {
-                    const textEl = msgEl.querySelector('.text');
-                    const newHtml = cleanMessageMentions(updatedMessage.message);
-                    if (textEl && textEl.innerHTML !== newHtml) {
-                        textEl.innerHTML = newHtml;
-                    }
-                    const avatarImg = msgEl.querySelector('.avatar');
-                    const username = cleanUsername(updatedMessage.username);
-                    const newAvatar = updatedMessage.avatar_url && updatedMessage.avatar_url.trim() !== ""
-                        ? updatedMessage.avatar_url
-                        : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(username)}`;
-                    if (avatarImg && avatarImg.src !== newAvatar) {
-                        avatarImg.src = newAvatar;
-                        const avatarLink = msgEl.querySelector('.avatar-link');
-                        if (avatarLink) avatarLink.dataset.avatarUrl = newAvatar;
-                    }
-                }
-            })
-            .on('broadcast', { event: 'typing' }, ({ payload }) => {
-                if (payload.username && payload.username !== currentUsername) {
-                    activeTypers[payload.username] = Date.now();
-                    updateTypingIndicator();
-                }
-            })
-            .on('broadcast', { event: 'stopped_typing' }, ({ payload }) => {
-                if (payload.username) {
-                    delete activeTypers[payload.username];
-                    updateTypingIndicator();
-                }
-            })
-            .on('presence', { event: 'sync' }, () => {
-                console.log('[DEBUG] [Presence] Sync received.');
-                onlineUsers = channel.presenceState();
-                renderOnlineUsers();
-            })
-            .on('presence', { event: 'join' }, ({ newPresences }) => {
-                console.log('[DEBUG] [Presence] Join:', newPresences);
-                newPresences.forEach(presence => {
-                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).concat(presence);
-                });
-                renderOnlineUsers();
-            })
-            .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-                console.log('[DEBUG] [Presence] Leave:', leftPresences);
-                leftPresences.forEach(presence => {
-                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).filter(p => p.presence_ref !== presence.presence_ref);
-                    if (onlineUsers[presence.user].length === 0) {
-                        delete onlineUsers[presence.user];
-                    }
-                });
-                renderOnlineUsers();
-            })
-            .subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    console.log('[DEBUG] [subscribeToMessages] SUBSCRIBED to channel.');
-                    if (userInfo && userInfo.username) {
-                        await channel.track({
-                            user: userInfo.username,
-                            avatar: userInfo.avatar,
-                            is_verified: userInfo.isVerified
-                        });
-                        console.log('[DEBUG] [Presence] Tracking user:', userInfo.username);
-                    }
-                    resolve(channel);
-                } else {
-                    console.warn('[DEBUG] [subscribeToMessages] Channel subscription status:', status);
-                }
-            });
-    });
-}
-</script></body>
-</head></html>
+</body>
+</html>
+
+
