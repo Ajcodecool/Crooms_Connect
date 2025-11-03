@@ -4188,7 +4188,7 @@
                 // 2. Remove old channel and re-subscribe with current user info
                 if (channel) {
                     console.log('[visibilitychange] Removing old channel.');
-                    supabase.removeChannel(channel);
+                    await channel.unsubscribe();
                 }
                 channel = subscribeToMessages({
                     username: currentUsername,
