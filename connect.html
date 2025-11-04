@@ -3418,75 +3418,82 @@
     }
 
     async function handleSendClick() {
-        // === DEBUG ===
-        console.log(`[DEBUG] handleSendClick: Fired. currentUser: ${window.currentUser ? window.currentUser.id : 'null'}`);
-        // === END DEBUG ===
-        
-        if (!window.currentUser) { 
-            showToast("You must be signed in to send messages.", 'error');
-            return;
-        }
-
-        if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>" || editor.innerHTML.trim() === "<p><br></p>") {
-            console.log("[DEBUG] Send clicked, but message is empty.");
-            return;
-        }
-        
-        const { data: sanction, error: sanctionError } = await supabase
-            .from('sanctions')
-            .select('action_type, expires_at')
-            .eq('user_id', window.currentUser.id)
-            .or('expires_at.is.null,expires_at.gt.now()')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-        // === DEBUG ===
-        console.log('[DEBUG] [handleSendClick] Sanction check complete.');
-        // === END DEBUG ===
-
-        if (sanction) {
-            if (sanction.action_type === 'BAN') {
-                showToast('You are permanently banned and cannot send messages.', 'error');
-            } else if (sanction.action_type === 'TIMEOUT') {
-                const remainingTime = new Date(sanction.expires_at) - new Date();
-                showToast(`You are timed out. Please wait ${formatTimeDiff(remainingTime)}.`, 'error');
-            }
-            return;
-        }
-
-        
-        // === DEBUG ===
-        console.log(`[DEBUG] handleSendClick: User ${window.currentUser.id} is sending a message.`);
-        // === END DEBUG ===
-        editor.setAttribute('contenteditable', 'false');
-        sendBtn.disabled = true;
-
-        try {
-            const newMessage = await sendMessage();
-            if (newMessage) {
-                // === DEBUG ===
-                console.log('[DEBUG] [handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
-                // === END DEBUG ===
-                loadedMessages.push(newMessage);
-                await displayMessage(newMessage);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        } catch (e) {
-            // === DEBUG ===
-            console.error("[DEBUG] [handleSendClick] ERROR:", e);
-            // === END DEBUG ===
-            console.error("Send error:", e);
-            showToast("Failed to send message: " + e.message, 'error');
-        } finally {
-            // === DEBUG ===
-            console.log('[DEBUG] [handleSendClick] Re-enabling editor.');
-            // === END DEBUG ===
-            editor.setAttribute('contenteditable', 'true');
-            sendBtn.disabled = false;
-            editor.focus(); 
-        }
+    // === DEBUG ===
+    console.log(`[DEBUG] handleSendClick: Fired. currentUser: ${window.currentUser ? window.currentUser.id : 'null'}`);
+    // === END DEBUG ===
+    
+    if (isSending) return; // Prevent double sends
+    isSending = true;
+    
+    if (!window.currentUser) { 
+        showToast("You must be signed in to send messages.", 'error');
+        isSending = false;
+        return;
     }
+
+    if (editor.innerHTML.trim() === "" || editor.innerHTML.trim() === "<br>" || editor.innerHTML.trim() === "<p><br></p>") {
+        console.log("[DEBUG] Send clicked, but message is empty.");
+        isSending = false;
+        return;
+    }
+    
+    const { data: sanction, error: sanctionError } = await supabase
+        .from('sanctions')
+        .select('action_type, expires_at')
+        .eq('user_id', window.currentUser.id)
+        .or('expires_at.is.null,expires_at.gt.now()')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+    // === DEBUG ===
+    console.log('[DEBUG] [handleSendClick] Sanction check complete.');
+    // === END DEBUG ===
+
+    if (sanction) {
+        if (sanction.action_type === 'BAN') {
+            showToast('You are permanently banned and cannot send messages.', 'error');
+        } else if (sanction.action_type === 'TIMEOUT') {
+            const remainingTime = new Date(sanction.expires_at) - new Date();
+            showToast(`You are timed out. Please wait ${formatTimeDiff(remainingTime)}.`, 'error');
+        }
+        isSending = false;
+        return;
+    }
+
+    
+    // === DEBUG ===
+    console.log(`[DEBUG] handleSendClick: User ${window.currentUser.id} is sending a message.`);
+    // === END DEBUG ===
+    editor.setAttribute('contenteditable', 'false');
+    sendBtn.disabled = true;
+
+    try {
+        const newMessage = await sendMessage();
+        if (newMessage) {
+            // === DEBUG ===
+            console.log('[DEBUG] [handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
+            // === END DEBUG ===
+            loadedMessages.push(newMessage);
+            await displayMessage(newMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    } catch (e) {
+        // === DEBUG ===
+        console.error("[DEBUG] [handleSendClick] ERROR:", e);
+        // === END DEBUG ===
+        console.error("Send error:", e);
+        showToast("Failed to send message: " + e.message, 'error');
+    } finally {
+        // === DEBUG ===
+        console.log('[DEBUG] [handleSendClick] Re-enabling editor.');
+        // === END DEBUG ===
+        editor.setAttribute('contenteditable', 'true');
+        sendBtn.disabled = false;
+        isSending = false; // Reset flag
+        editor.focus(); 
+    }
+}
 
     // --- MODIFICATION: User-facing Edit/Delete Functions ---
     async function handleDeleteMessageSelf(messageId) {
@@ -4178,64 +4185,81 @@
         });
         // --- MODIFICATION: Robust visibilitychange listener ---
         document.addEventListener('visibilitychange', async () => {
-            console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
-            if (document.visibilityState === 'visible') {
-                console.log("[visibilitychange] Tab is visible again. Re-syncing...");
-                
-                // 1. Re-authenticate
-                await updateGlobalAvatarAndName();
-                
-                // 2. Remove old channel and re-subscribe with current user info
-                if (channel) {
-                    console.log('[visibilitychange] Removing old channel.');
-                    supabase.removeChannel(channel);
-                }
-                channel = subscribeToMessages({
-                    username: currentUsername,
-                    avatar: userAvatarImg.src,
-                    isVerified: currentUserIsVerified
-                });
-                console.log('[visibilitychange] New channel subscribed and presence tracked.');
+    console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
+    if (document.visibilityState === 'visible') {
+        console.log("[visibilitychange] Tab is visible again. Re-syncing...");
+        
+        // 1. Re-authenticate and check if user is still valid
+        await updateGlobalAvatarAndName();
+        if (!window.currentUser) {
+            console.log("[visibilitychange] No valid user after re-auth. Skipping re-sync.");
+            return; // Avoid re-subscribing if not authenticated
+        }
+        
+        // 2. Fully remove old channel if it exists
+        if (channel) {
+            console.log('[visibilitychange] Removing old channel.');
+            supabase.removeChannel(channel);
+            channel = null; // Explicitly nullify to prevent stale references
+        }
+        
+        // 3. Re-subscribe with current user info and wait for it to establish
+        try {
+            channel = subscribeToMessages({
+                username: currentUsername,
+                avatar: userAvatarImg.src,
+                isVerified: currentUserIsVerified
+            });
+            console.log('[visibilitychange] New channel subscribed and presence tracked.');
+            
+            // Optional: Add a short delay to let the subscription stabilize
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            console.error('[visibilitychange] Error during re-subscription:', error);
+            // Fallback: Reload the page or show an error
+            showToast("Connection lost. Please refresh the page.", 'error');
+            return;
+        }
 
-                // 3. Fetch missed messages
-                if (loadedMessages.length > 0) {
-                    const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
-                    console.log('[visibilitychange] Fetching new messages >', lastTimestamp);
+        // 4. Fetch missed messages
+        if (loadedMessages.length > 0) {
+            const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
+            console.log('[visibilitychange] Fetching new messages >', lastTimestamp);
 
-                    const { data: newMessages, error } = await supabase
-                        .from('messages')
-                        .select('id, user_id, username, avatar_url, message, timestamp')
-                        .gt('timestamp', lastTimestamp)
-                        .order('timestamp', { ascending: true });
+            const { data: newMessages, error } = await supabase
+                .from('messages')
+                .select('id, user_id, username, avatar_url, message, timestamp')
+                .gt('timestamp', lastTimestamp)
+                .order('timestamp', { ascending: true });
 
-                    if (error) {
-                        console.error("[visibilitychange] Error fetching new messages on re-focus:", error);
-                        // Fallback to full reload
-                        await loadInitialMessages();
-                        return;
-                    }
-
-                    if (newMessages && newMessages.length > 0) {
-                        console.log(`[visibilitychange] Fetched ${newMessages.length} new messages on focus.`);
-                        const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
-                        for (const msg of newMessages) {
-                            if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
-                                loadedMessages.push(msg);
-                                await displayMessage(msg);
-                            }
-                        }
-                        if (wasScrolledToBottom) {
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        }
-                    } else {
-                        console.log("[visibilitychange] No new messages since last focus.");
-                    }
-                } else {
-                    // No messages were loaded, do a full initial load
-                    await loadInitialMessages();
-                }
+            if (error) {
+                console.error("[visibilitychange] Error fetching new messages on re-focus:", error);
+                // Fallback to full reload
+                await loadInitialMessages();
+                return;
             }
-        });
+
+            if (newMessages && newMessages.length > 0) {
+                console.log(`[visibilitychange] Fetched ${newMessages.length} new messages on focus.`);
+                const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
+                for (const msg of newMessages) {
+                    if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
+                        loadedMessages.push(msg);
+                        await displayMessage(msg);
+                    }
+                }
+                if (wasScrolledToBottom) {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } else {
+                console.log("[visibilitychange] No new messages since last focus.");
+            }
+        } else {
+            // No messages were loaded, do a full initial load
+            await loadInitialMessages();
+        }
+    }
+});
         // --- END MODIFICATION ---
 
         scheduleDailyEvent();
