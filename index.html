@@ -343,7 +343,7 @@ opacity: 0; transition: opacity 0.3s ease;
 .modal-overlay.show { display: flex; opacity: 1; }
 .modal-content {
 background: var(--content-bg); border-radius: var(--radius);
-padding: 40px 30px; max-width: 600px; width: 90%; max-height: 80vh;
+padding: 40px 30px; max-width: 850px; width: 90%; max-height: 80vh;
 overflow-y: auto; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 border: 2px solid var(--accent-red); position: relative;
 transform: scale(0.9); transition: transform 0.3s ease, background-color 0.3s, color 0.3s, background-image 0.3s;
@@ -1707,61 +1707,9 @@ calendarModal.classList.remove('show');
 document.body.style.overflow = '';
 };
 const renderCalendar = () => {
-const now = new Date();
-const year = now.getFullYear();
-const eventMap = new Map();
-events.forEach(event => eventMap.set(event.date, event.title));
-let html = `<h2>${year} Calendar</h2>`;
-html += '<div class="calendar-grid">';
-for (let month = 0; month < 12; month++) {
-const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
-html += `<div class="calendar-month"><h3>${monthName}</h3><div class="days">`;
-const firstDay = new Date(year, month, 1).getDay();
-const daysInMonth = new Date(year, month + 1, 0).getDate();
-for (let i = 0; i < firstDay; i++) {
-html += '<div class="day"></div>';
-}
-for (let day = 1; day <= daysInMonth; day++) {
-const date = new Date(year, month, day);
-const dayOfWeek = date.getDay();
-let className = 'day';
-if (day === now.getDate() && month === now.getMonth()) {
-className += ' today';
-}
-if (dayOfWeek === 0 || dayOfWeek === 6) {
-className += ' holiday';
-}
-const dateStr = date.toISOString().split('T')[0];
-const eventTitle = eventMap.get(dateStr);
-if (eventTitle) {
-className += ' event-day';
-}
-let dataAttr = eventTitle ? ` data-event-title="${eventTitle}"` : '';
-html += `<div class="${className}"${dataAttr}>${day}</div>`;
-}
-html += '</div></div>';
-}
-html += '</div>';
+const html = `<h2>School Calendar</h2>
+<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FNew_York&showPrint=0&src=Y180YjI1NDNkNTJkNTY5YzllNjVmZTcxMDFiZDc4OTkxNTdhODdmMDE2MWYzZjRkZGM1OWIzYzEzMzc1NDQ0NjY1QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%237cb342&color=%230b8043" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>`;
 document.getElementById('calendar-content').innerHTML = html;
-
-// Add event listeners for tooltips
-document.querySelectorAll('.event-day').forEach(day => {
-day.addEventListener('mouseenter', (e) => {
-const title = e.target.getAttribute('data-event-title');
-if (title) {
-const tooltip = document.getElementById('calendar-tooltip');
-tooltip.textContent = title;
-const rect = e.target.getBoundingClientRect();
-tooltip.style.left = (rect.right + 10) + 'px';
-tooltip.style.top = rect.top + 'px';
-tooltip.style.display = 'block';
-}
-});
-day.addEventListener('mouseleave', () => {
-const tooltip = document.getElementById('calendar-tooltip');
-tooltip.style.display = 'none';
-});
-});
 };
 
 // --- WEATHER UTILITIES ---
