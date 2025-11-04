@@ -2166,19 +2166,19 @@
     </div>
     <!-- NEW SCHEDULE TRACKER BAR -->
     <div id="schedule-tracker-bar" style="
-                background: var(--toolbar-bg); 
-                color: var(--text-color); 
-                padding: 4px 12px; 
-                border-radius: 20px; 
-                font-size: 0.9rem; 
-                font-weight: bold; 
-                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-                flex-shrink: 1;
-                min-width: 150px;
-                text-align: center;
-            ">
-                Loading schedule...
-            </div>
+        background: var(--toolbar-bg);
+        color: var(--text-color);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        flex-shrink: 1;
+        min-width: 150px;
+        text-align: center;
+    ">
+        Loading schedule...
+    </div>
     <!-- END NEW BAR -->
     <div class="flex items-center gap-2">
     <!-- --- MODIFICATION: New Header Buttons --- -->
@@ -2274,6 +2274,20 @@
 <small>Updates all your past messages to use your current profile picture.</small>
 </div>
 <button id="update-pfps-btn">Sync</button>
+</div>
+<div class="mod-menu-item">
+<div>
+<p>Send Global Announcement</p>
+<small>Broadcast a message to all users.</small>
+</div>
+<button id="send-announcement-btn">Send</button>
+</div>
+<div class="mod-menu-item">
+<div>
+<p>Lock/Unlock Chat</p>
+<small>Prevent non-mods from sending messages.</small>
+</div>
+<button id="lock-chat-btn">Toggle Lock</button>
 </div>
 </div>
 </div>
@@ -2748,6 +2762,7 @@
     let mentionCache = {};
     let currentMentionQuery = null;
     let isSending = false; // Flag to prevent double sends
+    let isChatLocked = false; // Chat lock state
     
     // Infinite scroll state
     const PAGE_SIZE = 20;
