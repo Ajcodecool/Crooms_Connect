@@ -205,12 +205,7 @@
     </div>
   </div>
 </div>
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  const SUPABASE_URL = 'https://jxxnfsydjrflnephmfjm.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTA3NjUsImV4cCI6MjA3NTAyNjc2NX0.-IRbU1ER8lu7eNPoETgVQaFJ4Fp9VMowjzWfN7EZY6w';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
 
   // Util: clean username for avatar
   function cleanUsername(name) {
@@ -226,67 +221,73 @@
     setTimeout(() => document.getElementById('message').innerHTML = "", 2500);
   }
 
-  // Load all users from the profiles table
+  // Load all users from the server API
   async function loadUsers() {
-    // Only use the profiles table, do NOT use the admin API!
-    let { data, error } = await supabase
-      .from('profiles')
-      .select('id, username, is_verified, email, avatar_url')
-      .order('username', { ascending: true });
-
-    if (error) {
-      showMessage("Failed to load users: " + error.message, 'error');
-      return;
-    }
-
-    // Render user table
-    const userList = document.getElementById('user-list');
-    userList.innerHTML = '';
-    for (const user of data) {
-      const email = user.email ? user.email : "(not set)";
-      const avatar = user.avatar_url
-        ? user.avatar_url
-        : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(cleanUsername(user.username))}`;
-      const isVerified = user.is_verified;
-
-      userList.innerHTML += `
-        <tr>
-          <td>
-            <img class="avatar" src="${avatar}" alt="avatar">
-          </td>
-          <td class="username-cell">
-            ${cleanUsername(user.username)}
-            ${isVerified ? `<img src="verify.png" alt="verified" class="verified-badge">` : ""}
-          </td>
-          <td>${email}</td>
-          <td>${isVerified ? `<img src="verify.png" alt="verified" class="verified-badge">` : "—"}</td>
-          <td>
-            ${isVerified
-              ? `<button class="unverify-btn" data-id="${user.id}" data-action="unverify">Unverify</button>`
-              : `<button class="verify-btn" data-id="${user.id}" data-action="verify">Verify</button>`
-            }
-          </td>
-        </tr>
-      `;
-    }
-
-    // Add event listeners for verify/unverify
-    document.querySelectorAll('.verify-btn, .unverify-btn').forEach(btn => {
-      btn.onclick = async function() {
-        const userId = this.getAttribute('data-id');
-        const action = this.getAttribute('data-action');
-        let { error } = await supabase
-          .from('profiles')
-          .update({ is_verified: action === "verify" })
-          .eq('id', userId);
-        if (error) {
-          showMessage("Failed to update: " + error.message, 'error');
-        } else {
-          showMessage("User " + (action === "verify" ? "verified" : "unverified") + " successfully!", 'success');
-          loadUsers();
-        }
+    try {
+      const response = await fetch('http://localhost:3000/api/users');
+      const data = await response.json();
+      if (!response.ok) {
+        showMessage("Failed to load users: " + data.error, 'error');
+        return;
       }
-    });
+
+      // Render user table
+      const userList = document.getElementById('user-list');
+      userList.innerHTML = '';
+      for (const user of data) {
+        const email = user.email ? user.email : "(not set)";
+        const avatar = user.avatar_url
+          ? user.avatar_url
+          : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(cleanUsername(user.username))}`;
+        const isVerified = user.is_verified;
+
+        userList.innerHTML += `
+          <tr>
+            <td>
+              <img class="avatar" src="${avatar}" alt="avatar">
+            </td>
+            <td class="username-cell">
+              ${cleanUsername(user.username)}
+              ${isVerified ? `<img src="verify.png" alt="verified" class="verified-badge">` : ""}
+            </td>
+            <td>${email}</td>
+            <td>${isVerified ? `<img src="verify.png" alt="verified" class="verified-badge">` : "—"}</td>
+            <td>
+              ${isVerified
+                ? `<button class="unverify-btn" data-id="${user.id}" data-action="unverify">Unverify</button>`
+                : `<button class="verify-btn" data-id="${user.id}" data-action="verify">Verify</button>`
+              }
+            </td>
+          </tr>
+        `;
+      }
+
+      // Add event listeners for verify/unverify
+      document.querySelectorAll('.verify-btn, .unverify-btn').forEach(btn => {
+        btn.onclick = async function() {
+          const userId = this.getAttribute('data-id');
+          const action = this.getAttribute('data-action');
+          try {
+            const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ is_verified: action === "verify" })
+            });
+            const result = await response.json();
+            if (!response.ok) {
+              showMessage("Failed to update: " + result.error, 'error');
+            } else {
+              showMessage("User " + (action === "verify" ? "verified" : "unverified") + " successfully!", 'success');
+              loadUsers();
+            }
+          } catch (error) {
+            showMessage("Failed to update user.", 'error');
+          }
+        }
+      });
+    } catch (error) {
+      showMessage("Failed to load users.", 'error');
+    }
   }
 
   // Load announcements from server
