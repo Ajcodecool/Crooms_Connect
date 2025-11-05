@@ -657,7 +657,10 @@ font-size: 14px;
 <button class="close-tab-button">×</button>
 <h1>Welcome to Crooms Connect</h1>
 <p>Your student hub with resources, schedules, and tools.</p>
-<div id="welcome-message" style="background: var(--card-bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-top: 20px; font-weight: bold; color: var(--accent-blue);"></div>
+<div id="welcome-message" style="background: var(--card-bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-top: 20px; font-weight: bold; color: var(--accent-blue);">
+  <h3>Latest Announcement</h3>
+  <p id="home-announcement-text">Loading announcement...</p>
+</div>
 <div class="card-grid">
 <div class="card" id="events-card">
 <span class="icon"> 📅 </span>
@@ -676,6 +679,24 @@ font-size: 14px;
 <h2>Current Announcement</h2>
 <p id="announcement-text">Loading announcement...</p>
 </div>
+<script>
+const fetchAnnouncement = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/announcement');
+    const data = await response.json();
+    document.getElementById('announcement-text').textContent = data.announcement || 'No current announcement.';
+  } catch (error) {
+    console.error('Error fetching announcement:', error);
+    document.getElementById('announcement-text').textContent = 'Unable to load announcement.';
+  }
+};
+
+// Fetch on page load and periodically every 30 seconds
+document.addEventListener('DOMContentLoaded', () => {
+  fetchAnnouncement();
+  setInterval(fetchAnnouncement, 30000);
+});
+</script>
 <div id="news-content">Loading news...</div>
 </section>
 </div>
