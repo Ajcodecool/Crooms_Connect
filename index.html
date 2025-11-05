@@ -2629,6 +2629,29 @@ updatePeriodTimer();
 updateLunchDisplay();
 }, 1000);
 
+// Function to fetch and display announcement in banner
+const fetchAnnouncementForBanner = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/announcement');
+    const data = await response.json();
+    const announcementBar = document.getElementById('announcement-bar');
+    announcementBar.textContent = data.announcement || 'No current announcement.';
+    announcementBar.style.display = 'block';
+    // Hide after 35 seconds
+    setTimeout(() => {
+      announcementBar.style.display = 'none';
+    }, 35000);
+  } catch (error) {
+    console.error('Error fetching announcement for banner:', error);
+    const announcementBar = document.getElementById('announcement-bar');
+    announcementBar.textContent = 'Unable to load announcement.';
+    announcementBar.style.display = 'block';
+    setTimeout(() => {
+      announcementBar.style.display = 'none';
+    }, 35000);
+  }
+};
+
 // 4. Tab Switching
 document.querySelectorAll(".left-box button").forEach(button => {
 button.addEventListener("click", () => {
@@ -2639,6 +2662,8 @@ return;
 }
 document.querySelectorAll(".left-box button").forEach(btn => btn.classList.remove("active"));
 button.classList.add("active");
+// Hide announcement bar when switching tabs
+document.getElementById('announcement-bar').style.display = 'none';
 tabs.forEach(tab => {
 tab.classList.remove("active");
 if (tab.id === target) {
@@ -2648,6 +2673,7 @@ fetchWeather();
 }
 if (tab.id === 'news') {
 renderNews();
+fetchAnnouncementForBanner();
 }
 }
 });
