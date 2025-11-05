@@ -628,6 +628,7 @@ font-size: 14px;
 </a>
 </div>
 </div>
+<div id="announcement-bar" style="background-color: #ffcc00; color: #000; padding: 10px; text-align: center; font-weight: bold; display: none;"></div>
 <div class="left-box">
 <button data-tab="home">Home</button>
 <button data-tab="news">News</button>
@@ -656,6 +657,7 @@ font-size: 14px;
 <button class="close-tab-button">×</button>
 <h1>Welcome to Crooms Connect</h1>
 <p>Your student hub with resources, schedules, and tools.</p>
+<div id="welcome-message" style="background: var(--card-bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 15px; margin-top: 20px; font-weight: bold; color: var(--accent-blue);"></div>
 <div class="card-grid">
 <div class="card" id="events-card">
 <span class="icon"> 📅 </span>
@@ -670,6 +672,10 @@ font-size: 14px;
 <button class="close-tab-button">×</button>
 <h1>News</h1>
 <p>Latest campus announcements and updates.</p>
+<div id="announcement-content" style="background: var(--card-bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; margin-bottom: 20px;">
+<h2>Current Announcement</h2>
+<p id="announcement-text">Loading announcement...</p>
+</div>
 <div id="news-content">Loading news...</div>
 </section>
 </div>
