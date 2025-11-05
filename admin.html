@@ -105,6 +105,71 @@
       text-align: center;
       font-weight: bold;
     }
+    #announcements-section {
+      margin-top: 48px;
+    }
+    #announcements-section h1 {
+      font-size: 1.5rem;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    #announcement-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    #announcement-form label {
+      font-weight: bold;
+      color: #80ed99;
+    }
+    #announcement-form input, #announcement-form textarea {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #4cc9f0;
+      background: #292b45;
+      color: #f8f9fa;
+      font-family: inherit;
+    }
+    #announcement-form textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    #announcement-form button {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #4cc9f0;
+      color: #112;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #announcement-form button:hover {
+      background: #6ce0ff;
+    }
+    #announcements-list {
+      background: #292b45;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .announcement-item {
+      background: #232642;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .announcement-item h3 {
+      color: #4cc9f0;
+      margin: 0 0 8px 0;
+    }
+    .announcement-item p {
+      margin: 0;
+      color: #f8f9fa;
+    }
+    .announcement-item small {
+      color: #80ed99;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
@@ -125,6 +190,20 @@
       <!-- Users will be loaded here -->
     </tbody>
   </table>
+
+  <div id="announcements-section">
+    <h1>Global Announcements</h1>
+    <form id="announcement-form">
+      <label for="announcement-title">Title:</label>
+      <input type="text" id="announcement-title" required>
+      <label for="announcement-content">Content:</label>
+      <textarea id="announcement-content" required></textarea>
+      <button type="submit">Send Announcement</button>
+    </form>
+    <div id="announcements-list">
+      <!-- Announcements will be loaded here -->
+    </div>
+  </div>
 </div>
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -210,9 +289,66 @@
     });
   }
 
+  // Load announcements from server
+  async function loadAnnouncements() {
+    try {
+      const response = await fetch('http://localhost:3000/announcements');
+      const announcements = await response.json();
+      const list = document.getElementById('announcements-list');
+      list.innerHTML = '';
+      if (announcements.length === 0) {
+        list.innerHTML = '<p>No announcements yet.</p>';
+        return;
+      }
+      announcements.reverse().forEach(ann => {
+        const item = document.createElement('div');
+        item.className = 'announcement-item';
+        item.innerHTML = `
+          <h3>${ann.title}</h3>
+          <p>${ann.content}</p>
+          <small>${new Date(ann.timestamp).toLocaleString()}</small>
+        `;
+        list.appendChild(item);
+      });
+    } catch (error) {
+      console.error('Error loading announcements:', error);
+      showMessage('Failed to load announcements.', 'error');
+    }
+  }
+
+  // Handle announcement form submission
+  document.getElementById('announcement-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('announcement-title').value.trim();
+    const content = document.getElementById('announcement-content').value.trim();
+    if (!title || !content) {
+      showMessage('Title and content are required.', 'error');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:3000/announcement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        showMessage('Announcement sent successfully!', 'success');
+        document.getElementById('announcement-form').reset();
+        loadAnnouncements();
+      } else {
+        showMessage(result.error || 'Failed to send announcement.', 'error');
+      }
+    } catch (error) {
+      console.error('Error sending announcement:', error);
+      showMessage('Failed to send announcement.', 'error');
+    }
+  });
+
   // On page load
   document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
+    loadAnnouncements();
   });
 </script>
 </body>
