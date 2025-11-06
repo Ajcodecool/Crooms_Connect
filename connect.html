@@ -3383,6 +3383,11 @@
                     updateTypingIndicator();
                 }
             })
+            .on('broadcast', { event: 'chat_lock_toggle' }, ({ payload }) => {
+                isChatLocked = payload.locked;
+                chatLockToggleBtn.textContent = isChatLocked ? 'Unlock Chat' : 'Lock Chat';
+                showToast(`Chat has been ${isChatLocked ? 'locked' : 'unlocked'} by a moderator.`, 'success');
+            })
             // --- NEW: Presence Listeners ---
             .on('presence', { event: 'sync' }, () => {
                 console.log('[DEBUG] [Presence] Sync received.');
@@ -4012,6 +4017,14 @@
         isChatLocked = !isChatLocked;
         chatLockToggleBtn.textContent = isChatLocked ? 'Unlock Chat' : 'Lock Chat';
         showToast(`Chat ${isChatLocked ? 'locked' : 'unlocked'}.`, 'success');
+        // Broadcast the lock state to all users
+        if (channel) {
+            channel.send({
+                type: 'broadcast',
+                event: 'chat_lock_toggle',
+                payload: { locked: isChatLocked }
+            });
+        }
         closeModalOnClick(modMenuModal);
     });
     profileBackBtn.addEventListener('click', () => {
