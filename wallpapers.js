@@ -12,6 +12,15 @@ const linuxWallpapers = [
     'https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'  // Workspace
 ];
 
+// Map of distro names to wallpaper indices
+const wallpaperMap = {
+    'ubuntu': 0,
+    'fedora': 1,
+    'arch': 2,
+    'manjaro': 3,
+    'debian': 4
+};
+
 // Function to get current wallpaper index from localStorage
 function getCurrentWallpaperIndex() {
     return parseInt(localStorage.getItem('currentWallpaperIndex')) || 0;
@@ -20,6 +29,16 @@ function getCurrentWallpaperIndex() {
 // Function to set current wallpaper index in localStorage
 function setCurrentWallpaperIndex(index) {
     localStorage.setItem('currentWallpaperIndex', index);
+}
+
+// Function to get selected wallpaper from localStorage
+function getSelectedWallpaper() {
+    return localStorage.getItem('selectedWallpaper') || '';
+}
+
+// Function to set selected wallpaper in localStorage
+function setSelectedWallpaper(distro) {
+    localStorage.setItem('selectedWallpaper', distro);
 }
 
 // Function to apply wallpaper to body
@@ -32,6 +51,21 @@ function applyWallpaper(index) {
     document.body.style.backgroundAttachment = 'fixed';
 }
 
+// Function to apply wallpaper by distro name
+function applyWallpaperByDistro(distro) {
+    const index = wallpaperMap[distro];
+    if (index !== undefined) {
+        applyWallpaper(index);
+        setSelectedWallpaper(distro);
+    }
+}
+
+// Function to remove wallpaper
+function removeWallpaper() {
+    document.body.style.backgroundImage = '';
+    setSelectedWallpaper('');
+}
+
 // Function to change to next wallpaper
 function changeWallpaper() {
     let currentIndex = getCurrentWallpaperIndex();
@@ -42,6 +76,36 @@ function changeWallpaper() {
 
 // Apply current wallpaper on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const currentIndex = getCurrentWallpaperIndex();
-    applyWallpaper(currentIndex);
+    const selectedDistro = getSelectedWallpaper();
+    if (selectedDistro) {
+        applyWallpaperByDistro(selectedDistro);
+    } else {
+        const currentIndex = getCurrentWallpaperIndex();
+        applyWallpaper(currentIndex);
+    }
+
+    // Connect the Linux wallpaper select dropdown
+    const linuxWallpaperSelect = document.getElementById('linux-wallpaper-select');
+    if (linuxWallpaperSelect) {
+        // Set initial value based on saved selection
+        linuxWallpaperSelect.value = selectedDistro;
+
+        // Add change event listener
+        linuxWallpaperSelect.addEventListener('change', function() {
+            const distro = this.value;
+            if (distro === '') {
+                removeWallpaper();
+            } else {
+                applyWallpaperByDistro(distro);
+            }
+
+            // Show feedback message
+            const wallpaperMessage = document.getElementById('wallpaperMessage');
+            if (wallpaperMessage) {
+                wallpaperMessage.textContent = distro ? `${distro.charAt(0).toUpperCase() + distro.slice(1)} wallpaper applied!` : 'Wallpaper removed!';
+                wallpaperMessage.classList.remove('hidden');
+                setTimeout(() => wallpaperMessage.classList.add('hidden'), 3000);
+            }
+        });
+    }
 });
