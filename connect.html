@@ -530,6 +530,9 @@
         .mod-tools-menu button[data-action="edit"] {
             color: var(--accent-blue);
         }
+        .mod-tools-menu button[data-action="reply"] {
+            color: var(--accent-green);
+        }
 
         /* --- MODIFICATION: Edit-in-place styles --- */
         .edit-editor {
@@ -1969,6 +1972,23 @@
             box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
             z-index: 10;
         }
+        .reply-indicator {
+            background-color: var(--toolbar-bg);
+            border: 1px solid var(--toolbar-bg);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        .reply-indicator .close {
+            cursor: pointer;
+            color: var(--accent-red);
+            font-size: 1.2rem;
+        }
         .mention-item {
             padding: 8px 12px;
             color: var(--text-color);
@@ -2099,6 +2119,7 @@
     <div class="chat-input">
     <!-- --- MODIFICATION: @Mention Suggestions --- -->
     <div id="mention-suggestions"></div>
+    <div id="reply-indicator" class="reply-indicator" style="display:none"></div>
     <div class="rich-text-toolbar" id="rich-text-toolbar">
     <button data-format="bold" title="Bold"><i class="fas fa-bold"></i></button>
     <button data-format="italic" title="Italic"><i class="fas fa-italic"></i></button>
@@ -2653,6 +2674,7 @@
     let currentMentionQuery = null;
     let isSending = false; // Flag to prevent double sends
     let isChatLocked = false; // Chat lock state
+    let currentReplyMessage = null; // For reply functionality
     
     // Infinite scroll state
     const PAGE_SIZE = 20;
@@ -3011,13 +3033,14 @@
         
         const formattedMessage = cleanMessageMentions(msg.message);
 
-        // --- MODIFICATION: Show Edit/Delete for self, Mod tools for others ---
+        // --- MODIFICATION: Show Edit/Delete for self, Mod tools for others, Reply for all ---
         let modToolsHtml = '';
         if (isSelf) {
             modToolsHtml = `
                 <div class="mod-tools">
                     <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
                     <div class="mod-tools-menu">
+                        <button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button>
                         <button data-action="edit" data-message-id="${msg.id}"><i class="fas fa-pencil-alt fa-fw"></i> Edit</button>
                         <button data-action="delete-self" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete</button>
                     </div>
@@ -3028,11 +3051,21 @@
                 <div class="mod-tools">
                     <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
                     <div class="mod-tools-menu">
+                        <button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button>
                         <button data-action="delete" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete Message</button>
                         <button data-action="timeout-10m" data-user-id="${msg.user_id}"><i class="fas fa-clock fa-fw"></i> Timeout 10m</button>
                         <button data-action="timeout-1h" data-user-id="${msg.user_id}"><i class="fas fa-hourglass-half fa-fw"></i> Timeout 1h</button>
                         <button data-action="ban" data-user-id="${msg.user_id}"><i class="fas fa-gavel fa-fw"></i> Ban User</button>
                         <button data-action="pardon" data-user-id="${msg.user_id}"><i class="fas fa-hand-holding-heart fa-fw"></i> Pardon User</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            modToolsHtml = `
+                <div class="mod-tools">
+                    <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="mod-tools-menu">
+                        <button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button>
                     </div>
                 </div>
             `;
