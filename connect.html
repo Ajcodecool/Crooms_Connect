@@ -2674,7 +2674,6 @@
     let currentMentionQuery = null;
     let isSending = false; // Flag to prevent double sends
     let isChatLocked = false; // Chat lock state
-    let currentReplyMessage = null; // For reply functionality
     
     // Infinite scroll state
     const PAGE_SIZE = 20;
@@ -3623,15 +3622,26 @@
         }
     }
 
-    function handleCancelEdit(messageId) {
-        const msg = loadedMessages.find(m => m.id == messageId);
-        if (msg) {
-            const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
-            if (msgEl) {
-                 msgEl.querySelector('.text').innerHTML = cleanMessageMentions(msg.message); // Re-render original message
-            }
+function handleCancelEdit(messageId) {
+    const msg = loadedMessages.find(m => m.id == messageId);
+    if (msg) {
+        const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+        if (msgEl) {
+             msgEl.querySelector('.text').innerHTML = cleanMessageMentions(msg.message); // Re-render original message
         }
     }
+}
+
+function handleReply(messageId, username) {
+    currentReplyMessage = messageId;
+    const indicator = document.getElementById('reply-indicator');
+    indicator.innerHTML = `Replying to ${username} <span class="close">&times;</span>`;
+    indicator.style.display = 'flex';
+    indicator.querySelector('.close').addEventListener('click', () => {
+        currentReplyMessage = null;
+        indicator.style.display = 'none';
+    });
+}
     // --- END EDIT/DELETE ---
 
 
@@ -3866,7 +3876,7 @@
         const actionButton = e.target.closest('.mod-tools-menu button, .edit-controls button');
         
         if (actionButton) {
-            const { action, messageId, userId } = actionButton.dataset;
+        const { action, messageId, userId, username } = actionButton.dataset;
             switch(action) {
                 // User actions
                 case 'edit': handleEditMessage(messageId); break;
