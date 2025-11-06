@@ -626,6 +626,7 @@ font-size: 14px;
 <a href="auth41.html" id="header-signin-button" onmouseout="this.style.backgroundColor='var(--accent-blue)'; this.style.transform='none';" onmouseover="this.style.backgroundColor='var(--accent-green)'; this.style.transform='translateY(-2px)';" style="display: none; background-color: var(--accent-blue); color: var(--primary-bg); font-weight: bold; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-size: 14px; transition: all 0.3s;">
    SIGN IN
 </a>
+<button id="logout-btn" style="display: none; padding: 10px 20px; background-color: #e74c3c; color: white; border: none; cursor: pointer;">Logout</button>
 </div>
 </div>
 <div id="announcement-bar" style="background-color: #ffcc00; color: #000; padding: 10px; text-align: center; font-weight: bold; display: none;"></div>
@@ -806,6 +807,20 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 <div class="card" id="account-card"><span class="icon"> 🔑 </span><h3>Account</h3><p>Privacy and security options.</p></div>
 <div class="card" id="display-card" style="cursor: pointer;"><span class="icon"> ⚙️ </span><h3>Display</h3><p>Adjust font size and layout.</p></div>
+<div class="card linux-wallpapers-card">
+<span class="icon"> 🖼️ </span>
+<h3>Linux Wallpapers</h3>
+<p style="margin-bottom: 20px; font-size: 14px;">Select a Linux wallpaper to apply as background and auto-adapt UI colors.</p>
+<select id="linux-wallpaper-select" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--primary-bg); color: var(--text-color);">
+<option value="">None</option>
+<option value="ubuntu">Ubuntu</option>
+<option value="fedora">Fedora</option>
+<option value="arch">Arch Linux</option>
+<option value="manjaro">Manjaro</option>
+<option value="debian">Debian</option>
+</select>
+<div class="p-3 mt-4 text-center rounded-lg font-medium hidden" id="wallpaperMessage" style="background-color: var(--primary-bg); color: var(--text-color);"></div>
+</div>
 <div class="card sign-out-card">
 <span class="icon"> 🚪 </span>
 <h3>Sign Out</h3>
@@ -2931,5 +2946,7 @@ document.getElementById("minimize-btn").addEventListener("click", function() {
     const navbar = document.getElementById("navbar");
     navbar.classList.toggle("minimized");
 });
-</script></body>
+</script>
+<script src="wallpapers/wallpapers.js"></script>
+</body>
 </html>
