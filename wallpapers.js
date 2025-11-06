@@ -21,6 +21,27 @@ const wallpaperMap = {
     'debian': 4
 };
 
+// Display settings key for integration with upload feature
+const DISPLAY_STORAGE_KEY = 'croomsConnectDisplaySettings';
+
+// Function to load display settings
+function loadDisplaySettings() {
+    try {
+        return JSON.parse(localStorage.getItem(DISPLAY_STORAGE_KEY)) || {};
+    } catch (e) {
+        return {};
+    }
+}
+
+// Function to save display settings
+function saveDisplaySettings(settings) {
+    try {
+        localStorage.setItem(DISPLAY_STORAGE_KEY, JSON.stringify(settings));
+    } catch (e) {
+        console.error("Error saving display settings:", e);
+    }
+}
+
 // Function to get current wallpaper index from localStorage
 function getCurrentWallpaperIndex() {
     return parseInt(localStorage.getItem('currentWallpaperIndex')) || 0;
@@ -74,7 +95,7 @@ function changeWallpaper() {
     applyWallpaper(currentIndex);
 }
 
-// Apply current wallpaper on page load
+// Apply current wallpaper on page load and connect dropdown
 document.addEventListener('DOMContentLoaded', function() {
     const selectedDistro = getSelectedWallpaper();
     if (selectedDistro) {
@@ -107,5 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => wallpaperMessage.classList.add('hidden'), 3000);
             }
         });
+    } else {
+        console.log('Linux wallpaper select not found');
     }
 });
