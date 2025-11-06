@@ -819,6 +819,14 @@ document.addEventListener('DOMContentLoaded', () => {
 <option value="manjaro">Manjaro</option>
 <option value="debian">Debian</option>
 </select>
+<div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+<button class="wallpaper-button" onclick="changeWallpaper()">Change Wallpaper</button>
+<button class="wallpaper-button" onclick="applyWallpaperByDistro('ubuntu')">Ubuntu Wallpaper</button>
+<button class="wallpaper-button" onclick="applyWallpaperByDistro('fedora')">Fedora Wallpaper</button>
+<button class="wallpaper-button" onclick="applyWallpaperByDistro('arch')">Arch Wallpaper</button>
+<button class="wallpaper-button" onclick="applyWallpaperByDistro('manjaro')">Manjaro Wallpaper</button>
+<button class="wallpaper-button" onclick="applyWallpaperByDistro('debian')">Debian Wallpaper</button>
+</div>
 <div class="p-3 mt-4 text-center rounded-lg font-medium hidden" id="wallpaperMessage" style="background-color: var(--primary-bg); color: var(--text-color);"></div>
 </div>
 <div class="card sign-out-card">
@@ -1804,16 +1812,27 @@ console.error("Error saving display settings:", e);
 };
 
 const applyDisplaySettings = (settings) => {
-const fontSize = settings.fontSize || '16px';
-const fontColor = settings.fontColor || '#f8f9fa';
-const bgImage = settings.bgImage || '';
-document.body.style.fontSize = fontSize;
-document.body.style.color = fontColor;
-if (bgImage) {
-document.body.style.backgroundImage = `url(${bgImage})`;
-} else {
-document.body.style.backgroundImage = '';
-}
+    const fontSize = settings.fontSize || '16px';
+    const fontColor = settings.fontColor || '#f8f9fa';
+    const bgImage = settings.bgImage || '';
+    const wallpaperUrl = settings.wallpaperUrl || '';
+    document.body.style.fontSize = fontSize;
+    document.body.style.color = fontColor;
+    if (wallpaperUrl) {
+        document.body.style.backgroundImage = `url('${wallpaperUrl}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+    } else if (bgImage) {
+        document.body.style.backgroundImage = `url(${bgImage})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+    } else {
+        document.body.style.backgroundImage = '';
+    }
 };
 
 const resetDisplaySettings = () => {
