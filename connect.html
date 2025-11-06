@@ -2171,6 +2171,13 @@
 </div>
 <button id="update-pfps-btn">Sync</button>
 </div>
+<div class="mod-menu-item">
+<div>
+<p>Toggle Chat Lock</p>
+<small>Locks the chat so only moderators can send messages.</small>
+</div>
+<button id="chat-lock-toggle-btn">Lock Chat</button>
+</div>
 </div>
 </div>
 <!-- --- MODIFICATION: SETTINGS MODAL (NEW) --- -->
@@ -2621,6 +2628,7 @@
     const settingsModal = document.getElementById('settings-modal');
     const settingsMenuClose = document.getElementById('settings-menu-close');
     const mentionSuggestions = document.getElementById('mention-suggestions');
+    const chatLockToggleBtn = document.getElementById('chat-lock-toggle-btn');
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const searchInput = document.getElementById('search-input');
@@ -2644,6 +2652,7 @@
     let mentionCache = {};
     let currentMentionQuery = null;
     let isSending = false; // Flag to prevent double sends
+    let isChatLocked = false; // Chat lock state
     
     // Infinite scroll state
     const PAGE_SIZE = 20;
@@ -3455,6 +3464,12 @@
             return;
         }
 
+        // Check if chat is locked and user is not verified
+        if (isChatLocked && !currentUserIsVerified) {
+            showToast('Chat is currently locked. Only moderators can send messages.', 'error');
+            return;
+        }
+
         
         // === DEBUG ===
         console.log(`[DEBUG] handleSendClick: User ${window.currentUser.id} is sending a message.`);
@@ -3960,6 +3975,12 @@
         }
         closeModalOnClick(modMenuModal);
     });
+    chatLockToggleBtn.addEventListener('click', () => {
+        isChatLocked = !isChatLocked;
+        chatLockToggleBtn.textContent = isChatLocked ? 'Unlock Chat' : 'Lock Chat';
+        showToast(`Chat ${isChatLocked ? 'locked' : 'unlocked'}.`, 'success');
+        closeModalOnClick(modMenuModal);
+    });
     profileBackBtn.addEventListener('click', () => {
         userProfileView.classList.remove('visible');
     });
@@ -4316,4 +4337,3 @@
 </script>
 </body>
 </html>
-
