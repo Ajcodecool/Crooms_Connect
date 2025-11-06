@@ -2003,24 +2003,6 @@
             background-color: var(--toolbar-icon-hover-bg);
         }
 
-        /* =======================================
-           REPLY PREVIEW STYLES
-           ======================================= */
-        .reply-preview {
-            background-color: var(--toolbar-bg);
-            border-left: 3px solid var(--accent-blue);
-            padding: 4px 8px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border-radius: 4px;
-            opacity: 0.8;
-        }
-        .reply-preview:hover {
-            background-color: rgba(255,255,255,0.1);
-            opacity: 1;
-        }
-
         /* --- MODIFICATION: Search Bar --- */
         .search-bar {
             display: none;
@@ -3054,35 +3036,10 @@
         const formattedTime = new Date(msg.timestamp).toLocaleTimeString('en-US', timeOptions);
         const timestampText = `${formattedDate} – ${formattedTime}`;
         
-        // --- MODIFICATION: Add reply preview if replying ---
-        let replyPreviewHtml = '';
-        if (msg.reply_to) {
-            // Fetch the original message for preview
-            const { data: originalMsg } = await supabase
-                .from('messages')
-                .select('username, message')
-                .eq('id', msg.reply_to)
-                .single();
-            if (originalMsg) {
-                const previewText = originalMsg.message.length > 50 ? originalMsg.message.substring(0, 50) + '...' : originalMsg.message;
-                replyPreviewHtml = `<div class="reply-preview"><strong>${cleanUsername(originalMsg.username)}:</strong> ${previewText}</div>`;
-            }
-        }
-
         const formattedMessage = cleanMessageMentions(msg.message);
 
         // --- MODIFICATION: Show Edit/Delete for self, Mod tools for others, Reply for all ---
         let modToolsHtml = '';
-        // Insert reply preview before message content
-        const messageContentHtml = `
-            ${replyPreviewHtml}
-            <div class="username">
-                ${username}
-                ${verified ? `<span class="verified-badge" title="Verified">✅</span>` : ""}
-            </div>
-            <div class="text">${formattedMessage}</div>
-            <div class="timestamp">${timestampText}</div>
-        `;
         if (isSelf) {
             modToolsHtml = `
                 <div class="mod-tools">
@@ -3131,7 +3088,12 @@
             div.innerHTML = `
                 ${avatarHtml}
                 <div class="message-content">
-                    ${messageContentHtml}
+                    <div class="username">
+                        ${username}
+                        ${verified ? `<span class="verified-badge" title="Verified">✅</span>` : ""}
+                    </div>
+                    <div class="text">${formattedMessage}</div>
+                    <div class="timestamp">${timestampText}</div>
                 </div>
                 ${modToolsHtml}
             `;
@@ -3182,7 +3144,7 @@
         const end = totalMessageCount - 1;
         const { data } = await supabase
             .from('messages')
-            .select('id, user_id, username, avatar_url, message, timestamp, reply_to')
+            .select('id, user_id, username, avatar_url, message, timestamp')
             .order('timestamp', { ascending: true })
             .range(start, end);
 
@@ -3215,7 +3177,7 @@
         
         const { data } = await supabase
             .from('messages')
-            .select('id, user_id, username, avatar_url, message, timestamp, reply_to')
+            .select('id, user_id, username, avatar_url, message, timestamp')
             .order('timestamp', { ascending: true })
             .range(start, end);
         
@@ -3315,7 +3277,6 @@
             username,
             avatar_url,
             message,
-            reply_to: currentReplyMessage,
         });
         // === END DEBUG ===
 
@@ -3327,7 +3288,6 @@
                 username,
                 avatar_url,
                 message,
-                reply_to: currentReplyMessage,
             }])
             .select()
             .single();
