@@ -39,14 +39,15 @@
             --toolbar-icon-color: #f8f9fa;
             --toolbar-icon-hover-bg: rgba(255,255,255,0.1);
         }
-        body {
-            background-color: var(--primary-bg);
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s;
-        }
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s;
+    overflow-x: hidden;
+}
 
         /* --- MODIFICATION: Main App Wrapper --- */
         .main-wrapper {
@@ -58,6 +59,7 @@
             margin: 40px auto;
             padding: 0 20px;
             transition: all 0.3s;
+            overflow-x: hidden;
         }
         /* --- END MODIFICATION --- */
 
@@ -75,11 +77,12 @@
             height: 80vh;
             position: relative;
             transition: all 0.3s;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             resize: both;
-            overflow: auto;
             min-width: 400px;
             min-height: 500px;
+            max-width: 100%;
         }
 
         /* --- NEW: Online Users Sidebar (Now Toggleable) --- */
@@ -592,10 +595,12 @@
             z-index: 200;
             transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
-            display: flex;
+            display: none;
             flex-direction: column;
+            overflow-x: hidden;
         }
         .user-profile-view.visible {
+            display: flex;
             transform: translateX(0);
         }
         .user-profile-header {
@@ -646,6 +651,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 16px;
+            overflow-x: hidden;
         }
         .user-profile-messages .message {
              max-width: 100%; /* Ensure messages don't overflow */
@@ -2070,6 +2076,82 @@
         }
 
         /* --- END: Fullscreen & Symmetry === */
+
+        /* =======================================
+           REPLY BOX STYLES
+           ======================================= */
+        .reply-box {
+            margin-top: 8px;
+            margin-left: 48px; /* Align with message content */
+            padding: 8px;
+            background-color: var(--content-bg);
+            border: 1px solid var(--toolbar-bg);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .reply-textarea {
+            width: 100%;
+            resize: none;
+            border: 1px solid var(--toolbar-bg);
+            border-radius: 6px;
+            padding: 6px;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .reply-textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        .reply-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .reply-send-btn, .reply-cancel-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+        }
+        .reply-send-btn {
+            background-color: var(--accent-blue);
+            color: var(--input-text);
+        }
+        .reply-send-btn:hover {
+            background-color: #6ce0ff;
+        }
+        .reply-cancel-btn {
+            background-color: var(--toolbar-bg);
+            color: var(--text-color);
+        }
+        .reply-cancel-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* Visual line for replies */
+        .message.reply {
+            position: relative;
+            margin-left: 20px;
+            border-left: 2px solid var(--accent-blue);
+            padding-left: 12px;
+        }
+        .message.reply::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: -16px;
+            width: 2px;
+            height: 16px;
+            background-color: var(--accent-blue);
+        }
+        /* =======================================
+           END REPLY BOX STYLES
+           ======================================= */
 </style>
 <body class="theme-dark">
 <a class="back-button" href="index.html">← Back to Home</a>
@@ -3253,8 +3335,19 @@
             .replace(/<div><br><\/div>/g, '<p><br></p>') // empty div line
             .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>'); // div with content
 
+        // --- MODIFICATION: Handle reply by prepending blockquote ---
+        if (currentReplyMessage) {
+            const originalMsg = loadedMessages.find(m => m.id === currentReplyMessage);
+            if (originalMsg) {
+                const originalText = originalMsg.message.replace(/<[^>]*>/g, ''); // Strip HTML for quote
+                messageHtml = `<blockquote>${originalText}</blockquote>${messageHtml}`;
+            }
+            currentReplyMessage = null;
+            document.getElementById('reply-indicator').style.display = 'none';
+        }
+
         const message = sanitizeHTML(messageHtml).trim();
-        
+
         if (!message || message === '<br>' || message === '<p><br></p>') {
             console.log("[DEBUG] sendMessage: Sanitized message is empty."); // DEBUG
             return null;
@@ -3301,7 +3394,7 @@
             editor.innerHTML = rawMessage; // Restore content on failure
             throw new Error("Failed to insert message into database.");
         }
-        
+
         // === DEBUG ===
         console.log('[DEBUG] sendMessage: Insert successful. New message ID:', newMessage.id);
         // === END DEBUG ===
@@ -3529,11 +3622,10 @@
             const newMessage = await sendMessage();
             if (newMessage) {
                 // === DEBUG ===
-                console.log('[DEBUG] [handleSendClick] sendMessage returned. Pushing to local state. ID:', newMessage.id);
+                console.log('[DEBUG] [handleSendClick] sendMessage returned. Letting realtime handle display. ID:', newMessage.id);
                 // === END DEBUG ===
-                loadedMessages.push(newMessage);
-                await displayMessage(newMessage);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                totalMessageCount += 1; // Update count since realtime will handle display
+                // Removed local push and display to prevent duplicates
             }
         } catch (e) {
             // === DEBUG ===
@@ -3644,14 +3736,47 @@ function handleCancelEdit(messageId) {
 }
 
 function handleReply(messageId, username) {
-    currentReplyMessage = messageId;
-    const indicator = document.getElementById('reply-indicator');
-    indicator.innerHTML = `Replying to ${username} <span class="close">&times;</span>`;
-    indicator.style.display = 'flex';
-    indicator.querySelector('.close').addEventListener('click', () => {
-        currentReplyMessage = null;
-        indicator.style.display = 'none';
+    const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+    if (!msgEl) return;
+
+    // Remove any existing reply box
+    const existingBox = msgEl.querySelector('.reply-box');
+    if (existingBox) {
+        existingBox.remove();
+        return;
+    }
+
+    // Create reply box
+    const replyBox = document.createElement('div');
+    replyBox.className = 'reply-box';
+    replyBox.innerHTML = `
+        <textarea class="reply-textarea" placeholder="Type your reply..." rows="2"></textarea>
+        <div class="reply-controls">
+            <button class="reply-send-btn">Send</button>
+            <button class="reply-cancel-btn">Cancel</button>
+        </div>
+    `;
+    msgEl.appendChild(replyBox);
+
+    const textarea = replyBox.querySelector('.reply-textarea');
+    const sendBtn = replyBox.querySelector('.reply-send-btn');
+    const cancelBtn = replyBox.querySelector('.reply-cancel-btn');
+
+    sendBtn.addEventListener('click', async () => {
+        const replyText = textarea.value.trim();
+        if (!replyText) return;
+
+        currentReplyMessage = messageId;
+        editor.innerHTML = replyText;
+        await handleSendClick();
+        replyBox.remove();
     });
+
+    cancelBtn.addEventListener('click', () => {
+        replyBox.remove();
+    });
+
+    textarea.focus();
 }
     // --- END EDIT/DELETE ---
 
