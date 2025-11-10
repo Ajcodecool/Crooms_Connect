@@ -2146,7 +2146,7 @@ body {
            ======================================= */
 </style>
 <body class="theme-dark">
-<a class="back-button" href="index (2).html">← Back to Home</a>
+<button class="back-button" onclick="window.location.href='index.html'"><i class="fas fa-home"></i></button>
 <!-- --- MODIFICATION: Added Main Wrapper --- -->
 <div class="main-wrapper">
     <div class="chat-container">
@@ -2919,7 +2919,7 @@ body {
         
         if (!authData?.user) {
             // === DEBUG ===
-            console.warn('[updateGlobalAvatarAndName] No user found. Redirecting to auth.html');
+            console.warn('[updateGlobalAvatarAndName] No user found. Redirecting to index (2).html');
             // === END DEBUG ===
             window.currentUser = null;
             window.location.href = "auth.html";
@@ -4505,6 +4505,17 @@ function handleReply(messageId, username) {
         }, timeToMidnight);
     }
     // === END FIREWORKS FUNCTIONS ===
+
+    async function logoutAndGoHome() {
+        try {
+            await supabase.auth.signOut();
+            window.location.href = "auth.html";
+        } catch (error) {
+            console.error("Logout error:", error);
+            // Fallback: redirect anyway
+            window.location.href = "auth.html";
+        }
+    }
 
     (async function ensureAJTechVerified() {
         const { data } = await supabase
