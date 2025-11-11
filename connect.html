@@ -4260,21 +4260,13 @@ function handleReply(messageId, username) {
             if (channel) {
                 // Send typing event, but not on every keypress (debounce)
                 clearTimeout(typeTimer);
-                channel.send({
-                    type: 'broadcast',
-                    event: 'typing',
-                    payload: { username: currentUsername }
-                });
-
+                channel.track({ event: 'typing', payload: { username: currentUsername } });
+                
                 typeTimer = setTimeout(() => {
-                    channel.send({
-                        type: 'broadcast',
-                        event: 'stopped_typing',
-                        payload: { username: currentUsername }
-                    });
+                    channel.track({ event: 'stopped_typing', payload: { username: currentUsername } });
                 }, 3000); // 3 second timeout
             }
-
+            
             // @Mention
             handleMentionInput();
         });
