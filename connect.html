@@ -107,6 +107,9 @@ body {
             border-bottom: 1px solid #444;
             flex-shrink: 0;
             color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .online-users-list {
             flex: 1;
@@ -2144,6 +2147,43 @@ body {
         /* =======================================
            END REPLY BOX STYLES
            ======================================= */
+
+        /* =======================================
+           REPLY-TO STYLES
+           ======================================= */
+        .reply-to {
+            background-color: var(--toolbar-bg);
+            border-left: 3px solid var(--accent-blue);
+            padding: 4px 8px;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .reply-to:hover {
+            background-color: rgba(var(--accent-blue), 0.1);
+        }
+        blockquote {
+            margin: 8px 0;
+            padding-left: 12px;
+            border-left: 3px solid var(--accent-blue);
+            font-style: italic;
+            color: var(--text-color);
+        }
+        /* =======================================
+           END REPLY-TO STYLES
+           ======================================= */
+
+        /* =======================================
+           MOD TOOLS MENU OPEN
+           ======================================= */
+        .mod-tools.menu-open {
+            transition: none;
+        }
+        /* =======================================
+           END MOD TOOLS MENU OPEN
+           ======================================= */
 </style>
 <body class="theme-dark">
 <button class="back-button" onclick="window.location.href='index.html'"><i class="fas fa-home"></i></button>
@@ -2754,6 +2794,7 @@ body {
     let isSending = false; // Flag to prevent double sends
     let isChatLocked = localStorage.getItem('isChatLocked') === 'true'; // Chat lock state
     let currentReplyMessage = null; // For reply functionality
+    let currentReplyUsername = null;
 
     // Set initial chat lock button text
     if (isChatLocked) {
@@ -2990,6 +3031,20 @@ body {
         return JSON.parse(localStorage.getItem('blockedUsers') || '[]');
     }
 
+    // --- NEW: Jump to Message Function ---
+    function jumpToMessage(messageId) {
+        const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+        if (messageEl) {
+            messageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Optional: highlight briefly
+            messageEl.style.backgroundColor = 'rgba(76, 201, 240, 0.2)';
+            setTimeout(() => {
+                messageEl.style.backgroundColor = '';
+            }, 2000);
+        }
+    }
+    // --- END Jump to Message ---
+
     function applyBlocklist() {
         const blockedUsers = getBlockedUsers();
         if (blockedUsers.length === 0) {
@@ -3084,102 +3139,45 @@ body {
     // --- END BLOCKLIST ---
 
     async function displayMessage(msg, container = chatBox) {
-        // --- MODIFICATION: Blocklist Check ---
-        const blockedUsers = getBlockedUsers();
-        if (blockedUsers.includes(msg.user_id)) {
-            return; // Don't display at all
-        }
-        
-        const isSelf = window.currentUser && msg.user_id === window.currentUser.id; 
+        const blocked = getBlockedUsers();
+        if (blocked.includes(msg.user_id)) return;
+        const isSelf = window.currentUser && msg.user_id === window.currentUser.id;
         const username = cleanUsername(msg.username) || "Anonymous";
-        const avatarSrc = msg.avatar_url && msg.avatar_url.trim() !== ""
-            ? msg.avatar_url
-            : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(username)}`;
+        const avatarSrc = msg.avatar_url && msg.avatar_url.trim() !== "" ? msg.avatar_url : `https://api.dicebear.com/6.x/thumbs/svg?seed=${encodeURIComponent(username)}`;
         const div = document.createElement('div');
-        
         const theme = localStorage.getItem(themeKey) || 'dark';
         const isDOS = theme === 'dos';
         const isAIM = theme === 'aim';
-
         div.className = `message ${isSelf ? 'self' : 'other'}`;
         div.dataset.messageId = msg.id;
         div.dataset.userId = msg.user_id;
-        div.dataset.username = username; // Store username for later
-        div.dataset.timestamp = msg.timestamp; 
-
+        div.dataset.username = username;
+        div.dataset.timestamp = msg.timestamp;
         const verified = await isUserVerified(msg.username);
-        
-        const dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
-        const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
-        const formattedDate = new Date(msg.timestamp).toLocaleDateString('en-US', dateOptions);
-        const formattedTime = new Date(msg.timestamp).toLocaleTimeString('en-US', timeOptions);
+        const dateOpts = { month: 'short', day: 'numeric', year: 'numeric' };
+        const timeOpts = { hour: 'numeric', minute: '2-digit', hour12: true };
+        const formattedDate = new Date(msg.timestamp).toLocaleDateString('en-US', dateOpts);
+        const formattedTime = new Date(msg.timestamp).toLocaleTimeString('en-US', timeOpts);
         const timestampText = `${formattedDate} – ${formattedTime}`;
-        
         const formattedMessage = cleanMessageMentions(msg.message);
-
-        // --- MODIFICATION: Show Edit/Delete for self, Mod tools for others, Reply for all ---
         let modToolsHtml = '';
         if (isSelf) {
-            modToolsHtml = `
-                <div class="mod-tools">
-                    <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
-                    <div class="mod-tools-menu">
-                        <button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button>
-                        <button data-action="edit" data-message-id="${msg.id}"><i class="fas fa-pencil-alt fa-fw"></i> Edit</button>
-                        <button data-action="delete-self" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete</button>
-                    </div>
-                </div>
-            `;
+            modToolsHtml = `<div class="mod-tools"><button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button><div class="mod-tools-menu"><button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button><button data-action="edit" data-message-id="${msg.id}"><i class="fas fa-pencil-alt fa-fw"></i> Edit</button><button data-action="delete-self" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete</button></div></div>`;
         } else if (currentUserIsVerified) {
-            modToolsHtml = `
-                <div class="mod-tools">
-                    <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
-                    <div class="mod-tools-menu">
-                        <button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button>
-                        <button data-action="delete" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete Message</button>
-                        <button data-action="timeout-10m" data-user-id="${msg.user_id}"><i class="fas fa-clock fa-fw"></i> Timeout 10m</button>
-                        <button data-action="timeout-1h" data-user-id="${msg.user_id}"><i class="fas fa-hourglass-half fa-fw"></i> Timeout 1h</button>
-                        <button data-action="ban" data-user-id="${msg.user_id}"><i class="fas fa-gavel fa-fw"></i> Ban User</button>
-                        <button data-action="pardon" data-user-id="${msg.user_id}"><i class="fas fa-hand-holding-heart fa-fw"></i> Pardon User</button>
-                    </div>
-                </div>
-            `;
+            modToolsHtml = `<div class="mod-tools"><button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button><div class="mod-tools-menu"><button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button><button data-action="delete" data-message-id="${msg.id}"><i class="fas fa-trash fa-fw"></i> Delete Message</button><button data-action="timeout-10m" data-user-id="${msg.user_id}"><i class="fas fa-clock fa-fw"></i> Timeout 10m</button><button data-action="timeout-1h" data-user-id="${msg.user_id}"><i class="fas fa-hourglass-half fa-fw"></i> Timeout 1h</button><button data-action="ban" data-user-id="${msg.user_id}"><i class="fas fa-gavel fa-fw"></i> Ban User</button><button data-action="pardon" data-user-id="${msg.user_id}"><i class="fas fa-hand-holding-heart fa-fw"></i> Pardon User</button></div></div>`;
         } else {
-            modToolsHtml = `
-                <div class="mod-tools">
-                    <button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button>
-                    <div class="mod-tools-menu">
-                        <button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button>
-                    </div>
-                </div>
-            `;
+            modToolsHtml = `<div class="mod-tools"><button class="mod-tools-toggle"><i class="fas fa-ellipsis-v"></i></button><div class="mod-tools-menu"><button data-action="reply" data-message-id="${msg.id}" data-username="${username}"><i class="fas fa-reply fa-fw"></i> Reply</button></div></div>`;
         }
-        // --- END MODIFICATION ---
-        
         const avatarHtml = `<a class="avatar-link" data-user-id="${msg.user_id}" data-username="${username}" data-avatar-url="${avatarSrc}"><img src="${avatarSrc}" class="avatar" alt="avatar"></a>`;
-
-
         if (isDOS) {
             div.innerHTML = `<div class="message-content"><span class="username">${username}</span>: <span class="text">${formattedMessage}</span></div> ${modToolsHtml}`;
         } else if (isAIM) {
-             div.innerHTML = `<div class="message-content"><div class="username">${username}</div><div class="text">${formattedMessage}</div><div class="timestamp">${timestampText}</div></div> ${modToolsHtml}`;
+            div.innerHTML = `<div class="message-content"><div class="username">${username}</div><div class="text">${formattedMessage}</div><div class="timestamp">${timestampText}</div></div> ${modToolsHtml}`;
         } else {
-            div.innerHTML = `
-                ${avatarHtml}
-                <div class="message-content">
-                    <div class="username">
-                        ${username}
-                        ${verified ? `<span class="verified-badge" title="Verified">☑️</span>` : ""}
-                    </div>
-                    <div class="text">${formattedMessage}</div>
-                    <div class="timestamp">${timestampText}</div>
-                </div>
-                ${modToolsHtml}
-            `;
+            div.innerHTML = `${avatarHtml}<div class="message-content"><div class="username">${username}${verified ? `<span class="verified-badge" title="Verified">☑️</span>` : ""}</div><div class="text">${formattedMessage}</div><div class="timestamp">${timestampText}</div></div>${modToolsHtml}`;
         }
-        
         if (container === chatBox) {
-            container.insertBefore(div, typingIndicator); 
+            container.insertBefore(div, typingIndicator);
         } else {
             container.appendChild(div);
         }
@@ -3327,12 +3325,12 @@ body {
             .replace(/<div><br><\/div>/g, '<p><br></p>') // empty div line
             .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>'); // div with content
 
-        // --- MODIFICATION: Handle reply by prepending blockquote ---
+        // --- MODIFICATION: Handle reply by prepending reply-to ---
         if (currentReplyMessage) {
             const originalMsg = loadedMessages.find(m => m.id === currentReplyMessage);
             if (originalMsg) {
-                const originalText = originalMsg.message.replace(/<[^>]*>/g, ''); // Strip HTML for quote
-                messageHtml = `<blockquote>${originalText}</blockquote>${messageHtml}`;
+                const originalUsername = cleanUsername(originalMsg.username);
+                messageHtml = `<div class="reply-to" data-reply-id="${currentReplyMessage}">Replying to @${originalUsername}</div>${messageHtml}`;
             }
             currentReplyMessage = null;
             document.getElementById('reply-indicator').style.display = 'none';
