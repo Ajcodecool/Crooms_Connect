@@ -2214,6 +2214,23 @@ body {
             ">
                 Loading schedule...
             </div>
+            <!-- ADDED OMINOUS RED TIMER BELOW PERIOD TIMER -->
+    <div id="event-timer-bar" style="
+                 background: #8B0000; /* Dark red */
+                 color: #fff; 
+                 padding: 4px 12px; 
+                 border-radius: 20px; 
+                 font-size: 0.9rem; 
+                 font-weight: bold; 
+                 box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                 flex-shrink: 1;
+                 min-width: 180px;
+                 text-align: center;
+                 margin-top: 8px; 
+                 display: none; /* Initially hidden until JS initializes */
+             ">
+    Event: <span id="event-timer">Loading...</span>
+    </div>
     <!-- END NEW BAR -->
     <div class="flex items-center gap-2">
     <!-- --- MODIFICATION: New Header Buttons --- -->
@@ -2847,7 +2864,11 @@ body {
             const presences = onlineUsers[key];
             if (presences.length > 0) {
                 const userPresence = presences[0]; // Take the first presence entry
-                uniqueUsers[userPresence.user] = userPresence;
+                // Use user_id for uniqueness if available, otherwise fallback to username (key)
+                const uniqueKey = userPresence.user_id || userPresence.user;
+                if (!uniqueUsers[uniqueKey]) {
+                     uniqueUsers[uniqueKey] = userPresence;
+                }
             }
         }
         
@@ -2933,6 +2954,31 @@ body {
             chatBox.scrollTop = chatBox.scrollHeight;
         }
     }
+    
+    // === EVENT TIMER (OMINOUS RED TIMER) ===
+    function updateEventTimer() {
+        const eventTargetDate = new Date('2025-11-20T12:00:00-05:00'); // Target: November 20th, 12:00pm EST
+        const eventTimerSpan = document.getElementById('event-timer');
+        const eventTimerBar = document.getElementById('event-timer-bar');
+
+        const now = new Date();
+
+        const timeDiff = eventTargetDate.getTime() - now.getTime();
+        
+        if (timeDiff <= 0) {
+            // If event time has passed
+            eventTimerSpan.textContent = 'The Event Has Begun!';
+            eventTimerBar.style.background = '#FF0000'; // Make brighter red as the event starts
+            return;
+        }
+
+        // If the event is yet to occur
+        const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
+        const seconds = Math.floor((timeDiff / 1000) % 60);
+
+        eventTimerSpan.textContent = `${hours}h ${minutes}m ${seconds}s`;
+    }
 
     function cleanUsername(name) {
         if (!name) return "Anonymous";
@@ -2960,7 +3006,7 @@ body {
         
         if (!authData?.user) {
             // === DEBUG ===
-            console.warn('[updateGlobalAvatarAndName] No user found. Redirecting to index (2).html');
+            console.warn('[updateGlobalAvatarAndName] No user found. Redirecting to auth.html');
             // === END DEBUG ===
             window.currentUser = null;
             window.location.href = "auth.html";
@@ -3002,7 +3048,21 @@ body {
         text = text.replace(/&lt;small&gt;\(edited\)&lt;\/small&gt;$/, '<small class="text-xs opacity-70 ml-1">(edited)</small>');
         text = text.replace(/<small>\(edited\)<\/small>$/, '<small class="text-xs opacity-70 ml-1">(edited)</small>');
 
+        // Handle reply-to blocks
+        text = text.replace(
+            /&lt;div class="reply-to" data-reply-id="(\d+)"&gt;Replying to @(.*?)&lt;\/div&gt;/g,
+            '<div class="reply-to" data-reply-id="$1">Replying to @$2</div>'
+        );
+        text = text.replace(
+            /<div class="reply-to" data-reply-id="(\d+)">Replying to @(.*?)<\/div>/g,
+            '<div class="reply-to" data-reply-id="$1" onclick="jumpToMessage($1)">Replying to @$2</div>'
+        );
+
+
         return text.replace(/@([a-zA-Z0-9_@.]+)/g, (match, mentionName) => {
+            // Avoid re-matching mentions inside the reply-to div
+            if (match.includes('Replying to')) return match; 
+            
             let clean = mentionName;
             if (clean.toLowerCase().endsWith('@croomsconnect.local')) {
                 clean = clean.slice(0, -'@croomsconnect.local'.length);
@@ -3032,7 +3092,8 @@ body {
     }
 
     // --- NEW: Jump to Message Function ---
-    function jumpToMessage(messageId) {
+    // Made global by attaching to window
+    window.jumpToMessage = function(messageId) {
         const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
         if (messageEl) {
             messageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3041,6 +3102,8 @@ body {
             setTimeout(() => {
                 messageEl.style.backgroundColor = '';
             }, 2000);
+        } else {
+            showToast('Original message is not loaded.', 'error');
         }
     }
     // --- END Jump to Message ---
@@ -3198,7 +3261,7 @@ body {
             
             setTimeout(() => {
                 const currentScrollHeight = chatBox.scrollHeight;
-                if (isInitialLoad || wasScrolledToBottom && !keepScrollPosition) {
+                if (isInitialLoad || (wasScrolledToBottom && !keepScrollPosition)) {
                     chatBox.scrollTop = currentScrollHeight;
                 } else if (isLoadingOlder) {
                     chatBox.scrollTop = oldScrollTop + (currentScrollHeight - oldScrollHeight);
@@ -3280,6 +3343,9 @@ body {
     function sanitizeHTML(html) {
         // Allow (edited) tag
         html = html.replace(/<small class="text-xs opacity-70 ml-1">\(edited\)<\/small>/g, '');
+        // Allow reply-to tag
+        html = html.replace(/<div class="reply-to" data-reply-id="\d+">Replying to @(.*?)<\/div>/g, '');
+
 
         // --- MODIFICATION: Added 'p' tag ---
         const allowedTags = ['strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'br', 'div', 'p', 'span', 'img'];
@@ -3330,6 +3396,7 @@ body {
             const originalMsg = loadedMessages.find(m => m.id === currentReplyMessage);
             if (originalMsg) {
                 const originalUsername = cleanUsername(originalMsg.username);
+                // Use block elements for HTML
                 messageHtml = `<div class="reply-to" data-reply-id="${currentReplyMessage}">Replying to @${originalUsername}</div>${messageHtml}`;
             }
             currentReplyMessage = null;
@@ -3337,6 +3404,7 @@ body {
         }
 
         const message = sanitizeHTML(messageHtml).trim();
+        const finalMessageHtml = messageHtml.trim(); // Send the raw-ish HTML
 
         if (!message || message === '<br>' || message === '<p><br></p>') {
             console.log("[DEBUG] sendMessage: Sanitized message is empty."); // DEBUG
@@ -3364,7 +3432,7 @@ body {
             user_id: window.currentUser.id,
             username,
             avatar_url,
-            message,
+            message: finalMessageHtml, // Send the version with reply-to HTML
         });
         // === END DEBUG ===
 
@@ -3375,7 +3443,7 @@ body {
                 user_id: window.currentUser.id,
                 username,
                 avatar_url,
-                message,
+                message: finalMessageHtml, // Send the HTML
             }])
             .select()
             .single();
@@ -3443,8 +3511,13 @@ body {
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
                  console.log('[DEBUG] [RT:UPDATE] Received update for ID:', payload.new.id);
                  const updatedMessage = payload.new;
-                 const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
+                 // Update local cache
+                 const msgIndex = loadedMessages.findIndex(m => m.id == updatedMessage.id);
+                 if (msgIndex > -1) {
+                    loadedMessages[msgIndex] = updatedMessage;
+                 }
                  
+                 const msgEl = document.querySelector(`.message[data-message-id="${updatedMessage.id}"]`);
                  if (msgEl) {
                      const textEl = msgEl.querySelector('.text');
                      const newHtml = cleanMessageMentions(updatedMessage.message);
@@ -3490,16 +3563,18 @@ body {
             .on('presence', { event: 'join' }, ({ newPresences }) => {
                 console.log('[DEBUG] [Presence] Join:', newPresences);
                 newPresences.forEach(presence => {
-                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).concat(presence);
+                    const key = presence.user_id || presence.user; // Use user_id if present
+                    onlineUsers[key] = (onlineUsers[key] || []).concat(presence);
                 });
                 renderOnlineUsers();
             })
             .on('presence', { event: 'leave' }, ({ leftPresences }) => {
                 console.log('[DEBUG] [Presence] Leave:', leftPresences);
                 leftPresences.forEach(presence => {
-                    onlineUsers[presence.user] = (onlineUsers[presence.user] || []).filter(p => p.presence_ref !== presence.presence_ref);
-                    if (onlineUsers[presence.user].length === 0) {
-                        delete onlineUsers[presence.user];
+                    const key = presence.user_id || presence.user; // Use user_id if present
+                    onlineUsers[key] = (onlineUsers[key] || []).filter(p => p.presence_ref !== presence.presence_ref);
+                    if (onlineUsers[key].length === 0) {
+                        delete onlineUsers[key];
                     }
                 });
                 renderOnlineUsers();
@@ -3511,6 +3586,7 @@ body {
                     // --- NEW: Track presence on subscribe ---
                     if (userInfo && userInfo.username) {
                         await channel.track({ 
+                            user_id: window.currentUser.id, // Add user_id
                             user: userInfo.username, 
                             avatar: userInfo.avatar,
                             is_verified: userInfo.isVerified
@@ -3660,8 +3736,10 @@ body {
         const msg = loadedMessages.find(m => m.id == messageId);
         if (!msg) return;
 
-        // Get raw HTML, but remove the (edited) tag if present
-        let currentHtml = msg.message.replace(/ <small>(.*?)<\/small>$/i, '');
+        // Get raw HTML, but remove the (edited) tag and reply-to tag if present
+        let currentHtml = msg.message
+            .replace(/ <small>(.*?)<\/small>$/i, '')
+            .replace(/<div class="reply-to" data-reply-id="\d+">Replying to @(.*?)<\/div>/i, '');
         
         textEl.innerHTML = `<div id="edit-editor-${messageId}" contenteditable="true" class="edit-editor">${currentHtml}</div>`;
         
@@ -3683,13 +3761,18 @@ body {
     async function handleSaveEdit(messageId) {
         const editorEl = document.getElementById(`edit-editor-${messageId}`);
         if (!editorEl) return;
+
+        // Find original message to preserve reply-to
+        const originalMsg = loadedMessages.find(m => m.id == messageId);
+        const replyMatch = originalMsg ? originalMsg.message.match(/<div class="reply-to" data-reply-id="\d+">Replying to @(.*?)<\/div>/i) : null;
+        const replyHtml = replyMatch ? replyMatch[0] : '';
         
         // --- MODIFICATION: Standardize newlines on save ---
         let messageHtml = editorEl.innerHTML
             .replace(/<div><br><\/div>/g, '<p><br></p>')
             .replace(/<div>(.*?)<\/div>/g, '<p>$1</p>');
             
-        const newHtml = sanitizeHTML(messageHtml).trim() + ' <small>(edited)</small>'; // Add (edited) tag
+        const newHtml = replyHtml + sanitizeHTML(messageHtml).trim() + ' <small>(edited)</small>'; // Add (edited) tag
 
         const { data, error } = await supabase
             .from('messages')
@@ -3702,74 +3785,39 @@ body {
         if (error) {
             showToast('Failed to save edit: ' + error.message, 'error');
         } else {
-            // Update local cache
-            const msgIndex = loadedMessages.findIndex(m => m.id == messageId);
-            if (msgIndex > -1) {
-                loadedMessages[msgIndex] = data;
-            }
-            // Realtime will handle the UI update, but we can force it
+            // Realtime will handle the UI update
+        }
+    }
+
+    function handleCancelEdit(messageId) {
+        const msg = loadedMessages.find(m => m.id == messageId);
+        if (msg) {
             const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
             if (msgEl) {
-                msgEl.querySelector('.text').innerHTML = cleanMessageMentions(newHtml);
+                 msgEl.querySelector('.text').innerHTML = cleanMessageMentions(msg.message); // Re-render original message
             }
         }
     }
 
-function handleCancelEdit(messageId) {
-    const msg = loadedMessages.find(m => m.id == messageId);
-    if (msg) {
-        const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
-        if (msgEl) {
-             msgEl.querySelector('.text').innerHTML = cleanMessageMentions(msg.message); // Re-render original message
-        }
-    }
-}
-
-function handleReply(messageId, username) {
-    const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
-    if (!msgEl) return;
-
-    // Remove any existing reply box
-    const existingBox = msgEl.querySelector('.reply-box');
-    if (existingBox) {
-        existingBox.remove();
-        return;
-    }
-
-    // Create reply box
-    const replyBox = document.createElement('div');
-    replyBox.className = 'reply-box';
-    replyBox.innerHTML = `
-        <textarea class="reply-textarea" placeholder="Type your reply..." rows="2"></textarea>
-        <div class="reply-controls">
-            <button class="reply-send-btn">Send</button>
-            <button class="reply-cancel-btn">Cancel</button>
-        </div>
-    `;
-    msgEl.appendChild(replyBox);
-
-    const textarea = replyBox.querySelector('.reply-textarea');
-    const sendBtn = replyBox.querySelector('.reply-send-btn');
-    const cancelBtn = replyBox.querySelector('.reply-cancel-btn');
-
-    sendBtn.addEventListener('click', async () => {
-        const replyText = textarea.value.trim();
-        if (!replyText) return;
-
+    // --- NEW REPLY FUNCTIONALITY ---
+    function handleReply(messageId, username) {
         currentReplyMessage = messageId;
-        editor.innerHTML = replyText;
-        await handleSendClick();
-        replyBox.remove();
-    });
+        currentReplyUsername = username;
+        
+        const replyIndicator = document.getElementById('reply-indicator');
+        replyIndicator.innerHTML = `Replying to @${username} <span class="close" id="cancel-reply">×</span>`;
+        replyIndicator.style.display = 'flex';
+        
+        document.getElementById('cancel-reply').addEventListener('click', () => {
+            currentReplyMessage = null;
+            currentReplyUsername = null;
+            replyIndicator.style.display = 'none';
+        }, { once: true }); // Automatically remove listener after it fires
 
-    cancelBtn.addEventListener('click', () => {
-        replyBox.remove();
-    });
-
-    textarea.focus();
-}
-    // --- END EDIT/DELETE ---
-
+        editor.focus();
+    }
+    // --- END REPLY FUNCTIONALITY ---
+    
 
     // --- MODERATOR FUNCTIONS ---
     async function deleteMessageAsMod(messageId) {
@@ -4009,6 +4057,7 @@ function handleReply(messageId, username) {
                 case 'delete-self': handleDeleteMessageSelf(messageId); break;
                 case 'save-edit': handleSaveEdit(messageId); break;
                 case 'cancel-edit': handleCancelEdit(messageId); break;
+                case 'reply': handleReply(messageId, username); break;
                 // Mod actions
                 case 'delete': deleteMessageAsMod(messageId); break;
                 case 'timeout-10m': applySanction(userId, 'TIMEOUT', 10); break;
@@ -4351,93 +4400,71 @@ function handleReply(messageId, username) {
         setInterval(updatePeriodTimer, 1000); // Update every second
         // === END SCHEDULE TRACKER INIT ===
 
+        // === START OMINOUS EVENT TIMER INIT ===
+        const eventTimerBar = document.getElementById('event-timer-bar');
+        if (eventTimerBar) {
+            eventTimerBar.style.display = 'block'; // Show the timer bar
+            updateEventTimer();
+            setInterval(updateEventTimer, 1000); // Update every second
+        }
+        // === END OMINOUS EVENT TIMER INIT ===
+
         typingIndicator = createTypingIndicator();
-        await updateGlobalAvatarAndName();
-        await loadInitialMessages();
         
-        // --- MODIFICATION: Pass user info to subscription ---
-        channel = subscribeToMessages({
-            username: currentUsername,
-            avatar: userAvatarImg.src,
-            isVerified: currentUserIsVerified
-        });
-        
+        // --- REFACTORED: Auth-driven initialization ---
         supabase.auth.onAuthStateChange(async (event, session) => {
-            // === DEBUG ===
             console.log('[DEBUG] [onAuthStateChange] Auth state changed:', event);
-            // === END DEBUG ===
-            await updateGlobalAvatarAndName();
+            const previousUserId = window.currentUser?.id;
             
-            // --- MODIFICATION: Re-subscribe with new auth info ---
-            if (channel) {
-                console.log('[DEBUG] [onAuthStateChange] Re-subscribing with new auth info.');
-                supabase.removeChannel(channel);
-            }
-            channel = subscribeToMessages({
-                username: currentUsername,
-                avatar: userAvatarImg.src,
-                isVerified: currentUserIsVerified
-            });
-            // --- END MODIFICATION ---
-        });
-        // --- MODIFICATION: Robust visibilitychange listener ---
-        document.addEventListener('visibilitychange', async () => {
-            console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
-            if (document.visibilityState === 'visible') {
-                console.log("[visibilitychange] Tab is visible again. Re-syncing...");
+            // This will set window.currentUser and redirect if no user
+            await updateGlobalAvatarAndName(); 
+
+            const newUserId = window.currentUser?.id;
+
+            // Check if user is now loaded and is different from before (or was null)
+            if (newUserId && previousUserId !== newUserId) {
+                console.log(`[DEBUG] [onAuthStateChange] User ${newUserId} processing. Initializing app.`);
                 
-                // 1. Re-authenticate
-                await updateGlobalAvatarAndName();
-                
-                // 2. Remove old channel and re-subscribe with current user info
                 if (channel) {
-                    console.log('[visibilitychange] Removing old channel.');
+                    console.log('[DEBUG] [onAuthStateChange] Removing old channel.');
                     supabase.removeChannel(channel);
                 }
+                
+                // Now that we're authenticated, load messages
+                await loadInitialMessages();
+                
+                // And subscribe to realtime
                 channel = subscribeToMessages({
                     username: currentUsername,
                     avatar: userAvatarImg.src,
                     isVerified: currentUserIsVerified
                 });
-                console.log('[visibilitychange] New channel subscribed and presence tracked.');
+                console.log(`[DEBUG] [onAuthStateChange] App initialized for user ${newUserId}.`);
 
-                // 3. Fetch missed messages
-                if (loadedMessages.length > 0) {
-                    const lastTimestamp = loadedMessages[loadedMessages.length - 1].timestamp;
-                    console.log('[visibilitychange] Fetching new messages >', lastTimestamp);
-
-                    const { data: newMessages, error } = await supabase
-                        .from('messages')
-                        .select('id, user_id, username, avatar_url, message, timestamp')
-                        .gt('timestamp', lastTimestamp)
-                        .order('timestamp', { ascending: true });
-
-                    if (error) {
-                        console.error("[visibilitychange] Error fetching new messages on re-focus:", error);
-                        // Fallback to full reload
-                        await loadInitialMessages();
-                        return;
-                    }
-
-                    if (newMessages && newMessages.length > 0) {
-                        console.log(`[visibilitychange] Fetched ${newMessages.length} new messages on focus.`);
-                        const wasScrolledToBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 50;
-                        for (const msg of newMessages) {
-                            if (!loadedMessages.some(m => m.id === msg.id)) { // Avoid duplicates
-                                loadedMessages.push(msg);
-                                await displayMessage(msg);
-                            }
-                        }
-                        if (wasScrolledToBottom) {
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        }
-                    } else {
-                        console.log("[visibilitychange] No new messages since last focus.");
-                    }
-                } else {
-                    // No messages were loaded, do a full initial load
-                    await loadInitialMessages();
-                }
+            } else if (event === 'SIGNED_OUT') {
+                console.log('[DEBUG] [onAuthStateChange] User signed out. Removing channel.');
+                 if (channel) {
+                    supabase.removeChannel(channel);
+                    channel = null;
+                 }
+                 // updateGlobalAvatarAndName should have handled the redirect
+                 
+            } else if (newUserId && previousUserId === newUserId) {
+                 console.log('[DEBUG] [onAuthStateChange] Auth event was likely a token refresh. No re-subscription needed.');
+            
+            } else if (!newUserId) {
+                console.log('[DEBUG] [onAuthStateChange] No new user ID found, likely handled by redirect in updateGlobalAvatarAndName.');
+            }
+        });
+        // --- END REFACTORED ---
+        
+        // --- MODIFICATION: Simplified visibilitychange listener ---
+        document.addEventListener('visibilitychange', () => {
+            console.log(`[visibilitychange] Tab state: ${document.visibilityState}`);
+            if (document.visibilityState === 'visible') {
+                console.log("[visibilitychange] Tab is visible. Supabase client will automatically re-sync presence and catch up messages.");
+                // The Supabase client handles this automatically.
+                // No need to manually re-subscribe or fetch messages.
             }
         });
         // --- END MODIFICATION ---
