@@ -10,6 +10,13 @@ const PollsTab = () => {
   const [newPollQuestion, setNewPollQuestion] = useState("");
   const [newPollOptions, setNewPollOptions] = useState(["", ""]);
 
+  // Hardcoded Google Form link
+  const hardcodedGoogleFormLink = "https://docs.google.com/forms/d/e/1FAIpQLSeEXAMPLE/viewform"; // Replace with actual link
+
+  // State for user-submitted Google Forms
+  const [userGoogleForms, setUserGoogleForms] = useState([]);
+  const [newGoogleFormLink, setNewGoogleFormLink] = useState("");
+
   useEffect(() => {
     // Load daily poll votes from localStorage
     const savedDailyVotes = localStorage.getItem("dailyPollVotes");
@@ -27,6 +34,18 @@ const PollsTab = () => {
       setUserPolls(recentPolls);
       // Update localStorage with filtered polls
       localStorage.setItem("userPolls", JSON.stringify(recentPolls));
+    }
+
+    // Load user Google Forms from localStorage, filter to last 7 days
+    const savedUserGoogleForms = localStorage.getItem("userGoogleForms");
+    if (savedUserGoogleForms) {
+      const forms = JSON.parse(savedUserGoogleForms);
+      const now = new Date().getTime();
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+      const recentForms = forms.filter((form) => form.timestamp > sevenDaysAgo);
+      setUserGoogleForms(recentForms);
+      // Update localStorage with filtered forms
+      localStorage.setItem("userGoogleForms", JSON.stringify(recentForms));
     }
   }, []);
 
@@ -78,6 +97,22 @@ const PollsTab = () => {
     setNewPollOptions(updatedOptions);
   };
 
+  const addUserGoogleForm = () => {
+    if (newGoogleFormLink.trim() && newGoogleFormLink.startsWith("https://docs.google.com/forms/")) {
+      const newForm = {
+        id: Date.now(),
+        link: newGoogleFormLink,
+        timestamp: new Date().getTime(),
+      };
+      const updatedForms = [...userGoogleForms, newForm];
+      setUserGoogleForms(updatedForms);
+      localStorage.setItem("userGoogleForms", JSON.stringify(updatedForms));
+      setNewGoogleFormLink("");
+    } else {
+      alert("Please enter a valid Google Forms link.");
+    }
+  };
+
   return (
     <section>
       <button className="close-tab-button">×</button>
@@ -112,6 +147,41 @@ const PollsTab = () => {
             </div>
           ))
         )}
+      </div>
+
+      {/* Google Forms Section */}
+      <div className="google-forms">
+        <h2>Google Forms</h2>
+        <div className="hardcoded-form">
+          <h3>Official School Survey</h3>
+          <a href={hardcodedGoogleFormLink} target="_blank" rel="noopener noreferrer">
+            Take the Survey
+          </a>
+        </div>
+        <div className="user-forms">
+          <h3>User-Submitted Forms</h3>
+          {userGoogleForms.length === 0 ? (
+            <p>No user forms yet. Submit one below!</p>
+          ) : (
+            userGoogleForms.map((form) => (
+              <div key={form.id}>
+                <a href={form.link} target="_blank" rel="noopener noreferrer">
+                  User Form {form.id}
+                </a>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="submit-form">
+          <h3>Submit Your Google Form</h3>
+          <input
+            type="url"
+            placeholder="Enter Google Forms link"
+            value={newGoogleFormLink}
+            onChange={(e) => setNewGoogleFormLink(e.target.value)}
+          />
+          <button onClick={addUserGoogleForm}>Submit Form</button>
+        </div>
       </div>
 
       {/* Create Poll Form */}
