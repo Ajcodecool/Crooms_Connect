@@ -1,7 +1,7 @@
 'use client';
 
-import SettingsTab from '../../components/src_components_SettingsTab_Version2.js';
+import AccountSettings from '../../AccountSettings';
 
 export default function SettingsPage() {
-  return <SettingsTab />;
+  return <AccountSettings />;
 }

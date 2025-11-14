@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+'use client';
 
-// You must install these dependencies for this component to work in a React project:
-// npm install @supabase/supabase-js cropperjs
-import { createClient, type User } from "@supabase/supabase-js";
+import React, { useEffect, useRef, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
 
@@ -11,39 +11,9 @@ const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTA3NjUsImV4cCI6MjA3NTAyNjc2NX0.-IRbU1ER8...YOUR_KEY";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const styles: React.CSSProperties = {
-  maxWidth: "640px",
-  margin: "2rem auto",
-  padding: "2rem",
-  background: "white",
-  borderRadius: "1rem",
-  boxShadow: "0 3px 8px rgba(0,0,0,0.07)",
-};
-
-const cropperContainerStyle: React.CSSProperties = {
-  borderRadius: "9999px",
-  overflow: "hidden",
-  border: "2px solid #e5e7eb",
-  boxShadow: "0 3px 8px 0 rgba(0,0,0,0.07)",
-  margin: "0 auto",
-  width: 260,
-  height: 260,
-  background: "#f9fafb",
-  display: "none",
-};
-
-const avatarPreviewStyle: React.CSSProperties = {
-  width: 96,
-  height: 96,
-  borderRadius: "9999px",
-  border: "3px solid #4ade80",
-  objectFit: "cover",
-  margin: "0 auto",
-};
-
 type SupabaseUser = User & { id: string };
 
-export default function AccountSettings() {
+const SettingsTab = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [hasAvatar, setHasAvatar] = useState<boolean>(false);
@@ -123,14 +93,14 @@ export default function AccountSettings() {
     }
     if (!file.type.startsWith("image/")) {
       setStatus("Only image files are allowed.");
-      fileInputRef.current!.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setCropperVisible(false);
       setUploadDisabled(true);
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
       setStatus("File too large (max 5 MB).");
-      fileInputRef.current!.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setCropperVisible(false);
       setUploadDisabled(true);
       return;
@@ -159,7 +129,7 @@ export default function AccountSettings() {
           zoomable: true,
           minContainerWidth: 260,
           minContainerHeight: 260,
-        });
+        } as any);
       };
     }
   };
@@ -244,95 +214,102 @@ export default function AccountSettings() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f3f4f6", color: "#222" }}>
-      <header style={{ maxWidth: "640px", margin: "2rem auto", marginBottom: "1rem", display: "flex", alignItems: "center" }}>
-        <a
-          href="index.html"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            padding: "0.5rem 1rem",
-            background: "#22c55e",
-            color: "white",
-            borderRadius: "0.75rem",
-            marginRight: "1rem",
-            fontWeight: "bold",
-            textDecoration: "none",
-          }}
-        >
-          <svg width={16} height={16} style={{ marginRight: "0.5rem" }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path d="M15 19l-7-7 7-7" />
-          </svg>
-          Home
-        </a>
-        <h1 style={{ flex: 1, textAlign: "center", fontWeight: "700", fontSize: "2rem" }}>Account Settings</h1>
-      </header>
-      <main style={styles}>
-        <h2 className="text-xl font-semibold mb-4 text-center">Profile Picture</h2>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <div style={{ marginBottom: "0.5rem", textAlign: "center" }}>
-            {hasAvatar ? (
-              <img
-                src={avatarUrl}
-                style={{
-                  ...avatarPreviewStyle,
-                  opacity: 0.6,
-                  display: avatarUrl ? "" : "none",
-                }}
-                alt="Current Avatar"
-              />
-            ) : (
-              <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>No profile picture set</p>
-            )}
+    <section>
+      <button className="close-tab-button">×</button>
+      <h1>User Settings &amp; Customization</h1>
+      <p>Personalize your experience. Your selections are saved locally.</p>
+      <div className="card-grid">
+        <div className="card theme-selector-card">
+          <span className="icon">🌓</span>
+          <h3>Appearance</h3>
+          <p>Toggle between Dark and Light mode.</p>
+          <div>
+            <button className="theme-button" id="dark-mode-button"><span className="icon">🌙</span> Dark Mode</button>
+            <button className="theme-button" id="light-mode-button"><span className="icon">☀️</span> Light Mode</button>
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{
-              display: "block",
-              width: "100%",
-              fontSize: "1rem",
-              color: "#64748b",
-              marginBottom: "1rem",
-            }}
-          />
-          <div
-            style={{
-              ...cropperContainerStyle,
-              display: cropperVisible ? "" : "none",
-              marginTop: "0.75rem",
-              marginBottom: "0.5rem",
-            }}
-          >
-            <img
-              ref={cropperRef}
-              alt="Crop Preview"
-              style={{ maxWidth: "100%", display: "block" }}
-            />
-          </div>
-          <button
-            onClick={handleUpload}
-            disabled={uploadDisabled}
-            style={{
-              background: "#2563eb",
-              color: "white",
-              padding: "0.6rem 2rem",
-              borderRadius: "9999px",
-              fontWeight: "bold",
-              marginBottom: "0.5rem",
-              opacity: uploadDisabled ? 0.6 : 1,
-              cursor: uploadDisabled ? "default" : "pointer",
-            }}
-          >
-            Save / Upload
-          </button>
-          <p style={{ textAlign: "center", fontSize: "0.95rem", minHeight: "1.4em", marginTop: "0.5rem", color: "#475569" }}>
-            {status}
-          </p>
         </div>
-      </main>
-    </div>
+        <div className="card profile-picture-card">
+          <span className="icon">📷</span>
+          <h3>Profile Picture</h3>
+          <p>Upload and crop your profile picture.</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{ marginBottom: "0.5rem", textAlign: "center" }}>
+              {hasAvatar ? (
+                <img
+                  src={avatarUrl}
+                  style={{
+                    width: 96,
+                    height: 96,
+                    borderRadius: "9999px",
+                    border: "3px solid #4ade80",
+                    objectFit: "cover",
+                    margin: "0 auto",
+                    opacity: 0.6,
+                    display: avatarUrl ? "" : "none",
+                  }}
+                  alt="Current Avatar"
+                />
+              ) : (
+                <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>No profile picture set</p>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{
+                display: "block",
+                width: "100%",
+                fontSize: "1rem",
+                color: "#64748b",
+                marginBottom: "1rem",
+              }}
+            />
+            <div
+              style={{
+                borderRadius: "9999px",
+                overflow: "hidden",
+                border: "2px solid #e5e7eb",
+                boxShadow: "0 3px 8px 0 rgba(0,0,0,0.07)",
+                margin: "0 auto",
+                width: 260,
+                height: 260,
+                background: "#f9fafb",
+                display: cropperVisible ? "" : "none",
+              }}
+            >
+              <img
+                ref={cropperRef}
+                alt="Crop Preview"
+                style={{ maxWidth: "100%", display: "block" }}
+              />
+            </div>
+            <button
+              onClick={handleUpload}
+              disabled={uploadDisabled}
+              style={{
+                background: "#2563eb",
+                color: "white",
+                padding: "0.6rem 2rem",
+                borderRadius: "9999px",
+                fontWeight: "bold",
+                marginBottom: "0.5rem",
+                opacity: uploadDisabled ? 0.6 : 1,
+                cursor: uploadDisabled ? "default" : "pointer",
+              }}
+            >
+              Save / Upload
+            </button>
+            <p style={{ textAlign: "center", fontSize: "0.95rem", minHeight: "1.4em", marginTop: "0.5rem", color: "#475569" }}>
+              {status}
+            </p>
+          </div>
+        </div>
+        {/* ...other settings cards from your index.html */}
+      </div>
+    </section>
   );
-}
+};
+
+export default SettingsTab;
