@@ -21,9 +21,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={geist.variable}>
       <head>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+        <link
+          href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+          rel="stylesheet"
+        />
       </head>
-      <ClientLayout>{children}</ClientLayout>
+
+      {/* ✅ Add <body> tag — fixes the hydration error */}
+      <body>
+        <ClientLayout>{children}</ClientLayout>
+      </body>
     </html>
   );
 }

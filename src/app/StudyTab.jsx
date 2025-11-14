@@ -53,7 +53,7 @@ const StudyTab = () => {
         <div
           className="card"
           onClick={() =>
-            window.open("https://your-flashcards-link.com", "_blank")
+            window.open("https://quizlet.com/study-guides/upload?inFolder=159572797", "_blank")
           }
           style={{ cursor: "pointer" }}
         >
@@ -66,7 +66,7 @@ const StudyTab = () => {
         <div
           className="card"
           onClick={() =>
-            window.open("https://your-quizzes-link.com", "_blank")
+            window.open("https://minitoolai.com/ai-test-generator/", "_blank")
           }
           style={{ cursor: "pointer" }}
         >

@@ -1,28 +1,36 @@
-import React, { useState } from "react";
+import React from "react";
+import Connect from "./Connect";
 
-const CommunityTab = () => {
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState("");
+export default function CommunityTab() {
+  /**
+   * Handler for messages sent from the Connect component.
+   * JSDoc used to help the type-checker when workspace checks JS/TS.
+   * @param {any} message
+   */
+  function handleSend(message) {
+    console.log("Message sent from Connect component:", message);
+    // You could extend this to send the message to a backend:
+    // fetch("/api/messages", { method: "POST", body: JSON.stringify(message) });
+  }
 
   return (
-    <section>
-      <button className="close-tab-button">×</button>
-      <h1>Community</h1>
-      <p>Connect with classmates and teachers.</p>
-      <div className="card-grid">
-        <div className="card" id="clubs-card">
-          <span className="icon">👥</span>
-          <h3>Clubs</h3>
-          <p>Find and join school clubs.</p>
-        </div>
-        <div className="card">
-          <span className="icon">💬</span>
-          <h3>Forums</h3>
-          <p>Discuss topics with peers.</p>
+    <section style={{ padding: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <div>
+          <h1 style={{ margin: 0 }}>Community</h1>
+          <p style={{ margin: 0 }}>Connect with classmates and teachers.</p>
         </div>
       </div>
+
+      {/* The chat interface */}
+      <Connect onSend={handleSend} />
     </section>
   );
-};
-
-export default CommunityTab;
+}
