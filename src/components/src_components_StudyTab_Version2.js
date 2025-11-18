@@ -1,0 +1,93 @@
+"use client";
+import React, { useState, useEffect } from "react";
+
+const StudyTab = ({ onClose }) => {
+  // --- Pomodoro Timer State ---
+  const DEFAULT_TIME = 25 * 60; // 25 minutes
+  const [secondsLeft, setSecondsLeft] = useState(DEFAULT_TIME);
+  const [isActive, setIsActive] = useState(false);
+
+  // --- Timer Logic ---
+  useEffect(() => {
+    let interval = null;
+
+    if (isActive && secondsLeft > 0) {
+      interval = setInterval(() => {
+        setSecondsLeft((s) => s - 1);
+      }, 1000);
+    } else if (secondsLeft === 0) {
+      setIsActive(false);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive, secondsLeft]);
+
+  // --- Controls ---
+  const toggleTimer = () => setIsActive((prev) => !prev);
+  const resetTimer = () => {
+    setSecondsLeft(DEFAULT_TIME);
+    setIsActive(false);
+  };
+
+  // --- Format mm:ss ---
+  const formatTime = (time) => {
+    const mins = Math.floor(time / 60);
+    const secs = time % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  return (
+    <section>
+      <button className="close-tab-button" onClick={onClose}>×</button>
+      <h1>Study Tools</h1>
+      <p>Helpful tools to keep you learning.</p>
+
+      <div className="card-grid">
+        {/* Flashcards */}
+        <div
+          className="card"
+          onClick={() =>
+            window.open("https://your-flashcards-link.com", "_blank")
+          }
+          style={{ cursor: "pointer" }}
+        >
+          <span className="icon">📝</span>
+          <h3>Flashcards</h3>
+          <p>Review terms quickly.</p>
+        </div>
+
+        {/* Practice Quizzes */}
+        <div
+          className="card"
+          onClick={() =>
+            window.open("https://your-quizzes-link.com", "_blank")
+          }
+          style={{ cursor: "pointer" }}
+        >
+          <span className="icon">❓</span>
+          <h3>Practice Quizzes</h3>
+          <p>Test your knowledge.</p>
+        </div>
+
+        {/* Pomodoro Timer */}
+        <div className="card">
+          <span className="icon">⏱️</span>
+          <h3>Pomodoro Timer</h3>
+          <p>{formatTime(secondsLeft)}</p>
+          <div className="timer-controls">
+            <button onClick={toggleTimer}>
+              {isActive ? "Pause" : "Start"}
+            </button>
+            <button onClick={resetTimer}>Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default StudyTab;
