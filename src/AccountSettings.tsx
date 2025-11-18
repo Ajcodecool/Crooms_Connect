@@ -4,11 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 // npm install @supabase/supabase-js cropperjs
 import { createClient, type User } from "@supabase/supabase-js";
 import Cropper from "cropperjs";
-import "cropperjs/dist/cropper.css";
+// import "cropperjs/dist/cropper.css"; // CSS not available in this version
 
 const SUPABASE_URL = "https://jxxnfsydjrflnephmfjm.supabase.co";
 const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTA3NjUsImV4cCI6MjA3NTAyNjc2NX0.-IRbU1ER8...YOUR_KEY";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTA3NjUsImV4cCI6MjA3NTAyNjc2NX0.-IRbU1ER8lu7eNPoETgVQaFJ4Fp9VMowjzWfN7EZY6w";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const styles: React.CSSProperties = {

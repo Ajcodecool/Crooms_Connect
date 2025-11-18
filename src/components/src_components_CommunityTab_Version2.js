@@ -1,20 +1,28 @@
 import React from "react";
-import Connect from "./Connect";
 
-export default function CommunityTab() {
-  /**
-   * Handler for messages sent from the Connect component.
-   * JSDoc used to help the type-checker when workspace checks JS/TS.
-   * @param {any} message
-   */
-  function handleSend(message) {
-    console.log("Message sent from Connect component:", message);
-    // You could extend this to send the message to a backend:
-    // fetch("/api/messages", { method: "POST", body: JSON.stringify(message) });
-  }
+/**
+ * CommunityTab component displaying clubs and forum sections.
+ * @param {Object} props - The component props.
+ * @param {Function} props.onClose - Function to close the tab.
+ */
+export default function CommunityTab({ onClose }) {
+  // Sample data for clubs
+  const clubs = [
+    { name: "Science Club", description: "Explore science experiments and discussions." },
+    { name: "Art Club", description: "Express creativity through various art forms." },
+    { name: "Sports Club", description: "Stay active with team sports and activities." },
+  ];
+
+  // Sample data for forum posts
+  const forumPosts = [
+    { title: "Welcome to the Forum!", author: "Admin", replies: 5 },
+    { title: "Homework Help Thread", author: "Student1", replies: 12 },
+    { title: "Event Announcements", author: "Teacher", replies: 3 },
+  ];
 
   return (
     <section style={{ padding: 12 }}>
+      <button className="close-tab-button" onClick={onClose}>×</button>
       <div
         style={{
           display: "flex",
@@ -29,8 +37,31 @@ export default function CommunityTab() {
         </div>
       </div>
 
-      {/* The chat interface */}
-      <Connect onSend={handleSend} />
+      {/* Clubs Section */}
+      <div style={{ marginBottom: 24 }}>
+        <h2>Clubs</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {clubs.map((club, index) => (
+            <div key={index} style={{ border: "1px solid #ccc", padding: 12, borderRadius: 8 }}>
+              <h3>{club.name}</h3>
+              <p>{club.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Forum Section */}
+      <div>
+        <h2>Forum</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {forumPosts.map((post, index) => (
+            <div key={index} style={{ border: "1px solid #ccc", padding: 12, borderRadius: 8 }}>
+              <h3>{post.title}</h3>
+              <p>By {post.author} • {post.replies} replies</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

@@ -1,36 +1,59 @@
-import "~/styles/globals.css";
+'use client';
 
-import { type Metadata } from "next";
-import { Geist } from "next/font/google";
-import ClientLayout from "../components/ClientLayout";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export const metadata: Metadata = {
-  title: "Crooms Connect",
-  description: "Your student hub with resources, schedules, and tools.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+type Theme = 'dark' | 'light';
+
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
 };
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
-
-export default function RootLayout({
+export default function ClientLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en" className={geist.variable}>
-      <head>
-        <link
-          href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-          rel="stylesheet"
-        />
-      </head>
+}: {
+  children: React.ReactNode;
+}) {
+  const [theme, setTheme] = useState<Theme>('dark');
 
-      {/* ✅ Wrap client layout inside <body> */}
-      <body>
-        <ClientLayout>{children}</ClientLayout>
-      </body>
-    </html>
+  useEffect(() => {
+    // Load theme from localStorage
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Apply theme class to body
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+    // Save to localStorage
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <div>
+        {children}
+      </div>
+    </ThemeContext.Provider>
   );
 }

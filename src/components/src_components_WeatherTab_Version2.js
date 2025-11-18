@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from "react";
 
-const WeatherTab = () => {
+const WeatherTab = ({ onClose }) => {
   const [weather, setWeather] = useState(null);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ const WeatherTab = () => {
       <button
         className="close-tab-button"
         aria-label="Close weather tab"
-        onClick={() => console.log("Close button clicked")}
+        onClick={onClose}
       >
         ×
       </button>

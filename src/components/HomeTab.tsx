@@ -1,10 +1,11 @@
 import React from "react";
+
 const HomeTab = ({ onClose }) => (
   <section>
     <button className="close-tab-button" onClick={onClose}>×</button>
     <h1>Welcome to Crooms Connect</h1>
     <p>Your student hub with resources, schedules, and tools.</p>
-    <div id="welcome-message">
+    <div id="welcome-message" style={{ background: "var(--card-bg-subtle)", border: "1px solid var(--border-color)", borderRadius: "var(--radius)", padding: 15, marginTop: 20, fontWeight: "bold", color: "var(--accent-blue)" }}>
       <h3>Latest Announcement</h3>
       <p id="home-announcement-text">Loading announcement...</p>
     </div>
@@ -17,4 +18,5 @@ const HomeTab = ({ onClose }) => (
     </div>
   </section>
 );
+
 export default HomeTab;

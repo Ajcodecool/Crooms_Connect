@@ -1,7 +1,7 @@
 import React from "react";
-const GamesTab = () => (
+const GamesTab = ({ onClose }) => (
   <section>
-    <button className="close-tab-button">×</button>
+    <button className="close-tab-button" onClick={onClose}>×</button>
     <h1>Games</h1>
     <p>Fun mini-games to enjoy during breaks.</p>
     <div className="card-grid">

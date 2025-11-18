@@ -1,7 +1,7 @@
 import React from "react";
-const NewsTab = () => (
+const NewsTab = ({ onClose }) => (
   <section>
-    <button className="close-tab-button">×</button>
+    <button className="close-tab-button" onClick={onClose}>×</button>
     <h1>News</h1>
     <p>Latest campus announcements and updates.</p>
     <div id="announcement-content">

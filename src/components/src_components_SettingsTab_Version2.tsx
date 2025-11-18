@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { User } from "@supabase/supabase-js";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
+import { useTheme } from "./ClientLayout";
 
 const SUPABASE_URL = "https://jxxnfsydjrflnephmfjm.supabase.co";
 const SUPABASE_KEY =
@@ -13,7 +14,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 type SupabaseUser = User & { id: string };
 
-const SettingsTab = () => {
+const SettingsTab = ({ onClose }: { onClose: () => void }) => {
+  const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [hasAvatar, setHasAvatar] = useState<boolean>(false);
@@ -215,7 +217,7 @@ const SettingsTab = () => {
 
   return (
     <section>
-      <button className="close-tab-button">×</button>
+      <button className="close-tab-button" onClick={onClose}>×</button>
       <h1>User Settings &amp; Customization</h1>
       <p>Personalize your experience. Your selections are saved locally.</p>
       <div className="card-grid">
@@ -224,8 +226,8 @@ const SettingsTab = () => {
           <h3>Appearance</h3>
           <p>Toggle between Dark and Light mode.</p>
           <div>
-            <button className="theme-button" id="dark-mode-button"><span className="icon">🌙</span> Dark Mode</button>
-            <button className="theme-button" id="light-mode-button"><span className="icon">☀️</span> Light Mode</button>
+            <button className={`theme-button ${theme === 'dark' ? 'active' : ''}`} onClick={theme === 'dark' ? undefined : toggleTheme}><span className="icon">🌙</span> Dark Mode</button>
+            <button className={`theme-button ${theme === 'light' ? 'active' : ''}`} onClick={theme === 'light' ? undefined : toggleTheme}><span className="icon">☀️</span> Light Mode</button>
           </div>
         </div>
         <div className="card profile-picture-card">

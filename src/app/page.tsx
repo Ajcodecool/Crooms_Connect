@@ -1,6 +1,5 @@
 'use client';
 
-import HomeTab from '../components/src_components_HomeTab_Version2.js';
 import Link from "next/link";
 
 export default function HomePage() {
@@ -56,8 +55,17 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Main content */}
-      <HomeTab />
+      {/* Main content placeholder */}
+      <div
+        style={{
+          marginLeft: "200px",
+          padding: "20px",
+          marginTop: "65px",
+        }}
+      >
+        <h1>Welcome to Crooms Connect</h1>
+        <p>This is the site framework. Navigate using the menu on the left.</p>
+      </div>
     </>
   );
 }

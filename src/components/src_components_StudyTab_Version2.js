@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-const StudyTab = () => {
+const StudyTab = ({ onClose }) => {
   // --- Pomodoro Timer State ---
   const DEFAULT_TIME = 25 * 60; // 25 minutes
   const [secondsLeft, setSecondsLeft] = useState(DEFAULT_TIME);
@@ -42,7 +42,7 @@ const StudyTab = () => {
 
   return (
     <section>
-      <button className="close-tab-button">×</button>
+      <button className="close-tab-button" onClick={onClose}>×</button>
       <h1>Study Tools</h1>
       <p>Helpful tools to keep you learning.</p>
 
