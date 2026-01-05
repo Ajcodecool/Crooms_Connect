@@ -1,200 +1,177 @@
-// =====================================================
-// Supabase Setup
-// =====================================================
-const SUPABASE_URL = 'https://jxxnfsydjrflnephmfjm.supabase.co'
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTA3NjUsImV4cCI6MjA3NTAyNjc2NX0.-IRbU1ER8lu7eNPoETgVQaFJ4Fp9VMowjzWfN7EZY6w'
+<!DOCTYPE html>
+<html lang="en">
+<!-- Load Supabase client library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Crooms Connect - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-bg: #1a1b2f;
+            --content-bg: #2b2d42;
+            --text-color: #f8f9fa;
+            --shadow: 0 4px 12px rgba(0,0,0,0.4);
+            --accent-blue: #4cc9f0;
+            --accent-green: #80ed99;
+            --radius: 15px;
+        }
 
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-)
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-// =====================================================
-// Config
-// =====================================================
-const PLACEHOLDER_DOMAIN = '@croomsconnect.local'
-const REDIRECT_URL = 'connect.html'
+        .auth-card {
+            background-color: var(--content-bg);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
 
-// =====================================================
-// DOM Ready
-// =====================================================
-document.addEventListener('DOMContentLoaded', async () => {
-  // Elements
-  const signInForm = document.getElementById('sign-in-form')
-  const signUpForm = document.getElementById('sign-up-form')
-  const toggleAuthButton = document.getElementById('toggle-auth-view')
-  const authMessage = document.getElementById('auth-message')
-  const authHeaderText = document.getElementById('auth-header-text')
+        .btn {
+            background-color: var(--accent-blue);
+            color: #1a1b2f;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
 
-  const signInBtn = document.getElementById('signin-btn')
-  const signInText = document.getElementById('signin-text')
-  const signInSpinner = document.getElementById('signin-spinner')
+        .btn:hover {
+            background-color: #6ce0ff;
+            transform: translateY(-1px);
+        }
 
-  const signUpBtn = document.getElementById('signup-btn')
-  const signUpText = document.getElementById('signup-text')
-  const signUpSpinner = document.getElementById('signup-spinner')
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-  // =====================================================
-  // Utility Functions
-  // =====================================================
-  const showLoading = (signup = false) => {
-    if (signup) {
-      signUpText.classList.add('hidden')
-      signUpSpinner.classList.remove('hidden')
-      signUpBtn.disabled = true
-    } else {
-      signInText.classList.add('hidden')
-      signInSpinner.classList.remove('hidden')
-      signInBtn.disabled = true
-    }
-  }
+        input[type="text"], input[type="password"] {
+            color: #1a1b2f;
+            border-radius: 6px;
+            padding: 12px;
+            background-color: #f8f9fa;
+        }
 
-  const hideLoading = (signup = false) => {
-    if (signup) {
-      signUpText.classList.remove('hidden')
-      signUpSpinner.classList.add('hidden')
-      signUpBtn.disabled = false
-    } else {
-      signInText.classList.remove('hidden')
-      signInSpinner.classList.add('hidden')
-      signInBtn.disabled = false
-    }
-  }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
 
-  const displayMessage = (msg, type = 'error') => {
-    authMessage.textContent = msg
-    authMessage.classList.remove('hidden', 'bg-red-800', 'bg-green-700')
-    authMessage.classList.add(
-      type === 'error' ? 'bg-red-800' : 'bg-green-700',
-      'text-white'
-    )
-  }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
 
-  const clearMessage = () => authMessage.classList.add('hidden')
+<body>
+<div class="auth-card text-center">
+    <h1 class="text-3xl font-extrabold text-white mb-6">Crooms Connect</h1>
+    <p class="text-gray-400 mb-8" id="auth-header-text">
+        Sign in using your username and password.
+    </p>
 
-  const toggleView = () => {
-    clearMessage()
-    const isSignIn = !signInForm.classList.contains('hidden')
+    <div id="auth-message" class="mb-4 p-3 rounded-lg text-sm hidden"></div>
 
-    signInForm.classList.toggle('hidden', isSignIn)
-    signUpForm.classList.toggle('hidden', !isSignIn)
+    <form id="sign-in-form" class="space-y-4">
+        <input type="text" id="signin-username" required class="w-full" placeholder="Username">
+        <input type="password" id="signin-password" required class="w-full" placeholder="Password">
+        <button type="submit" id="signin-btn" class="btn w-full flex justify-center items-center">
+            <span id="signin-text">Sign In</span>
+            <div id="signin-spinner" class="spinner hidden"></div>
+        </button>
+    </form>
 
-    toggleAuthButton.textContent = isSignIn
-      ? 'Already have an account? Sign In'
-      : 'Need an account? Sign Up'
+    <form id="sign-up-form" class="space-y-4 hidden">
+        <input type="text" id="signup-username" required class="w-full" placeholder="Choose a Username">
+        <input type="password" id="signup-password" required class="w-full" placeholder="Password">
+        <button type="submit" id="signup-btn" class="btn w-full flex justify-center items-center">
+            <span id="signup-text">Sign Up</span>
+            <div id="signup-spinner" class="spinner hidden"></div>
+        </button>
+    </form>
 
-    authHeaderText.textContent = isSignIn
-      ? 'Create your Crooms Connect profile.'
-      : 'Sign in using your username and password.'
-  }
+    <button id="toggle-auth-view" class="mt-6 text-gray-400">
+        Need an account? Sign Up
+    </button>
+</div>
+<script>
+    // Supabase initialization
+    const supabaseUrl = 'https://jxxnfsydjrflnephmfjm.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4eG5mc3lkanJmbG5lcGhtZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5OTU1MjEsImV4cCI6MjA4MTM1NTUyMX0.dlhnK99ki1KT24WGqTsW_8n7TnTIDH2mfLyxKB50Hl4';
 
-  // =====================================================
-  // Session Check
-  // =====================================================
-  const { data } = await supabase.auth.getSession()
-  if (data.session) {
-    sessionStorage.setItem('loggedIn', 'true')
-    window.location.href = REDIRECT_URL
-    return
-  }
+    const supabaseClient =
+        window.supabase.createClient(supabaseUrl, supabaseKey);
 
-  // =====================================================
-  // Sign In
-  // =====================================================
-  signInForm.addEventListener('submit', async (e) => {
-    e.preventDefault()
-    clearMessage()
-    showLoading(false)
+    // Configuration
+    const PLACEHOLDER_DOMAIN = '@croomsconnect.local';
 
-    const username = document.getElementById('signin-username').value.trim()
-    const password = document.getElementById('signin-password').value
-    const email = username + PLACEHOLDER_DOMAIN
+    const signInForm = document.getElementById('sign-in-form');
+    const signUpForm = document.getElementById('sign-up-form');
+    const toggleAuthButton = document.getElementById('toggle-auth-view');
+    const authMessage = document.getElementById('auth-message');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const showMessage = (msg) => {
+        authMessage.textContent = msg;
+        authMessage.classList.remove('hidden');
+    };
 
-    hideLoading(false)
+    const toggleView = () => {
+        authMessage.classList.add('hidden');
+        signInForm.classList.toggle('hidden');
+        signUpForm.classList.toggle('hidden');
+        toggleAuthButton.textContent =
+            signInForm.classList.contains('hidden')
+                ? 'Already have an account? Sign In'
+                : 'Need an account? Sign Up';
+    };
 
-    if (error) {
-      displayMessage(
-        error.message.includes('Invalid login credentials')
-          ? 'Invalid username or password.'
-          : error.message
-      )
-      return
-    }
+    signInForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    sessionStorage.setItem('loggedIn', 'true')
-    window.location.href = REDIRECT_URL
-  })
+        const username = document.getElementById('signin-username').value.trim();
+        const password = document.getElementById('signin-password').value;
+        const email = username + PLACEHOLDER_DOMAIN;
 
-  // =====================================================
-  // Sign Up
-  // =====================================================
-  signUpForm.addEventListener('submit', async (e) => {
-    e.preventDefault()
-    clearMessage()
-    showLoading(true)
+        const { error } =
+            await supabaseClient.auth.signInWithPassword({ email, password });
 
-    const username = document.getElementById('signup-username').value.trim()
-    const password = document.getElementById('signup-password').value
-    const email = username + PLACEHOLDER_DOMAIN
+        if (error) showMessage('Invalid username or password');
+        else window.location.href = 'connect.html';
+    });
 
-    if (username.length < 3) {
-      displayMessage('Username must be at least 3 characters long.')
-      hideLoading(true)
-      return
-    }
+    signUpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    if (password.length < 6) {
-      displayMessage('Password must be at least 6 characters long.')
-      hideLoading(true)
-      return
-    }
+        const username = document.getElementById('signup-username').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const email = username + PLACEHOLDER_DOMAIN;
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
+        const { error } =
+            await supabaseClient.auth.signUp({ email, password });
 
-    if (error) {
-      displayMessage(
-        error.message.includes('User already registered')
-          ? 'This username is already taken.'
-          : error.message
-      )
-      hideLoading(true)
-      return
-    }
+        if (error) showMessage(error.message);
+        else {
+            toggleView();
+            showMessage('Account created. Please sign in.');
+        }
+    });
 
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{ id: data.user.id, username }])
-
-      if (profileError) {
-        displayMessage(
-          'Account created, but profile setup failed.',
-          'error'
-        )
-        hideLoading(true)
-        return
-      }
-    }
-
-    hideLoading(true)
-
-    if (data.session) {
-      sessionStorage.setItem('loggedIn', 'true')
-      window.location.href = REDIRECT_URL
-    } else {
-      toggleView()
-      displayMessage('Account created! Please sign in.', 'success')
-    }
-  })
-
-  toggleAuthButton.addEventListener('click', toggleView)
-})
+    toggleAuthButton.addEventListener('click', toggleView);
+</script>
