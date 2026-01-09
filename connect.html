@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Connect Chat</title>
+<title>Connect Tavern</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://esm.sh/@supabase/supabase-js@2"></script>
@@ -657,7 +657,7 @@ body {
 
 
         /* =======================================
-           FIREWORKS (ENHANCED)
+           FIREWORKS (BROKEN)
            ======================================= */
         #fireworks-container {
             position: fixed;
@@ -669,6 +669,7 @@ body {
             z-index: 9999;
             overflow: hidden;
         }
+        
         .firework-particle {
             position: absolute;
             border-radius: 50%;
@@ -1134,187 +1135,6 @@ body {
             background-color: var(--accent-blue);
             color: #ffffff;
         }
-
-        /* =======================================
-           5. MSN MESSENGER THEME OVERRIDES (.theme-msn)
-           ======================================= */
-        .theme-msn {
-            --msn-green: #5eb604;
-            --msn-blue: #0087cb;
-            --msn-light-bg: #e6f7ff;
-            --msn-window-bg: #ffffff;
-            --msn-text: #000000;
-            --msn-input-border: #99c9ed;
-            --msn-header-bg: linear-gradient(to top, #c7e5fc 0%, #e8f5ff 100%);
-            --msn-message-bg-received: #e0f2ff;
-            --msn-message-bg-sent: var(--msn-green);
-
-            --primary-bg: var(--msn-light-bg);
-            /* --- MODIFICATION: Use alpha var --- */
-            --content-bg: rgba(255, 255, 255, calc(1.0 * var(--content-bg-alpha, 1)));
-            --text-color: var(--msn-text);
-            --input-bg: var(--msn-window-bg);
-            --input-text: var(--msn-text);
-            --accent-blue: var(--msn-blue);
-            --accent-green: var(--msn-green);
-            --radius: 4px;
-            --message-bg-received: var(--msn-message-bg-received);
-            --message-bg-sent: var(--msn-message-bg-sent);
-            --message-text-received: var(--msn-text);
-            --message-text-sent: #ffffff;
-            --toolbar-bg: #e0f2ff;
-            --toolbar-icon-color: #333333;
-            --toolbar-icon-hover-bg: rgba(0,0,0,0.05);
-            font-family: 'Tahoma', 'Arial', sans-serif;
-        }
-        .theme-msn .chat-container, .theme-msn .online-users-sidebar { /* Added sidebar */
-            border-radius: 6px;
-            border: 1px solid #7cb1df;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-height: 80vh;
-        }
-        .theme-msn .chat-header, .theme-msn .online-users-header { /* Added sidebar */
-            background: var(--msn-header-bg);
-            color: var(--msn-blue);
-            font-size: 1.2rem;
-            border-bottom: 1px solid #c7e5fc;
-            padding: 8px 16px;
-            justify-content: flex-start;
-            gap: 16px;
-        }
-        .theme-msn .chat-header .text-xl {
-            flex-grow: 1;
-        }
-        .theme-msn .user-info {
-            background: #fff;
-            padding: 4px 8px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            order: -1;
-        }
-        .theme-msn .user-info img {
-            width: 24px;
-            height: 24px;
-            border: 1px solid #ccc;
-        }
-        .theme-msn .user-info span {
-            color: var(--msn-blue);
-        }
-        .theme-msn #theme-selector, .theme-msn .settings-menu-content select {
-            background-color: var(--msn-window-bg);
-            color: var(--msn-text);
-            border: 1px solid var(--msn-input-border);
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .theme-msn .chat-messages, .theme-msn .online-users-list { /* Added sidebar */
-            padding: 10px;
-            background-color: var(--msn-window-bg);
-        }
-        .theme-msn .message {
-            margin-bottom: 8px;
-            align-items: flex-end;
-        }
-        .theme-msn .message .avatar {
-            width: 32px;
-            height: 32px;
-            margin-right: 8px;
-        }
-        .theme-msn .message.self .avatar-link {
-            margin-left: 8px;
-            margin-right: 0;
-        }
-        .theme-msn .message-content {
-            padding: 6px 10px;
-            max-width: 80%;
-            font-size: 0.85rem;
-            border-radius: 12px 12px 12px 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        .theme-msn .message.self .message-content {
-            background-color: var(--msn-message-bg-sent);
-            color: var(--message-text-sent);
-            border-radius: 12px 12px 4px 12px;
-            border: 1px solid #458d03;
-        }
-        .theme-msn .message-content .username {
-            font-size: 0.8rem;
-            margin-bottom: 2px;
-            color: var(--msn-blue);
-        }
-        .theme-msn .message.self .username {
-            color: #ffffff;
-        }
-        .theme-msn .message-content .timestamp {
-            font-size: 0.65rem;
-            color: #666;
-        }
-        .theme-msn .message.self .timestamp {
-            color: rgba(255,255,255,0.7);
-        }
-        .theme-msn .chat-input {
-            border-top: 1px solid #ccc;
-            background-color: #f0f0f0;
-            padding: 8px;
-        }
-        .theme-msn #chat-input-editor {
-            border-radius: 4px;
-            border: 1px solid var(--msn-input-border);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-            background-color: #fff;
-            padding: 5px;
-        }
-        .theme-msn .chat-input button {
-            background: linear-gradient(to bottom, #fcfcfc 0%, #e0e0e0 100%);
-            color: var(--msn-blue);
-            font-weight: bold;
-            border: 1px solid #8ba8c3;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            padding: 6px 12px;
-            border-radius: 4px;
-        }
-        .theme-msn .chat-input button:hover {
-             background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
-        }
-        .theme-msn .back-button {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #8ba8c3;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            position: fixed;
-        }
-        .theme-msn .back-button:hover {
-            background-color: #ffffff;
-        }
-        .theme-msn .rich-text-toolbar {
-            background: linear-gradient(to top, #c7e5fc 0%, #e8f5ff 100%);
-            border: 1px solid #7cb1df;
-            border-radius: 4px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-            padding: 4px;
-        }
-        .theme-msn .rich-text-toolbar button,
-        .theme-msn .header-icon-btn { /* Added header btn */
-            background: linear-gradient(to bottom, #fcfcfc 0%, #e0e0e0 100%);
-            color: #333333;
-            border: 1px solid #8ba8c3;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            border-radius: 3px;
-            padding: 5px;
-            width: 30px;
-            height: 30px;
-        }
-        .theme-msn .rich-text-toolbar button:hover,
-        .theme-msn .header-icon-btn:hover { /* Added header btn */
-            background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
-        }
-        .theme-msn .rich-text-toolbar button.active,
-        .theme-msn .header-icon-btn.active { /* Added header btn */
-            background: linear-gradient(to bottom, #d5e9f8 0%, #a4cced 100%);
-            border: 1px solid #5a8bc3;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        }
-
         /* =======================================
            6. DOS THEME OVERRIDES (.theme-dos)
            ======================================= */
@@ -1607,7 +1427,6 @@ body {
         /* --- END MODIFICATION --- */
 
         .theme-xp .chat-container, .theme-xp .online-users-sidebar,
-        .theme-msn .chat-container, .theme-msn .online-users-sidebar,
         .theme-win7 .chat-container, .theme-win7 .online-users-sidebar {
             /* --- MODIFICATION: Use alpha var --- */
             background-color: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
@@ -1623,13 +1442,7 @@ body {
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-        .theme-msn {
-            background-image: url('https://uploads.onecompiler.io/43yf5pts7/43z8mrsa2/IMG_0303.JPG');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
+        
         .theme-win7 {
             background-image: url('https://uploads.onecompiler.io/43yf5pts7/43z8mrsa2/IMG_0304.JPG');
             background-size: cover;
@@ -1638,7 +1451,6 @@ body {
             background-attachment: fixed;
         }
         .theme-xp .chat-container, .theme-xp .online-users-sidebar,
-        .theme-msn .chat-container, .theme-msn .online-users-sidebar,
         .theme-win7 .chat-container, .theme-win7 .online-users-sidebar {
             /* --- MODIFICATION: Use alpha var --- */
             background: rgba(255, 255, 255, calc(0.3 * var(--content-bg-alpha, 1)));
@@ -2184,9 +1996,34 @@ body {
         /* =======================================
            END MOD TOOLS MENU OPEN
            ======================================= */
+
+        /* =======================================
+           EVENT BANNER STYLES
+           ======================================= */
+        .event-banner {
+            background-color: var(--accent-blue);
+            color: var(--input-text);
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 10px auto;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            max-width: 1200px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .event-banner:empty:before {
+            content: "NEW EVENT!! CONNECT TAVERN UPDATE COMING SOON!";
+            color: rgba(255,255,125.5,0.7);
+            font-style: italic;
+        }
 </style>
 <body class="theme-dark">
 <button class="back-button" onclick="window.location.href='index.html'"><i class="fas fa-home"></i></button>
+<!-- Event Banner -->
+<div class="event-banner" contenteditable="false" id="event-banner"></div>
 <!-- --- MODIFICATION: Added Main Wrapper --- -->
 <div class="main-wrapper">
     <div class="chat-container">
@@ -2194,7 +2031,7 @@ body {
     <i class="fas fa-arrow-down"></i>
     </div>
     <div class="chat-header">
-    <div class="text-xl" id="chat-header-title">Crooms Connect Chat</div>
+    <div class="text-xl" id="chat-header-title">Connect Tavern</div>
     <!-- --- MODIFICATION: Search Bar --- -->
     <div class="search-bar" id="search-bar">
     <input id="search-input" placeholder="Search loaded messages..." type="text"/>
@@ -2336,7 +2173,6 @@ body {
 <option value="win98">Windows 98</option>
 <option value="win7">Windows 7 Aero</option>
 <option value="ios">iOS iMessage</option>
-<option value="msn">MSN</option>
 <option value="dos">DOS Terminal</option>
 <option value="xp">Windows XP Bliss</option>
 <option value="custom">Custom</option>
@@ -2538,7 +2374,6 @@ body {
         else if (savedTheme === 'light') document.body.classList.add('theme-light');
         else if (savedTheme === 'win7') document.body.classList.add('theme-win7');
         else if (savedTheme === 'ios') document.body.classList.add('theme-ios');
-        else if (savedTheme === 'msn') document.body.classList.add('theme-msn');
         else if (savedTheme === 'dos') document.body.classList.add('theme-dos');
         else if (savedTheme === 'xp') document.body.classList.add('theme-xp');
         else document.body.classList.add('theme-dark');
