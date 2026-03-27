@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { redirect } from "next/navigation";
 import ClientLayout from "../components/ClientLayout";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ const geist = Geist({
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  redirect('https://www.croomsconnect.com/', 'push');
   return (
     <html lang="en" className={geist.variable}>
       <head>

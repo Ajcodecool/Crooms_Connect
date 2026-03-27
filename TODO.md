@@ -1,11 +1,14 @@
-# TODO: Implement Authentication for Chat and Message Persistence
+# Redirect Implementation TODO
 
-## Tasks
-- [x] Modify src/app/community/page.tsx to check authentication status on load
-- [x] If not authenticated, render Auth component instead of chat
-- [x] Integrate Supabase client in community page for message operations
-- [x] Create function to load messages from 'messages' table on component mount
-- [x] Modify handleSendMessage to save message to Supabase instead of local state
-- [x] Update message display to use sender_username from DB
-- [x] Add error handling for message operations
-- [x] Test authentication flow and message saving/loading (skipped per user request)
+## Plan Steps (Approved by user - all site access redirects to https://www.croomsconnect.com/)
+
+### ✅ 1. Create TODO.md [IN PROGRESS]
+### ⏳ 2. Update index.html with meta + JS redirect
+### ⏳ 3. Update src/app/layout.tsx with Next.js redirect  
+### ⏳ 4. Update next.config.ts (optional headers)
+### ⏳ 5. Test redirects (`npm run dev`)
+### ⏳ 6. Verify production build (`npm run build && npm run start`)
+### ⏳ 7. Complete task with attempt_completion
+
+**Current step:** Updating files...
+
