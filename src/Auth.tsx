@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// @ts-ignore: Supabase JS UMD only for CDN – for Vite/webpack/react use ESM!
+// @ts-ignore: Supabase JS UMD only for CDN – for Vite/webpack/react use ESM! s
 import { createClient, Session, User } from '@supabase/supabase-js';
 
 // -- Supabase config --
