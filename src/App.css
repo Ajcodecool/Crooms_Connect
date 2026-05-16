@@ -1,0 +1,330 @@
+/* src/App.css */
+
+/* =======================================
+   2. GLOBAL DEFAULT THEME (Slate / Dashbooard Look)
+   This replaces the old purple default.
+   ======================================= */
+:root {
+  /* Core Backgrounds (Matches Tailwind Slate-950/900) */
+  --primary-bg: #020617; /* slate-950 (Main Page BG) */
+  --content-bg: #0f172a; /* slate-900 (Cards/Modals) */
+  --content-bg-alpha: rgba(15, 23, 42, 0.95);
+
+  /* Text Colors */
+  --text-color: #f8fafc; /* slate-50 */
+  --text-muted: #94a3b8; /* slate-400 */
+
+  /* Inputs & Borders */
+  --input-bg: #1e293b; /* slate-800 */
+  --input-text: #f8fafc; /* slate-50 */
+  --border-color: #1e293b; /* slate-800 */
+
+  /* Accents */
+  --accent-blue: #3b82f6; /* blue-500 */
+  --accent-green: #22c55e; /* green-500 */
+  --accent-red: #ef4444; /* red-500 */
+
+  /* Chat/Component Specifics */
+  --message-bg-received: #1e293b; /* slate-800 */
+  --message-bg-sent: #3b82f6; /* blue-500 */
+  --message-text-received: #f8fafc;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: #0f172a;
+  --toolbar-icon-color: #94a3b8;
+  --toolbar-icon-hover-bg: #1e293b;
+
+  --context-bar-bg: #1e293b;
+  --context-text: #cbd5e1;
+  --action-btn-bg: #334155;
+  --action-btn-hover: #475569;
+
+  /* Layout */
+  --radius: 12px;
+}
+
+/* =======================================
+   3. GLOBAL BASE STYLES
+   ======================================= */
+body {
+  margin: 0;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--primary-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* =======================================
+   4. THEME DEFINITIONS (Variables)
+   ======================================= */
+
+/* --- Light Theme --- */
+.theme-light {
+  --primary-bg: #f0f2f5;
+  --content-bg: #ffffff;
+  --content-bg-alpha: 0.95;
+  --text-color: #1f2937;
+  --text-muted: #6b7280;
+  --input-bg: #ffffff;
+  --input-text: #1f2937;
+  --border-color: #e5e7eb;
+  --accent-blue: #2563eb;
+
+  --message-bg-received: #e5e7eb;
+  --message-bg-sent: #2563eb;
+  --message-text-received: #1f2937;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: #ffffff;
+  --toolbar-icon-color: #4b5563;
+  --toolbar-icon-hover-bg: #f3f4f6;
+
+  --context-bar-bg: #f3f4f6;
+  --context-text: #374151;
+  --action-btn-bg: #e5e7eb;
+}
+
+/* --- Windows 98 --- */
+.theme-win98 {
+  --win98-gray: #c0c0c0;
+  --win98-dark: #808080;
+  --win98-light: #ffffff;
+  --win98-blue: #000080;
+
+  --primary-bg: #008080;
+  --content-bg: var(--win98-gray);
+  --content-bg-alpha: 1;
+  --text-color: #000000;
+  --text-muted: #404040;
+
+  --input-bg: #ffffff;
+  --input-text: #000000;
+  --border-color: #808080;
+
+  --message-bg-received: #ffffff;
+  --message-bg-sent: #000080;
+  --message-text-received: #000000;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: var(--win98-gray);
+  --toolbar-icon-color: #000000;
+  --toolbar-icon-hover-bg: transparent;
+
+  --context-bar-bg: var(--win98-gray);
+  --context-text: #000000;
+  --action-btn-bg: var(--win98-gray);
+
+  --radius: 0px;
+  font-family: 'VT323', monospace;
+  letter-spacing: 0.5px;
+}
+/* Win98 Global Scrollbar Override */
+.theme-win98 ::-webkit-scrollbar {
+  width: 16px;
+  background: #c0c0c0;
+}
+.theme-win98 ::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  border-radius: 0;
+}
+
+/* --- Windows 7 (Aero) --- */
+.theme-win7 {
+  --primary-bg: url('https://wallpapercave.com/wp/wp2625725.jpg'); /* Default Aero Wallpaper */
+  --content-bg: rgba(255, 255, 255, 0.65);
+  --content-bg-alpha: 0.65;
+  --text-color: #000000;
+  --text-muted: #333333;
+
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --input-text: #000000;
+  --border-color: rgba(255, 255, 255, 0.5);
+
+  --message-bg-received: rgba(255, 255, 255, 0.7);
+  --message-bg-sent: rgba(0, 120, 215, 0.75);
+  --message-text-received: #000000;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: rgba(255, 255, 255, 0.4);
+  --toolbar-icon-color: #000000;
+
+  --context-bar-bg: rgba(255, 255, 255, 0.8);
+  --context-text: #000000;
+  --action-btn-bg: rgba(255, 255, 255, 0.6);
+
+  --radius: 8px;
+}
+
+/* --- iOS (iMessage) --- */
+.theme-ios {
+  --primary-bg: #f2f2f7;
+  --content-bg: #ffffff;
+  --content-bg-alpha: 1;
+  --text-color: #000000;
+  --text-muted: #8e8e93;
+
+  --input-bg: #ffffff;
+  --input-text: #000000;
+  --border-color: #c6c6c8;
+
+  --accent-blue: #007aff;
+  --accent-green: #34c759;
+
+  --message-bg-received: #e9e9eb;
+  --message-bg-sent: #007aff;
+  --message-text-received: #000000;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: #f9f9f9;
+  --toolbar-icon-color: #007aff;
+
+  --context-bar-bg: #f2f2f7;
+  --context-text: #8e8e93;
+
+  --radius: 18px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', Helvetica, Arial,
+    sans-serif;
+}
+
+/* --- DOS Terminal --- */
+.theme-dos {
+  --primary-bg: #000000;
+  --content-bg: #000000;
+  --content-bg-alpha: 1;
+  --text-color: #00ff00;
+  --text-muted: #008800;
+
+  --input-bg: #000000;
+  --input-text: #00ff00;
+  --border-color: #00ff00;
+
+  --accent-blue: #00ffff;
+
+  --message-bg-received: #000000;
+  --message-bg-sent: #000000;
+  --message-text-received: #00ff00;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: #000000;
+  --toolbar-icon-color: #00ff00;
+
+  --context-bar-bg: #001100;
+  --context-text: #00ff00;
+  --action-btn-bg: #000000;
+
+  --radius: 0px;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+}
+
+/* --- Wood / Skeuomorphic --- */
+.theme-wood {
+  --primary-bg: #5d4037; /* Fallback */
+  --content-bg: transparent;
+  --text-color: #3e2723;
+  --text-muted: #5d4037;
+
+  --input-bg: #ffffff;
+  --input-text: #3e2723;
+  --border-color: #d7ccc8;
+
+  --message-bg-received: #fffbe7; /* Post-it Yellow */
+  --message-bg-sent: #e1f5fe; /* Post-it Blue */
+  --message-text-received: #3e2723;
+  --message-text-sent: #3e2723;
+
+  --toolbar-bg: rgba(255, 255, 255, 0.8);
+  --toolbar-icon-color: #3e2723;
+
+  --context-bar-bg: rgba(255, 255, 255, 0.9);
+  --context-text: #3e2723;
+
+  --radius: 2px;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+}
+
+/* --- Liquid / Glass --- */
+.theme-liquid {
+  --primary-bg: #000000; /* Fallback */
+  --content-bg: rgba(255, 255, 255, 0.1);
+  --content-bg-alpha: 0.1;
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+
+  --input-bg: rgba(255, 255, 255, 0.2);
+  --input-text: #ffffff;
+  --border-color: rgba(255, 255, 255, 0.3);
+
+  --message-bg-received: rgba(255, 255, 255, 0.15);
+  --message-bg-sent: rgba(59, 130, 246, 0.6);
+  --message-text-received: #ffffff;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: rgba(255, 255, 255, 0.1);
+  --toolbar-icon-color: #ffffff;
+
+  --context-bar-bg: rgba(255, 255, 255, 0.2);
+  --context-text: #e0f2fe;
+  --action-btn-bg: rgba(255, 255, 255, 0.2);
+
+  --radius: 24px;
+}
+
+/* --- Windows XP --- */
+.theme-xp {
+  --primary-bg: url('https://mw.foundry.wiki/images/4/44/Bliss_%28Windows_XP%29.png'); /* Bliss */
+  --content-bg: rgba(255, 255, 255, 0.95);
+  --content-bg-alpha: 0.95;
+  --text-color: #000000;
+
+  --input-bg: #ffffff;
+  --input-text: #000000;
+  --border-color: #2b5596;
+
+  --message-bg-received: #ecf3fe;
+  --message-bg-sent: #d0e4fe;
+  --message-text-received: #000000;
+  --message-text-sent: #000000;
+
+  --toolbar-bg: #f1f1f1;
+  --toolbar-icon-color: #000000;
+
+  --context-bar-bg: #ffffff;
+  --context-text: #000000;
+
+  --radius: 8px;
+  font-family: 'Tahoma', sans-serif;
+}

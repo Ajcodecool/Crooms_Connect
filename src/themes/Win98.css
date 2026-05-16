@@ -1,0 +1,106 @@
+/* =======================================
+   WINDOWS 98 THEME
+   ======================================= */
+.theme-win98 {
+  --win98-gray: #c0c0c0;
+  --win98-dark-gray: #808080;
+  --win98-white: #ffffff;
+  --win98-blue: #000080;
+  --win98-black: #000000;
+
+  --primary-bg: #008080;
+  --content-bg: var(--win98-gray);
+  --text-color: var(--win98-black);
+  --input-bg: var(--win98-white);
+  --input-text: var(--win98-black);
+  --message-bg-received: var(--win98-gray);
+  --message-bg-sent: #008080;
+  --message-text-received: var(--win98-black);
+  --message-text-sent: var(--win98-white);
+  --toolbar-bg: var(--win98-gray);
+  --radius: 0;
+  --border-color: #fff;
+
+  --context-bar-bg: var(--win98-gray);
+  --context-text: #000;
+  --action-btn-bg: var(--win98-gray);
+
+  font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+}
+
+.theme-win98 .chat-area,
+.theme-win98 .sidebar {
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 2px 2px 0px #000;
+}
+.theme-win98 button,
+.theme-win98 select {
+  background: var(--win98-gray);
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  color: black;
+  border-radius: 0;
+  font-family: inherit;
+}
+.theme-win98 button:active {
+  border-color: #808080 #fff #fff #808080;
+}
+.theme-win98 .message-bubble {
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  border-radius: 0;
+  box-shadow: none;
+}
+.theme-win98 .chat-header,
+.theme-win98 .sidebar-header {
+  background: var(--win98-blue);
+  color: white;
+  padding: 4px 8px;
+  font-weight: bold;
+}
+.theme-win98 ::-webkit-scrollbar {
+  width: 16px;
+  background: #c0c0c0;
+}
+.theme-win98 ::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+}
+
+/* Win98 Interactive & Modals */
+.theme-win98 .sidebar-btn {
+  border: 2px outset #fff;
+  border-radius: 0;
+  box-shadow: 1px 1px 0px #000;
+}
+.theme-win98 .sidebar-btn:active {
+  border: 2px inset #fff;
+  transform: none;
+}
+.theme-win98 .message .bg-slate-700 {
+  border: 2px outset #fff !important;
+  border-radius: 0 !important;
+  color: black !important;
+}
+.theme-win98 .message .bg-slate-700:active {
+  border: 2px inset #fff !important;
+}
+.theme-win98 .bg-white,
+.theme-win98 .bg-red-950 {
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 4px 4px 0 #000;
+  border-radius: 0;
+}
+.theme-win98 .fixed {
+  backdrop-filter: none !important;
+  background: repeating-linear-gradient(
+    45deg,
+    #000080,
+    #000080 10px,
+    #101090 10px,
+    #101090 20px
+  );
+}

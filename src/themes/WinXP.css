@@ -1,0 +1,267 @@
+/* =======================================
+   WINDOWS XP THEME (FIXED SCROLL)
+   ======================================= */
+.theme-xp {
+  /* Wallpaper: Local Asset */
+  --primary-bg: url('../assets/winxp.png');
+
+  /* Global Opacity Variable */
+  --content-bg: rgba(255, 255, 255, var(--content-bg-alpha));
+
+  /* Luna Blue Colors */
+  --xp-blue: #0054e3;
+  --xp-title-gradient: linear-gradient(
+    to bottom,
+    #0058e6 0%,
+    #0054e3 5%,
+    #3a93ff 7%,
+    #0054e3 100%
+  );
+  --xp-bg-gray: #ece9d8;
+
+  /* Text & Inputs */
+  --text-color: #000000;
+  --input-bg: #ffffff;
+  --input-text: #000000;
+
+  /* Chat Specifics */
+  --accent-blue: #0054e3;
+  --accent-green: #248f24;
+  --message-bg-received: #ffffff;
+  --message-bg-sent: #eeffee;
+  --message-text-received: #000000;
+  --message-text-sent: #000000;
+
+  --toolbar-bg: #ece9d8;
+  --toolbar-icon-color: #000000;
+
+  --context-bar-bg: #ece9d8;
+  --context-text: #000000;
+  --action-btn-bg: #f0f0f0;
+
+  font-family: 'Tahoma', 'Verdana', sans-serif;
+  --border-color: #0054e3;
+}
+
+/* =======================================
+   GLOBAL BACKGROUND & LAYOUT FIXES
+   ======================================= */
+
+/* 1. Constraint the App Height */
+.theme-xp .chat-wrapper {
+  background: var(--primary-bg) no-repeat center center fixed !important;
+  background-size: cover !important;
+  background-color: transparent !important;
+
+  /* CRITICAL FIX: Lock height to screen size */
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-xp .main-layout {
+  flex: 1;
+  height: calc(100vh - 60px); /* Adjust for nav if needed */
+  overflow: hidden; /* Prevents double scrollbars */
+  padding: 10px;
+  gap: 10px;
+}
+
+/* =======================================
+   DASHBOARD & SETTINGS OVERRIDES
+   ======================================= */
+
+/* Navbar (The "Start Bar" Look) */
+.theme-xp .dashboard-nav {
+  background: linear-gradient(
+    to bottom,
+    #245edb 0%,
+    #3f8cf3 9%,
+    #245edb 18%,
+    #245edb 92%,
+    #1941a5 100%
+  );
+  border-bottom: 2px solid #003399;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Cards (Windows) */
+.theme-xp .dashboard-card {
+  background-color: #ffffff;
+  border: 4px solid #0054e3;
+  border-top: 25px solid #0054e3;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+  color: #000;
+  position: relative;
+}
+
+.theme-xp .dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: -25px;
+  left: 0;
+  right: 0;
+  height: 25px;
+  background: var(--xp-title-gradient);
+  border-radius: 4px 4px 0 0;
+  pointer-events: none;
+}
+
+/* Inputs (Inset 3D Look) */
+.theme-xp .dashboard-input,
+.theme-xp input:not(.url-bar input),
+.theme-xp select {
+  background: #fff;
+  border: 2px solid #7f9db9;
+  color: #000;
+  border-radius: 0;
+  padding: 5px;
+}
+.theme-xp .dashboard-input:focus {
+  outline: none;
+  border-color: #0054e3;
+}
+
+/* Text Visibility */
+.theme-xp h1,
+.theme-xp h2,
+.theme-xp h3,
+.theme-xp p,
+.theme-xp span,
+.theme-xp label {
+  color: #000;
+  text-shadow: none;
+}
+.theme-xp .dashboard-nav h1,
+.theme-xp .dashboard-nav span {
+  color: #fff;
+}
+
+/* Buttons (XP Style) */
+.theme-xp button {
+  border-radius: 3px;
+  font-family: 'Tahoma', sans-serif;
+}
+.theme-xp button.bg-blue-600,
+.theme-xp .send-btn {
+  background: linear-gradient(to bottom, #f8f8f8 0%, #ececec 100%);
+  border: 1px solid #707070;
+  color: #000 !important;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+.theme-xp button.bg-blue-600:hover,
+.theme-xp .send-btn:hover {
+  background: #fdfdfd;
+  box-shadow: inset 2px 2px 2px #fff9db;
+}
+
+/* =======================================
+   CHAT SPECIFIC STYLES
+   ======================================= */
+
+/* 2. Chat Area Container */
+.theme-xp .chat-area,
+.theme-xp .sidebar {
+  background-color: #fff;
+  border: 4px solid #0054e3;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Keeps content inside the blue border */
+  height: 100%; /* Fills the flex parent */
+}
+
+/* 3. Message List Scroll */
+.theme-xp .messages-box {
+  flex: 1;
+  overflow-y: auto; /* SCROLL HERE, NOT ON BODY */
+  padding: 15px;
+  background-color: #ffffff;
+}
+
+.theme-xp .sidebar {
+  background-color: #fff;
+  width: 250px; /* Ensure width if flex doesn't catch it */
+}
+
+.theme-xp .chat-header-ui,
+.theme-xp .sidebar-header {
+  background: var(--xp-title-gradient);
+  border-bottom: 2px solid #0033a0;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  min-height: 35px;
+  max-height: 35px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-weight: bold;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.theme-xp .chat-header {
+  /* If your app uses .chat-header instead of .chat-header-ui */
+  background: var(--xp-title-gradient);
+  min-height: 35px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.theme-xp .message-bubble {
+  border: 1px solid #7f9db9;
+  border-radius: 4px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  color: #000;
+}
+
+.theme-xp .message.self .message-bubble {
+  background: #eaffea;
+  border-color: #248f24;
+}
+
+/* Input Area Fixed at Bottom */
+.theme-xp .chat-input-area,
+.theme-xp .input-area {
+  background: #ece9d8;
+  border-top: 1px solid #fff;
+  flex-shrink: 0; /* Prevent input from shrinking */
+  padding: 10px;
+}
+
+.theme-xp .chat-editor {
+  border: 2px solid #7f9db9;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+}
+
+/* XP Scrollbars */
+.theme-xp ::-webkit-scrollbar {
+  width: 16px;
+  background: #ece9d8;
+}
+.theme-xp ::-webkit-scrollbar-thumb {
+  background-color: #c3dafa;
+  border: 1px solid #fff;
+  border-radius: 0;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #9eb8e8;
+}
+.theme-xp ::-webkit-scrollbar-button {
+  background: #c3dafa;
+  height: 16px;
+  border: 1px solid #fff;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #9eb8e8;
+}

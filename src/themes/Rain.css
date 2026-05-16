@@ -1,0 +1,186 @@
+/* =======================================
+   RAIN THEME
+   ======================================= */
+.theme-rain {
+  --primary-bg: url('../assets/croomrain.png');
+
+  /* Use CSS Variable for Alpha */
+  --content-bg: rgba(255, 255, 255, var(--content-bg-alpha));
+
+  --text-color: #ffffff;
+  --input-bg: rgba(255, 255, 255, 0.25);
+  --input-text: #ffffff;
+  --accent-blue: #60a5fa;
+  --accent-green: #34d399;
+
+  --message-bg-received: rgba(255, 255, 255, 0.2);
+  --message-bg-sent: rgba(59, 130, 246, 0.75);
+  --message-text-received: #ffffff;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: rgba(255, 255, 255, 0.2);
+  --toolbar-icon-color: #ffffff;
+  --toolbar-icon-hover-bg: rgba(255, 255, 255, 0.3);
+
+  --radius: 20px;
+
+  --context-bar-bg: rgba(255, 255, 255, 0.2);
+  --context-text: #e0f2fe;
+  --action-btn-bg: rgba(59, 130, 246, 0.5);
+  --action-btn-hover: rgba(59, 130, 246, 0.7);
+
+  /* DASHBOARD VARIABLES (Required for Settings/Tools transparency) */
+  --card-bg: rgba(255, 255, 255, var(--content-bg-alpha));
+  --card-border: rgba(255, 255, 255, 0.3);
+  --nav-bg: rgba(255, 255, 255, 0.3);
+  --text-main: #ffffff;
+  --text-muted: #e0f2fe;
+
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- MAIN WRAPPER --- */
+.theme-rain .chat-wrapper,
+.theme-rain.min-h-screen {
+  background-image: var(--primary-bg);
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* =======================================
+   DASHBOARD SPECIFIC STYLES
+   (Fixes transparency on Settings/Tools)
+   ======================================= */
+.theme-rain .dashboard-card,
+.theme-rain .dashboard-nav {
+  background-color: var(--card-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  color: var(--text-color);
+}
+
+.theme-rain .dashboard-nav {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--nav-bg);
+}
+
+.theme-rain .dashboard-input {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.theme-rain .dashboard-input:focus {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--accent-blue);
+  outline: none;
+}
+
+/* Dashboard Buttons */
+.theme-rain .dashboard-card button {
+  border-radius: 12px;
+}
+
+/* =======================================
+   CHAT SPECIFIC STYLES
+   ======================================= */
+/* --- WINDOWS (Sidebar & Chat Area) --- */
+.theme-rain .chat-area,
+.theme-rain .sidebar {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background-color: var(--content-bg);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* --- HEADER FIXES --- */
+.theme-rain .chat-header-ui,
+.theme-rain .sidebar-header {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+/* Header Buttons & Dropdowns */
+.theme-rain .header-select,
+.theme-rain .header-btn {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+.theme-rain .header-select option {
+  background-color: #334155;
+  color: white;
+}
+
+/* --- COMPONENTS --- */
+.theme-rain .message-bubble {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.theme-rain .chat-editor {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+}
+.theme-rain .chat-editor::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.theme-rain .send-btn {
+  background: linear-gradient(45deg, #3b82f6, #06b6d4);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.theme-rain .send-btn:hover {
+  background: linear-gradient(45deg, #2563eb, #0891b2);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+/* Sidebar Buttons */
+.theme-rain .sidebar-btn {
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+}
+.theme-rain .sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+/* Text Visibility Overrides */
+.theme-rain h1,
+.theme-rain h2,
+.theme-rain h3,
+.theme-rain p,
+.theme-rain span {
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.theme-rain .text-slate-400,
+.theme-rain .text-slate-500 {
+  color: #e0f2fe !important;
+}
+
+/* Context Bars (Reply/Edit) */
+.theme-rain .bg-slate-800,
+.theme-rain .message .bg-slate-700 {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff !important;
+}

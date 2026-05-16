@@ -1,0 +1,71 @@
+{
+  "name": "crooms-connect-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "lint": "eslint .",
+    "build": "npm run lint && tsc -b && vite build",
+    "preview": "vite preview",
+    "update-types": "npx supabase gen types --lang=typescript --project-id \"$PROJECT_REF\" > src/database.types.ts"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/roboto": "^5.2.10",
+    "@fontsource/cutive-mono": "^5.2.8",
+    "@fontsource/lato": "^5.2.7",
+    "@fontsource/vt323": "^5.2.7",
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "@supabase/supabase-js": "^2.90.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "bad-words": "^3.0.4",
+    "cropperjs": "^1.6.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.562.0",
+    "matter-js": "^0.19.0",
+    "music-metadata-browser": "^2.5.10",
+    "react": "^19.2.3",
+    "react-cropper": "^2.3.3",
+    "react-dom": "^19.2.3",
+    "react-grid-layout": "^1.4.4",
+    "react-image-crop": "^11.0.5",
+    "react-resizable": "^3.0.5",
+    "react-rnd": "^10.4.1",
+    "react-router-dom": "^7.12.0",
+    "tailwindcss": "^4.2.1",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/matter-js": "^0.19.6",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "browserslist": "^4.23.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "node-releases": "^2.0.14",
+    "openai": "^4.28.0",
+    "supabase": "^2.98.2",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vite": "^7.3.2"
+  }
+}

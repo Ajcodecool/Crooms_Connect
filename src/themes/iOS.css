@@ -1,0 +1,287 @@
+/* =======================================
+   iOS / iMESSAGE THEME
+   Fixed: Icons & Bubble Alignment
+   ======================================= */
+.theme-ios {
+  /* --- SYSTEM PALETTE --- */
+  --ios-bg-base: #f2f2f7;
+  --ios-bg-card: #ffffff;
+  --ios-bg-input: #e5e5ea;
+  --ios-blue: #007aff;
+  --ios-green: #34c759;
+  --ios-gray-text: #8e8e93;
+
+  /* --- CORE VARIABLES --- */
+  --primary-bg: var(--ios-bg-base);
+  --content-bg: #ffffff;
+
+  --text-color: #000000;
+  --text-muted: #8e8e93;
+
+  --accent-blue: var(--ios-blue);
+
+  /* --- MESSAGING --- */
+  --message-bg-received: #e9e9eb;
+  --message-bg-sent: #007aff; /* Pure Blue for cleaner tail blending */
+
+  --message-text-received: #000000;
+  --message-text-sent: #ffffff;
+
+  /* --- SURFACES --- */
+  --toolbar-bg: rgba(250, 250, 250, 0.9);
+  --toolbar-icon-color: #007aff;
+  --input-bg: var(--ios-bg-input);
+  --input-text: #000000;
+
+  --border-color: rgba(0, 0, 0, 0.1);
+  --radius: 18px;
+
+  /* --- DASHBOARD VARIABLES --- */
+  --card-bg: #ffffff;
+  --card-border: transparent;
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --text-main: #000000;
+
+  /* Apple Typography Stack */
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+    sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* =======================================
+   CRITICAL FIXES
+   ======================================= */
+
+/* FIX 1: Prevent iOS font from breaking Icons (The "X" bug) */
+.theme-ios i,
+.theme-ios .fa,
+.theme-ios .fas,
+.theme-ios .fa-solid,
+.theme-ios .fa-regular,
+.theme-ios .fa-brands {
+  font-family: 'Font Awesome 6 Free', 'FontAwesome', sans-serif !important;
+  font-weight: 900; /* Ensure solid icons render */
+}
+
+/* FIX 2: Ensure Sent messages align RIGHT (The "Backwards" bug) */
+.theme-ios .message.self {
+  flex-direction: row-reverse; /* Flip the container order */
+  justify-content: flex-start; /* Aligns to right because of row-reverse */
+}
+/* Also force margin auto if flex alignment fails in some containers */
+.theme-ios .message.self .message-bubble {
+  margin-left: auto;
+  border-bottom-right-radius: 4px; /* Sharp corner for tail */
+  border-bottom-left-radius: 18px; /* Round other corner */
+}
+
+/* =======================================
+   GLOBAL LAYOUT
+   ======================================= */
+.theme-ios .chat-wrapper {
+  background-color: var(--primary-bg);
+}
+
+.theme-ios .sidebar {
+  background-color: var(--ios-bg-base);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-ios .chat-area {
+  background-color: #ffffff;
+}
+
+/* =======================================
+   HEADERS & NAV
+   ======================================= */
+.theme-ios .chat-header-ui,
+.theme-ios .sidebar-header,
+.theme-ios .dashboard-nav {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  color: #000000;
+}
+
+.theme-ios .chat-header-ui h1 {
+  font-weight: 600;
+  font-size: 17px;
+}
+
+/* =======================================
+   IMESSAGE BUBBLES (Revised Tails)
+   ======================================= */
+.theme-ios .message-bubble {
+  border-radius: 18px;
+  padding: 8px 14px;
+  font-size: 16px;
+  line-height: 1.4;
+  position: relative;
+  box-shadow: none;
+  border: none;
+  max-width: 75%;
+}
+
+/* --- RECEIVED (GRAY) --- */
+.theme-ios .message:not(.self) .message-bubble {
+  background-color: var(--message-bg-received);
+  color: black;
+  border-bottom-left-radius: 4px; /* Sharp corner for tail */
+  margin-right: auto; /* Push to left */
+}
+
+/* The Gray Tail */
+.theme-ios .message:not(.self) .message-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  background-color: var(--message-bg-received);
+  border-bottom-right-radius: 10px; /* Curve the inside */
+  z-index: 0;
+}
+/* Mask to cut the tail shape */
+.theme-ios .message:not(.self) .message-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -10px;
+  width: 10px;
+  height: 20px;
+  background-color: #ffffff; /* Matches chat background to "cut" the shape */
+  border-bottom-right-radius: 10px;
+  z-index: 1;
+}
+
+/* --- SENT (BLUE) --- */
+.theme-ios .message.self .message-bubble {
+  background: var(--message-bg-sent);
+  color: white;
+}
+
+/* The Blue Tail */
+.theme-ios .message.self .message-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  background-color: #007aff;
+  border-bottom-left-radius: 10px;
+  z-index: 0;
+}
+/* Mask to cut the tail shape */
+.theme-ios .message.self .message-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -10px;
+  width: 10px;
+  height: 20px;
+  background-color: #ffffff; /* Matches chat background */
+  border-bottom-left-radius: 10px;
+  z-index: 1;
+}
+
+/* Typography Clean-up */
+.theme-ios .message-username,
+.theme-ios .message-timestamp {
+  display: none;
+}
+
+/* =======================================
+   INPUT AREA
+   ======================================= */
+.theme-ios .input-area {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(25px);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 16px;
+}
+
+.theme-ios .chat-editor,
+.theme-ios input[type='text'] {
+  background-color: var(--input-bg);
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 9px 16px;
+  font-size: 16px;
+  color: #000;
+}
+.theme-ios .chat-editor:focus {
+  background-color: #eaeaef;
+  outline: none;
+}
+
+/* Blue Arrow Send Button */
+.theme-ios .send-btn {
+  background-color: var(--ios-blue);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  color: white; /* Ensure arrow is white */
+}
+.theme-ios .send-btn:active {
+  transform: scale(0.9);
+}
+
+/* Force arrow icon visibility explicitly */
+.theme-ios .send-btn::after {
+  content: '\f062';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 15px;
+  color: white;
+}
+.theme-ios .send-btn span,
+.theme-ios .send-btn i {
+  display: none; /* Hide original icon to prevent double icons */
+}
+
+/* =======================================
+   DASHBOARD
+   ======================================= */
+.theme-ios .dashboard-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  color: #000;
+}
+
+/* Text Overrides */
+.theme-ios h1,
+.theme-ios h2,
+.theme-ios h3,
+.theme-ios h4 {
+  color: #000 !important;
+}
+.theme-ios p,
+.theme-ios span {
+  color: #3a3a3c;
+}
+.theme-ios .text-slate-400,
+.theme-ios .text-slate-500 {
+  color: #8e8e93 !important;
+}
+
+/* Dashboard Inputs */
+.theme-ios .dashboard-input {
+  background-color: #f2f2f7;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  color: #000;
+}
+.theme-ios .bg-blue-600 {
+  background-color: var(--ios-blue) !important;
+}

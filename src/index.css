@@ -1,0 +1,142 @@
+@layer theme, base, components, utilities;
+
+/* Make it so that tailwind is able to override all other css themes.
+ * See https://github.com/tailwindlabs/tailwindcss/discussions/16578#discussioncomment-12214850 */
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+
+@import '@fortawesome/fontawesome-free/css/all.css';
+
+/* FONTS */
+@import '@fontsource/vt323';
+@import '@fontsource/lato/300.css';
+@import '@fontsource/lato/400.css';
+@import '@fontsource/lato/700.css';
+@import '@fontsource-variable/inter';
+@import '@fontsource/cutive-mono';
+@import '@fontsource-variable/roboto';
+@font-face {
+  font-family: 'OfficialAlert';
+  src: url('./assets/fonts/OfficialAlert.woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --primary-color: #2563eb;
+  --bg-color: #020617; /* Slate 950 */
+  --text-color: #f8fafc; /* Slate 50 */
+}
+
+/* =========================================
+   1. GLOBAL RESET & SCROLLBAR
+   ========================================= */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+
+  /* FORCE FULL HEIGHT */
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 5px;
+  border: 2px solid #020617;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3b82f6;
+  cursor: pointer;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #020617;
+}
+
+/* =========================================
+   2. REACT DEFAULT STYLES
+   ========================================= */
+.App {
+  text-align: center;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.App-link {
+  color: #61dafb;
+}
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================
+   4. THE NUCLEAR RESET (THE FIX)
+   ========================================= */
+
+/* A. Force Root to be a Flex Container */
+/* This "traps" margins so they can't push the page down */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+}
+
+/* B. Force the first child (Your App Wrapper) to touch the top */
+#root > div:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* C. Kill margins on the first element inside the router */
+/* This targets Navbar, Sidebar, or Dashboard container */
+#root > div > div:first-child,
+#root > div > nav:first-child,
+#root > div > main:first-child {
+  margin-top: 0 !important;
+}

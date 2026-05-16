@@ -1,0 +1,22 @@
+{
+  "name": "socrates-ragebait-bot",
+  "version": "1.0.0",
+  "description": "Socratic AI bot for Crooms Connect — powered by Hugging Face Inference API",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch index.ts"
+  },
+  "dependencies": {
+    "@huggingface/inference": "^3.9.1",
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

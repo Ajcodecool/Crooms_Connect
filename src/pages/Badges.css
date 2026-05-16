@@ -1,0 +1,66 @@
+/* Badges.css */
+
+/* --- Existing Details/Summary CSS --- */
+details > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+.folder-arrow {
+  display: inline-block;
+  transition: transform 0.2s; /* Kept a tiny transition for arrow only, looks cleaner */
+}
+details[open] > summary .folder-arrow {
+  transform: rotate(180deg);
+}
+
+/* --- NEW: Layout Grid --- */
+.badges-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  position: relative;
+}
+
+/* Desktop: Sidebar on the right */
+@media (min-width: 1024px) {
+  .badges-layout {
+    grid-template-columns: 1fr 320px; /* Main content | 320px Sidebar */
+  }
+
+  .preview-sidebar {
+    position: sticky;
+    top: 2rem; /* Sticks to top of screen when scrolling */
+    height: fit-content;
+  }
+}
+
+/* --- Chat Preview Styling (Updated to match Chat.css Dark Theme) --- */
+.chat-preview-card {
+  background-color: #1a1b2f; /* Matching --primary-bg */
+  border: 1px solid #2b2d42; /* Matching --content-bg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+.preview-message-bubble {
+  /* Exact colors from Chat.css --message-bg-received */
+  background-color: #3a3b5a;
+  color: #f8f9fa;
+
+  /* Exact shape from Chat.css .message-bubble */
+  padding: 10px 15px;
+  border-radius: 12px;
+  border-top-left-radius: 2px; /* This creates the message "tail" effect */
+
+  position: relative;
+  word-wrap: break-word;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Remove the old triangle hack, as Chat.css uses border-radius */
+.preview-message-bubble::before {
+  display: none;
+}

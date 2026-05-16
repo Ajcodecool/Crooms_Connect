@@ -1,0 +1,25 @@
+/* =========================================================
+   CHAT THEME LOADER
+   Imports all modular themes from the themes folder.
+   ========================================================= */
+
+/* 1. Core Layout & Default (Slate) Theme */
+@import '../themes/Base.css';
+@import '../themes/Effects.css';
+
+/* 2. Individual Theme Modules */
+@import '../themes/Light.css';
+@import '../themes/Win98.css';
+@import '../themes/Win7.css';
+@import '../themes/WinXP.css';
+@import '../themes/iOS.css';
+@import '../themes/Wood.css';
+@import '../themes/Liquid.css';
+@import '../themes/Rain.css';
+@import '../themes/Japan.css';
+@import '../themes/DOS.css';
+@import '../themes/Aero.css';
+@import '../themes/Bully.css'; /* <--- ADDED BULLY THEME HERE */
+
+/* 3. Special OS Simulations */
+@import '../themes/AeroOS.css';

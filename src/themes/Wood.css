@@ -1,0 +1,59 @@
+/* =======================================
+   WOOD & BULLETIN BOARD THEME
+   ======================================= */
+.theme-wood {
+  --wood-brown: #3e2723;
+  --content-bg: transparent;
+  --text-color: #2b1b17;
+  --input-bg: #fff;
+  --input-text: #000;
+  --message-bg-received: #fffbe7;
+  --message-bg-sent: #e1f5fe;
+  --message-text-received: #000;
+  --message-text-sent: #000;
+  --toolbar-bg: rgba(255, 255, 255, 0.8);
+  --toolbar-icon-color: #3e2723;
+  --radius: 2px;
+  --context-bar-bg: rgba(255, 255, 255, 0.9);
+  --context-text: #3e2723;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+}
+.theme-wood .chat-wrapper {
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+.theme-wood .chat-area {
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.6);
+  border: none;
+  backdrop-filter: none;
+  padding: 40px;
+}
+.theme-wood .sidebar {
+  background-color: #fff;
+  background-image: linear-gradient(#ccc 1px, transparent 1px);
+  background-size: 100% 24px;
+  border: 1px solid #d7ccc8;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+  color: #000;
+  transform: rotate(-1deg);
+}
+.theme-wood .chat-header {
+  background: #4e342e;
+  border-bottom: 2px solid #3e2723;
+  color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+.theme-wood .message-bubble {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.theme-wood .message.self .message-bubble {
+  transform: rotate(1deg);
+}
+.theme-wood .message:not(.self) .message-bubble {
+  transform: rotate(-1deg);
+}

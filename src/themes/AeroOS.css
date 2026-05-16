@@ -1,0 +1,673 @@
+/* =======================================
+   BASE THEME (Applied to Body/Wrapper)
+   ======================================= */
+.theme-aero-os {
+  /* Wallpaper */
+  --primary-bg: url('https://blog.greggant.com/images/posts/2021-09-25-preview/aurora-preview.jpg');
+
+  /* Mac OS Colors */
+  --leopard-gray: #dcdcdc;
+  --window-bg: #e8e8e8;
+  --highlight-blue: #3875d7;
+
+  /* Text Colors */
+  --text-color: #333333;
+  --text-muted: #666666;
+
+  /* DASHBOARD VARIABLES (Mac Style) */
+  --card-bg: rgba(240, 240, 240, 0.9);
+  --card-border: #aaaaaa;
+  --nav-bg: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.95),
+    rgba(220, 220, 220, 0.9)
+  );
+  --text-main: #222222;
+
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Roboto', sans-serif;
+
+  /* === SCROLLING FIX === */
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh;
+  width: 100vw;
+}
+
+/* =======================================
+   GLOBAL BACKGROUND
+   ======================================= */
+.theme-aero-os .chat-wrapper,
+.theme-aero-os.min-h-screen {
+  background-image: var(--primary-bg);
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* =======================================
+   DASHBOARD & SETTINGS OVERRIDES
+   ======================================= */
+.theme-aero-os .dashboard-nav {
+  background: var(--nav-bg);
+  border-bottom: 1px solid #999;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  color: #333;
+  backdrop-filter: blur(10px);
+}
+
+.theme-aero-os .dashboard-card {
+  background-color: var(--card-bg);
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.theme-aero-os .dashboard-input,
+.theme-aero-os input:not(.url-bar input):not(.chat-editor),
+.theme-aero-os select {
+  background: #ffffff;
+  border: 1px solid #aaa;
+  color: #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.theme-aero-os h1,
+.theme-aero-os h2,
+.theme-aero-os h3,
+.theme-aero-os p,
+.theme-aero-os span,
+.theme-aero-os label {
+  color: #333;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Revert text color for specific buttons */
+.theme-aero-os button.bg-blue-600,
+.theme-aero-os .bg-slate-900,
+.theme-aero-os .bg-red-500 {
+  color: #fff !important;
+  text-shadow: none;
+}
+
+/* =======================================
+   OS SIMULATION (The "Desktop")
+   ======================================= */
+/* Added .theme-aero-os to prevent global leak */
+.theme-aero-os.desktop,
+.theme-aero-os .desktop {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden !important;
+  z-index: 50;
+  user-select: none;
+  background-image: var(--primary-bg);
+  background-size: cover;
+  background-position: center;
+}
+
+/* --- Boot Sequence --- */
+.theme-aero-os.boot-screen,
+.theme-aero-os .boot-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 10000;
+}
+.theme-aero-os.pre-boot {
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+}
+.theme-aero-os.running {
+  background: #bfbfbf;
+}
+
+.theme-aero-os .power-btn {
+  text-align: center;
+  transition: opacity 0.5s;
+}
+.theme-aero-os .power-btn:hover {
+  opacity: 0.8;
+}
+.theme-aero-os .power-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+.theme-aero-os .boot-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.theme-aero-os .apple-logo-boot {
+  font-size: 120px;
+  color: #555;
+  margin-bottom: 60px;
+}
+
+/* --- Mac Loading Bar --- */
+.theme-aero-os .mac-progress-bar {
+  width: 260px;
+  height: 22px;
+  background: #b0b0b0;
+  border-radius: 12px;
+  border: 1px solid #777;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.theme-aero-os .mac-progress-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.4) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.4) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-color: #599bdc;
+  background-size: 30px 30px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  animation: barberpole 1s linear infinite;
+}
+@keyframes barberpole {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 30px 0;
+  }
+}
+
+/* --- Menu Bar --- */
+.theme-aero-os .menu-bar {
+  height: 22px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.5),
+    rgba(220, 220, 220, 0.3)
+  );
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #111;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 9000;
+}
+.theme-aero-os .menu-bar .left,
+.theme-aero-os .menu-bar .right {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.theme-aero-os .apple-icon {
+  font-size: 16px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.theme-aero-os .app-name {
+  font-weight: bold;
+}
+
+/* --- Windows --- */
+/* IMPORTANT: Scoped .window to prevent leaks */
+.theme-aero-os .window {
+  position: absolute;
+  background: #e8e8e8;
+  border-radius: 5px 5px 0 0;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  min-height: 200px;
+  transition:
+    width 0.2s,
+    height 0.2s,
+    top 0.2s,
+    left 0.2s,
+    opacity 0.1s;
+}
+.theme-aero-os .window.minimized {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.1) translateY(800px);
+}
+.theme-aero-os .window.maximized {
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  border-bottom: 1px solid #999;
+}
+.theme-aero-os .window.maximized .resize-handle {
+  display: none;
+}
+
+.theme-aero-os .title-bar {
+  height: 22px;
+  background: linear-gradient(to bottom, #e8e8e8 0%, #b8b8b8 100%);
+  border-bottom: 1px solid #888;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.theme-aero-os .title {
+  font-size: 13px;
+  color: #444;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+.theme-aero-os .traffic-lights {
+  display: flex;
+  gap: 6px;
+  position: absolute;
+  left: 8px;
+}
+.theme-aero-os .btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+.theme-aero-os .btn.close {
+  background: #ff5f57;
+  border: 1px solid #e33e32;
+}
+.theme-aero-os .btn.minimize {
+  background: #ffbd2e;
+  border: 1px solid #df9c1a;
+}
+.theme-aero-os .btn.zoom {
+  background: #28c940;
+  border: 1px solid #1d9d30;
+}
+
+.theme-aero-os .window-content {
+  flex: 1;
+  background: #fff;
+  overflow: hidden;
+  position: relative;
+}
+
+.theme-aero-os .resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 2px;
+}
+.theme-aero-os .resize-handle svg {
+  opacity: 0.5;
+}
+.theme-aero-os .resize-handle:hover svg {
+  opacity: 1;
+}
+
+/* --- Dock --- */
+.theme-aero-os .dock-container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  perspective: 1000px;
+  z-index: 9500;
+}
+.theme-aero-os .dock {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 15px;
+  height: 65px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.8)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transform: rotateX(20deg);
+  transform-origin: bottom center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  border-radius: 5px 5px 0 0;
+  margin-bottom: -5px;
+}
+.theme-aero-os .dock-item {
+  width: 50px;
+  height: 50px;
+  margin: 0 5px 12px 5px;
+  position: relative;
+  transition:
+    transform 0.15s,
+    margin-bottom 0.15s;
+}
+.theme-aero-os .dock-item:hover {
+  transform: scale(1.4) translateY(-15px);
+  margin: 0 15px 12px 15px;
+}
+.theme-aero-os .dock-icon {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+.theme-aero-os .tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.theme-aero-os .dock-item:hover .tooltip {
+  opacity: 1;
+}
+
+/* Scoped Icons */
+.theme-aero-os .icon-finder {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c9/Finder_Icon_macOS_Big_Sur.png');
+}
+.theme-aero-os .icon-safari {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/52/Safari_browser_logo.svg');
+}
+.theme-aero-os .icon-messenger {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_2019_Logo.svg');
+}
+.theme-aero-os .icon-systempreferences {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ea/Settings_%28macOS%29.svg');
+}
+.theme-aero-os .icon-trash {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/53/Trash_Can.svg');
+  filter: invert(0.8);
+}
+.theme-aero-os .dock-separator {
+  width: 1px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.3);
+  margin: 0 10px;
+}
+.theme-aero-os .active-dot {
+  width: 6px;
+  height: 6px;
+  background: #333;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.theme-aero-os .desktop-icons {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-end;
+}
+.theme-aero-os .desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  cursor: pointer;
+}
+.theme-aero-os .desktop-icon .icon-label {
+  margin-top: 4px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  text-align: center;
+}
+.theme-aero-os .icon-img,
+.theme-aero-os .file-icon .icon {
+  width: 48px;
+  height: 48px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-bottom: 5px;
+}
+
+.theme-aero-os .folder-real {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/86/Folder_Mac.svg');
+}
+.theme-aero-os .file-real {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e4/Text-x-generic.svg');
+}
+
+/* ======================================================
+   FINDER APP STYLES (SCOPED - THE FIX!)
+   ====================================================== */
+.theme-aero-os .finder-app {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* THIS SPECIFIC RULE WAS BREAKING YOUR SIDEBAR - NOW SCOPED */
+.theme-aero-os .sidebar {
+  width: 150px;
+  background: #dee4ea;
+  border-right: 1px solid #aaa;
+  padding-top: 10px;
+}
+
+.theme-aero-os .sidebar-group span {
+  font-size: 11px;
+  color: #7f8fa5;
+  font-weight: bold;
+  margin-left: 10px;
+}
+.theme-aero-os .sidebar-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0;
+}
+.theme-aero-os .sidebar-group li {
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #333;
+}
+.theme-aero-os .sidebar-group li.selected {
+  background: #a9b9cb;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.theme-aero-os .file-view {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  grid-auto-rows: 90px;
+  padding: 20px;
+  align-content: start;
+  color: #333;
+}
+
+/* ====================================================================
+   iCHAT / LEOPARD MESSENGER THEME OVERRIDES
+   These styles apply ONLY to the chat elements inside the AeroOS Window
+   ==================================================================== */
+
+.theme-aero-os .messenger-content {
+  font-family: 'Lucida Grande', sans-serif;
+  background: #fff;
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* 1. Sidebar (Leopard Metal Gradient) */
+.theme-aero-os .messenger-content .chat-sidebar {
+  background: linear-gradient(to bottom, #e0e0e0, #cfcfcf);
+  border-right: 1px solid #aaa;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.5);
+}
+.theme-aero-os .sidebar-header {
+  background: transparent;
+  border-bottom: 1px solid #aaa;
+  color: #333;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+/* User Items in Sidebar */
+.theme-aero-os .user-item:hover {
+  background: linear-gradient(to bottom, #3875d7, #2a61be);
+  color: white !important;
+  text-shadow: none;
+  border-top: 1px solid #2a61be;
+  border-bottom: 1px solid #1e5aa0;
+}
+.theme-aero-os .user-item:hover span,
+.theme-aero-os .user-item:hover p {
+  color: white !important;
+}
+
+/* 2. Chat Header (Unified Window Metal) */
+.theme-aero-os .messenger-content .chat-header-ui {
+  background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+  border-bottom: 1px solid #999;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  color: #333;
+  min-height: 44px;
+}
+.theme-aero-os .chat-header-ui h1 {
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 3. Messages Area */
+.theme-aero-os .messages-box {
+  background-color: #ffffff;
+}
+
+/* 4. Aqua Bubbles */
+.theme-aero-os .message-bubble {
+  border-radius: 14px;
+  padding: 8px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Received (Grey Gloss) */
+.theme-aero-os .message.received .message-bubble {
+  background: linear-gradient(to bottom, #f2f2f2 0%, #dcdcdc 100%);
+  color: #000;
+  border-color: #bbb;
+}
+
+/* Sent (Aqua Blue/Green Gloss) */
+.theme-aero-os .message.self .message-bubble {
+  /* Classic iChat Aqua Blue */
+  background: linear-gradient(to bottom, #63aaff 0%, #2874d8 100%);
+  color: #fff;
+  border-color: #1e5aa0;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 5. Input Area (Metal Chrome) */
+.theme-aero-os .messenger-content .input-area {
+  background: linear-gradient(to bottom, #e0e0e0, #cfcfcf);
+  border-top: 1px solid #999;
+  padding: 10px;
+}
+
+/* Input Field (Pill Shape) */
+.theme-aero-os .messenger-content .chat-editor {
+  background: #fff;
+  border: 1px solid #888;
+  border-radius: 20px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: #333;
+  padding: 8px 15px;
+}
+
+/* Send Button (Aqua/Metal) */
+.theme-aero-os .send-btn {
+  background: linear-gradient(to bottom, #fcfcfc, #dcdcdc);
+  border: 1px solid #999;
+  border-radius: 6px;
+  color: #333 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 1px 1px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  text-shadow: 0 1px 0 #fff;
+}
+.theme-aero-os .send-btn:active {
+  background: #ccc;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Update Menu Bar for Clickable Logo */
+.theme-aero-os .menu-bar .apple-icon {
+  font-size: 16px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  padding: 2px 10px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.theme-aero-os .menu-bar .apple-icon:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.theme-aero-os .menu-bar .apple-icon:active {
+  background: rgba(0, 0, 0, 0.25);
+  color: white;
+  text-shadow: none;
+}

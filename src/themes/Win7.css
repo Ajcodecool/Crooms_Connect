@@ -1,0 +1,165 @@
+/* =======================================
+   WINDOWS 7 AERO THEME
+   ======================================= */
+.theme-win7 {
+  /* Use the CSS Variable for Alpha Channel */
+  --win7-glass-bg: rgba(255, 255, 255, var(--content-bg-alpha));
+  --win7-glow: rgba(0, 120, 215, 0.5);
+  --win7-blue: rgba(0, 120, 215, 0.9);
+  --win7-dark-blue: #005aa0;
+
+  --primary-bg: url('../assets/thumb-1920-69186.jpg');
+  --content-bg: var(--win7-glass-bg);
+  --text-color: #000000;
+
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --input-text: #000000;
+
+  --message-bg-received: rgba(255, 255, 255, 0.8);
+  --message-bg-sent: rgba(0, 120, 215, 0.75);
+  --message-text-received: #000000;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: rgba(255, 255, 255, 0.5);
+  --toolbar-icon-color: #333;
+
+  --context-bar-bg: rgba(255, 255, 255, 0.8);
+  --context-text: #000;
+
+  --border-color: rgba(255, 255, 255, 0.6);
+
+  /* DASHBOARD VARIABLES */
+  --card-bg: rgba(255, 255, 255, var(--content-bg-alpha));
+  --card-border: rgba(255, 255, 255, 0.5);
+  --nav-bg: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(240, 240, 255, 0.6) 100%
+  );
+  --text-main: #000000;
+  --text-muted: #444444;
+}
+
+/* =======================================
+   GLOBAL LAYOUT
+   ======================================= */
+.theme-win7 .chat-wrapper,
+.theme-win7.min-h-screen {
+  background-image: var(--primary-bg);
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* =======================================
+   DASHBOARD SPECIFIC STYLES
+   (Fixes transparency on Settings/Tools)
+   ======================================= */
+.theme-win7 .dashboard-card,
+.theme-win7 .dashboard-nav {
+  background-color: var(--card-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.3),
+    /* Deep shadow */ inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    /* Top highlight */ inset 0 0 0 1px rgba(255, 255, 255, 0.3); /* Glass edge */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  color: var(--text-color);
+}
+
+.theme-win7 .dashboard-nav {
+  background: var(--nav-bg);
+  border-bottom: 1px solid rgba(180, 180, 180, 0.5);
+}
+
+.theme-win7 .dashboard-input {
+  background-color: #ffffff;
+  border: 1px solid #8e8f91;
+  border-radius: 3px;
+  color: #000;
+  padding: 8px 12px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.theme-win7 .dashboard-input:focus {
+  border-color: #3399ff;
+  box-shadow: 0 0 0 2px rgba(51, 153, 255, 0.3);
+  outline: none;
+}
+
+/* Dashboard Buttons */
+.theme-win7 .dashboard-card button {
+  border-radius: 4px;
+}
+
+/* =======================================
+   CHAT SPECIFIC STYLES
+   ======================================= */
+.theme-win7 .chat-area,
+.theme-win7 .sidebar {
+  background-color: var(--content-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+}
+
+.theme-win7 .chat-header-ui,
+.theme-win7 .sidebar-header {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.4) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  color: #000;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.theme-win7 .send-btn,
+.theme-win7 .header-btn,
+.theme-win7 .sidebar-btn {
+  background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+  color: #333;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 1px solid #999;
+  border-radius: 4px;
+  text-shadow: 0 1px 0 #fff;
+}
+.theme-win7 .send-btn {
+  background: linear-gradient(180deg, #dce4f2 0%, #8eb0cf 100%);
+  border: 1px solid #3c7fb1;
+  color: #000;
+}
+
+.theme-win7 .send-btn:hover,
+.theme-win7 .header-btn:hover,
+.theme-win7 .sidebar-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 5px rgba(0, 120, 215, 0.4);
+}
+
+.theme-win7 .chat-input {
+  border-top: 1px solid var(--win7-blue);
+}
+
+/* Utilities */
+.theme-win7 .bg-slate-800,
+.theme-win7 .message .bg-slate-700 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid #ccc;
+  color: #000 !important;
+}
+
+.theme-win7 .text-slate-400,
+.theme-win7 .text-slate-500 {
+  color: #555 !important;
+}

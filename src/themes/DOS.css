@@ -1,0 +1,63 @@
+/* =======================================
+   DOS TERMINAL THEME
+   ======================================= */
+.theme-dos {
+  --primary-bg: #000000;
+  --content-bg: #000000;
+  --text-color: #00ff00;
+  --accent-blue: #00ffff;
+  --accent-green: #00ff00;
+  --input-bg: #000000;
+  --input-text: #00ff00;
+  --message-bg-received: #000000;
+  --message-bg-sent: #000000;
+  --message-text-received: var(--text-color);
+  --message-text-sent: #ffffff;
+  --toolbar-bg: #000000;
+  --toolbar-icon-color: #00ff00;
+  --context-bar-bg: #001100;
+  --context-text: #00ff00;
+  --action-btn-bg: #000;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+}
+.theme-dos .chat-area,
+.theme-dos .sidebar {
+  border: 2px solid #00ff00;
+  border-radius: 0;
+  box-shadow: none;
+}
+.theme-dos .message-bubble {
+  border: 1px dashed #00ff00;
+  border-radius: 0;
+}
+.theme-dos button,
+.theme-dos select {
+  background: #000;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  border-radius: 0;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+.theme-dos .message-username::before {
+  content: '<';
+}
+.theme-dos .message-username::after {
+  content: '>';
+}
+
+/* DOS Header */
+.theme-dos .chat-header-ui {
+  background-color: #000;
+  border-bottom: 2px dashed #00ff00;
+  color: #00ff00;
+}
+.theme-dos .header-select,
+.theme-dos .header-btn {
+  background-color: #000;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  font-family: 'VT323', monospace;
+  text-transform: uppercase;
+}

@@ -1,0 +1,454 @@
+/* src/themes/Base.css */
+
+/* === DEFAULT THEME (Slate / Dark Mode) & BASE VARIABLES === */
+:root {
+  /* Dashboard-like "glass slate" base */
+  --primary-bg: #020617; /* slate-950 */
+
+  /* Match dashboard card feel (bg-white/5 over a dark base) */
+  --content-bg: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.1);
+
+  /* GLOBAL TRANSPARENCY VARIABLE - Controlled by JS */
+  --content-bg-alpha: 1;
+
+  --text-color: #f8fafc; /* Slate 50 */
+  --accent-blue: #3b82f6; /* Blue 500 */
+  --accent-green: #22c55e; /* Green 500 */
+  --accent-red: #ef4444; /* Red 500 */
+
+  --radius: 12px;
+
+  --input-bg: #0f172a; /* Slate 900 */
+  --input-text: #f8fafc;
+
+  --message-bg-received: #334155; /* Slate 700 */
+  --message-bg-sent: #2563eb; /* Blue 600 */
+  --message-text-received: #f1f5f9;
+  --message-text-sent: #ffffff;
+
+  --toolbar-bg: #1e293b; /* Matches content */
+  --toolbar-icon-color: #cbd5e1; /* Slate 300 - Brighter for visibility */
+  --toolbar-icon-hover-bg: #334155;
+
+  /* Reply/Edit Context Variables */
+  --context-bar-bg: #334155;
+  --context-text: #e2e8f0;
+  --action-btn-bg: #475569;
+  --action-btn-hover: #64748b;
+
+  /* SAFETY FALLBACKS: Prevents text from disappearing if JS doesn't set colors */
+  --primary-color: #3b82f6;
+  --secondary-color: #94a3b8;
+}
+
+/* =======================================
+   BASE LAYOUT
+   ======================================= */
+.chat-wrapper {
+  background: var(--primary-bg);
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+
+.main-layout {
+  display: flex;
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  gap: 20px;
+  padding: 20px;
+  height: calc(100vh - 60px);
+}
+
+/* =======================================
+   SIDEBAR
+   ======================================= */
+.sidebar {
+  width: 250px;
+  background-color: var(--content-bg);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+}
+
+.sidebar-header {
+  padding: 15px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.user-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.user-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.user-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.user-item img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--action-btn-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+.sidebar-btn:hover {
+  background-color: var(--action-btn-hover);
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* =======================================
+   CHAT AREA
+   ======================================= */
+.chat-area {
+  flex: 1;
+  background-color: var(--content-bg);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+}
+
+.chat-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.messages-box {
+  /* Critical: allow flex child to shrink below its content height so the scroll
+     container gets the full available space (prevents zoom-related space loss). */
+  flex: 1 1 auto;
+  min-height: 0;
+
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px; /* Tighter gap between avatar and bubble */
+  /* Prevent bubbles from becoming overly wide on large screens */
+  max-width: clamp(250px, 75%, 700px);
+  position: relative;
+}
+.message.self {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 36px; /* Slightly scaled down avatar to match tighter bubbles */
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.message-bubble {
+  background-color: var(--message-bg-received);
+  color: var(--message-text-received);
+  /* Fixed sizing: Uses 'em' units so padding stays proportional to the text size, keeping it compact */
+  padding: 0.5em 0.85em;
+  line-height: 1.4; /* Prevents text from having too much vertical space */
+  font-size: 0.95rem; /* Base text size that scales nicely */
+  border-radius: 12px;
+  border-top-left-radius: 2px;
+  position: relative;
+  word-wrap: break-word;
+}
+.message.self .message-bubble {
+  background-color: var(--message-bg-sent);
+  color: var(--message-text-sent);
+  border-radius: 12px;
+  border-top-right-radius: 2px;
+}
+
+.message-username {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 2px; /* Tighter margin */
+  opacity: 0.8;
+}
+
+.message-content-html ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.message-timestamp {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  margin-top: 4px;
+  text-align: right;
+  display: block;
+}
+
+/* =======================================
+   INPUT AREA & FORM ELEMENTS
+   ======================================= */
+.input-area {
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.toolbar {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.toolbar-btn {
+  background: none;
+  border: none;
+  color: var(--toolbar-icon-color);
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.toolbar-btn:hover {
+  background: var(--toolbar-icon-hover-bg);
+}
+
+/* --- Textboxes --- */
+input,
+textarea,
+select,
+.chat-editor {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.chat-editor {
+  padding: 10px;
+  min-height: 40px;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 2px solid transparent;
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+}
+
+.chat-editor:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+.chat-editor:empty:before {
+  content: attr(placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.send-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.send-btn {
+  background-color: var(--accent-blue);
+  color: white !important; /* Forces the text to be white */
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.typing-indicator {
+  font-size: 0.8rem;
+  color: var(--accent-blue);
+  height: 20px;
+  margin-bottom: 5px;
+  font-style: italic;
+}
+
+/* =======================================
+   INTERACTIVE FEATURES & UTILITIES
+   ======================================= */
+
+/* COLLISION FIX: Scoped these classes ONLY to the chat wrapper.
+   This stops it from ruining the colors of boxes on other pages (like the Admin panel). */
+.chat-wrapper .bg-slate-800 {
+  background-color: var(--context-bar-bg) !important;
+  border-color: var(--context-text) !important;
+  color: var(--context-text) !important;
+}
+
+.chat-wrapper .message .bg-slate-700 {
+  background-color: var(--action-btn-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Deleted Message Styling */
+.italic.text-gray-400 {
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Badges */
+.badge-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  margin-right: 4px;
+}
+
+/* =======================================
+   DEFAULT HEADER STYLING (Slate)
+   ======================================= */
+.chat-header-ui {
+  background-color: var(--content-bg);
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.header-back-btn {
+  color: var(--toolbar-icon-color);
+}
+
+.header-select {
+  background-color: var(--input-bg);
+  color: white;
+  border-color: var(--border-color);
+}
+.header-select option {
+  background-color: var(--input-bg);
+  color: white;
+}
+
+.header-btn {
+  background-color: var(--input-bg);
+  color: var(--toolbar-icon-color);
+  border-color: var(--border-color);
+}
+.header-btn:hover {
+  color: white;
+  border-color: white;
+}
+.header-dropdown {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+}
+.header-dropdown-border {
+  border-color: var(--border-color);
+}
+
+/* =======================================
+   CUSTOMIZABLE COLORS & CURSORS
+   ======================================= */
+
+/* TEXT COLOR FIX: Removed 'button' and '.send-btn' from here so they don't lose their white text */
+a,
+.toolbar-btn {
+  color: var(--primary-color) !important;
+}
+
+/* Apply custom secondary color to text elements */
+.message-username,
+.message-timestamp,
+.sidebar-header {
+  color: var(--secondary-color) !important;
+}
+
+/* Pointer cursor for buttons by default */
+@layer base {
+  button {
+    cursor: pointer;
+
+    &:is([disabled]) {
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* =======================================
+   RESPONSIVE
+   ======================================= */
+@media (max-width: 768px) {
+  .main-layout {
+    padding: 0;
+    height: calc(100vh - 56px);
+    gap: 0;
+  }
+  .sidebar {
+    display: none;
+  }
+  .chat-area {
+    border-radius: 0;
+  }
+  /* Mobile Action Buttons */
+  .message .absolute {
+    opacity: 1 !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    margin-bottom: 5px;
+    flex-direction: row;
+    justify-content: flex-end;
+    background: none !important;
+  }
+}

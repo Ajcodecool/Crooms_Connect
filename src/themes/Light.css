@@ -1,0 +1,91 @@
+/* =======================================
+   LIGHT THEME
+   ======================================= */
+.theme-light {
+  --primary-bg: #f3f4f6; /* Gray 100 */
+  --content-bg: #ffffff; /* White */
+  --text-color: #111827; /* Gray 900 - Dark text for readability */
+  --input-bg: #f9fafb; /* Gray 50 */
+  --input-text: #111827; /* Gray 900 */
+  --border-color: #9ca3af; /* Gray 400 - Darkened so outlines are visible */
+  --accent-blue: #2563eb;
+  --accent-green: #16a34a;
+
+  --message-bg-received: #f3f4f6;
+  --message-bg-sent: #2563eb;
+  --message-text-received: #111827;
+  --message-text-sent: #ffffff;
+  --toolbar-bg: #ffffff;
+  --toolbar-icon-color: #111827;
+
+  --context-bar-bg: #f3f4f6;
+  --context-text: #111827; /* Darkened text */
+  --action-btn-bg: #e5e7eb;
+  --action-btn-hover: #d1d5db;
+
+  /* SAFETY FALLBACKS: Prevents text from disappearing if JS doesn't set colors */
+  --primary-color: #2563eb; /* Blue 600 */
+  --secondary-color: #111827; /* Darkened text */
+}
+
+/* COLLISION FIX: Scoped these classes ONLY to the chat wrapper. 
+   Prevents context bars from turning dark and Admin boxes from breaking. */
+.theme-light .chat-wrapper .bg-slate-800 {
+  background-color: var(--context-bar-bg) !important;
+  border: 1px solid var(--border-color) !important; /* Explicit border */
+  outline: 1px solid var(--border-color) !important; /* Explicit outline */
+  color: var(--text-color) !important; /* Enforce dark text */
+}
+
+.theme-light .chat-wrapper .message .bg-slate-700 {
+  background-color: var(--action-btn-bg) !important;
+  color: var(--text-color) !important; /* Enforce dark text */
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Header Overrides */
+.theme-light .chat-header-ui {
+  background-color: #ffffff;
+  color: #111827; /* Dark text */
+  border-bottom: 2px solid var(--border-color); /* Thicker border for visibility */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .header-back-btn {
+  color: #111827; /* Dark text */
+}
+
+.theme-light .header-select {
+  background-color: #f3f4f6;
+  color: #111827; /* Dark text */
+  border: 1px solid var(--border-color);
+  outline: 1px solid var(--border-color); /* Visible outline */
+}
+
+/* Dropdown Options Readability Fix */
+.theme-light .header-select option {
+  background-color: #ffffff;
+  color: #111827; /* Dark text */
+}
+
+.theme-light .header-btn {
+  background-color: #f3f4f6;
+  color: #111827; /* Dark text */
+  border: 1px solid var(--border-color); /* Visible outline/border */
+}
+
+.theme-light .header-btn:hover {
+  color: #000000;
+  border-color: #4b5563; /* Darker border on hover */
+}
+
+.theme-light .header-dropdown {
+  background-color: #ffffff;
+  color: #111827; /* Dark text */
+  border: 1px solid var(--border-color);
+  outline: 1px solid var(--border-color); /* Visible outline */
+}
+
+.theme-light .header-dropdown-border {
+  border-color: var(--border-color);
+}
